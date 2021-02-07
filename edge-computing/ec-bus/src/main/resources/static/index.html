@@ -1,0 +1,65 @@
+<!DOCTYPE html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><title>边缘计算</title><link href=/static/css/app.5d12f9488ed25cc9d8855a97e55180ee.css rel=stylesheet></head><body onload=onLoad()><div id=app></div><script type=text/javascript>//如果是APP调用
+    if (getQueryString('origin') == 'android') {
+        sessionStorage.setItem('origin', 'android')
+        sessionStorage.setItem('platform', 'app')
+    } else if (getQueryString('origin') == 'ios') {
+        sessionStorage.setItem('origin', 'ios')
+        sessionStorage.setItem('platform', 'app')
+    } else {
+        sessionStorage.setItem('origin', 'web')
+        sessionStorage.setItem('platform', 'web')
+    }
+
+    function onLoad() {
+        //如果是APP调用
+        if (getQueryString('origin') == 'android' || getQueryString('origin') == 'ios') {
+//            progress.hide();
+            var script = document.createElement('script');
+            script.type = "text/javascript";
+            script.src="http://injection/www/cordova.js";
+            document.getElementsByTagName('body')[0].appendChild(script);
+
+            //绑定事件
+            document.addEventListener("deviceready", onDeviceReady, false);
+        }
+    }
+
+    //加载事件
+    function onDeviceReady() {
+        // StatusBar.backgroundColorByHexString("#F8474B");//状态栏红色
+        // StatusBar.styleDefault() // 黑色不透明
+        // StatusBar.backgroundColorByHexString("#F7F7FA");//状态栏红色
+        StatusBar.hide();
+        navigator.splashscreen.hide();//隐藏启动页面
+        document.addEventListener("backbutton", eventBackButton, false); //返回键
+    }
+
+    //返回键
+    function eventBackButton() {
+        window.plugins.toast.showLongCenter('再点击一次退出!');
+        document.removeEventListener("backbutton", eventBackButton, false); //注销返回键
+        document.addEventListener("backbutton", exit, false); //重新注册返回键
+        //3秒后重新注册
+        var intervalID = window.setInterval(
+            function () {
+                window.clearInterval(intervalID);
+                document.removeEventListener("backbutton", exit, false);
+                document.addEventListener("backbutton", eventBackButton, false);
+            },
+            3000
+        );
+    }
+
+    //退出APP
+    function exit() {
+        navigator.app.exitApp();
+    }
+
+
+    //解析URL参数
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }</script><script type=text/javascript src=/static/js/manifest.edab8fe57850122d91c0.js></script><script type=text/javascript src=/static/js/vendor.a5201a1e3cf40cab19ca.js></script><script type=text/javascript src=/static/js/app.14bf5658d72b16498e47.js></script></body></html>

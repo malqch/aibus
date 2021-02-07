@@ -1,0 +1,99 @@
+{
+    "detail": "表格",
+    "data": {
+        "infodata": {
+            "companyName": "公司A",
+            "areaName": "长春市",
+            "companyPerson": "张一",
+            "companyPhone": "13322334455",
+            "companyEmail": "333@qq.com",
+            "companyLongitude": "113.333",
+            "companyLatitude": "113.333"
+        },
+        "deliveryStatList": [{
+                "id": "1",
+                "firstName": "A车辆订单总数",
+                "firstCount": "3400",
+                "secondName": "A车辆订单交付量",
+                "secondCount": "2580"
+            },
+            {
+                "id": "2",
+                "firstName": "B车辆订单总数",
+                "firstCount": "3400",
+                "secondName": "B车辆订单交付量",
+                "secondCount": "2380"
+            }
+        ],
+        "radarData": {
+            "data": [4, 1, 2, 3],
+            "indicatorList": [{
+                "text": "发动机故障测试",
+                "max": 5
+            }, {
+                "text": "轮胎故障测试",
+                "max": 5
+            }, {
+                "text": "电池故障测试",
+                "max": 5
+            }, {
+                "text": "盒子故障测试",
+                "max": 5
+            }],
+            "total": 10
+        },
+        "busStatusStat": [{
+                "id": 12,
+                "name": "正常运行车辆",
+                "total": 100,
+                "number": 70
+            },
+            {
+                "id": 13,
+                "name": "正常运行车辆报警车辆",
+                "total": 100,
+                "number": 10
+            },
+            {
+                "id": 14,
+                "name": "正常运行车辆原厂维修车辆",
+                "total": 100,
+                "number": 12
+            },
+            {
+                "id": 15,
+                "name": "待修车辆",
+                "total": 100,
+                "number": 8
+            }
+        ],
+        "faultLevelStat": {
+            "textList": ["三级", "二级", "一级"],
+            "valueList": [200, 234, 34],
+            "total": 328
+        },
+        "outDateStat": [{
+                "id": "1",
+                "firstName": "A车辆订单总数",
+                "firstCount": "3400",
+                "secondName": "A车辆订单出保量",
+                "secondCount": "2880"
+            },
+            {
+                "id": "2",
+                "firstName": "B车辆订单总数",
+                "firstCount": "3400",
+                "secondName": "B车辆订单出保量",
+                "secondCount": "2380"
+            },
+            {
+                "id": "3",
+                "firstName": "C车辆订单总数",
+                "firstCount": "3400",
+                "secondName": "C车辆订单出保量",
+                "secondCount": "2780"
+            }
+        ]
+
+    }
+}

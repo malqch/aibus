@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.service.dao.InfoAreaDao">
+
+    <select id="queryList" resultType="com.wntime.service.entity.InfoAreaEntity">
+        select a.area_id, a.area_code, a.area_name, a.area_alias,a.parent_area_id ,
+        a.area_level, a.area_sort, a.is_deleted, a.is_enabled, a.created_by, a.created_date, a.modified_by, a.modified_date,b.area_name as parent_area_name,x.user_name create_user_name,y.user_name modified_user_name
+        from info_area a
+        left join info_area b on a.parent_area_id = b.area_id
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        ORDER BY a.area_level,a.area_sort, a.is_enabled desc,a.area_code
+    </select>
+
+    <select id="getChildArea" parameterType="Long" resultType="com.wntime.service.entity.InfoAreaEntity">
+        select a.area_id , a.area_name, a.parent_area_id , a.area_level, a.area_sort
+        from info_area a
+        where a.parent_area_id = #{id} and a.is_deleted = 0 and a.is_enabled = 1
+    </select>
+
+    <select id="getDetailById" parameterType="Long" resultType="com.wntime.service.entity.InfoAreaEntity">
+        select a.area_id , a.area_code, a.area_name, a.area_alias, a.parent_area_id,b.area_name as parent_area_name,
+        a.area_level, a.area_sort, a.is_deleted, a.is_enabled, a.created_by, a.created_date, a.modified_by, a.modified_date,b.area_name as parent_area_name,x.user_name create_user_name,y.user_name modified_user_name
+        from info_area a
+        left join info_area b on a.parent_area_id = b.area_id
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.area_id = #{id}
+    </select>
+
+    <select id="queryArea" resultType="Map">
+        select ''||a.area_id as "areaId",a.area_name as "areaName",''||a.parent_area_id as "parentAreaId",a.area_level as "areaLevel",b.area_name as "parentAreaName"
+        from info_area a
+        left join info_area b on a.parent_area_id = b.area_id
+        where a.is_deleted = 0 and a.is_enabled=1
+        order by a.area_sort,a.area_code
+    </select>
+
+    <update id="delById">
+        UPDATE info_area SET is_deleted=1 WHERE area_id=#{id}
+    </update>
+
+    <select id="isEnableInsert" parameterType="Map" resultType="Integer">
+        select count(*)
+        from info_area a
+        where a.parent_area_id = #{parentAreaId} and a.area_name = #{areaName} and a.is_deleted=0
+        <if test="areaId != null and areaId != ''">
+            and a.area_id != #{areaId}
+        </if>
+    </select>
+
+    <select id="isEnableDelete" parameterType="Long" resultType="Integer">
+        select count(*) from info_area a where a.parent_area_id = #{id} and a.is_deleted =0
+    </select>
+
+    <select id="isEnableStop" parameterType="Long" resultType="Integer">
+        select count(*) from info_area a where a.parent_area_id = #{id} and a.is_deleted =0 and a.is_enabled=1
+    </select>
+
+
+    <select id="getByAreaId" resultType="com.wntime.service.entity.InfoAreaEntity" >
+        select *
+        from info_area
+        where area_id = #{areaId} and is_deleted = 0 and is_enabled = 1
+    </select>
+
+    <select id="getListByParentAreaId" resultType="com.wntime.service.entity.InfoAreaEntity" >
+        select ia.*,COALESCE(count(ia2.area_id) > 0,false) as has_child
+        from info_area ia
+        left join info_area ia2 on ia.area_id = ia2.parent_area_id  and ia2.is_deleted = 0 and ia2.is_enabled = 1
+        where ia.parent_area_id = #{parentAreaId} and ia.is_deleted = 0 and ia.is_enabled = 1
+        group by ia.area_id
+    </select>
+
+    <!-- 根据登录用户、parentAreaId查询区域列表-->
+    <select id="getAreaListByUserAndParentAreaId" resultType="com.wntime.service.entity.InfoAreaEntity" >
+        select ia.*,COALESCE(count(ia2.area_id) > 0,false) as has_child
+        from info_area ia
+        left join info_area ia2 on ia.area_id = ia2.parent_area_id  and ia2.is_deleted = 0 and ia2.is_enabled = 1
+        where ia.parent_area_id = #{parentAreaId} and ia.is_deleted = 0 and ia.is_enabled = 1
+            and ia.area_id in
+                <foreach collection="areaIdList" item="areaId" separator="," open="(" close=")">
+                    #{areaId}
+                </foreach>
+        group by ia.area_id
+    </select>
+
+    <select id="getAreaByCompanyList" resultType="com.wntime.service.entity.InfoAreaEntity" >
+        select * from info_area ia
+        left join
+        info_bus_company ibc on ia.area_id = ibc.area_id and ibc.is_deleted = 0 and ibc.is_enabled = 1
+        where
+        ia.is_deleted = 0 and ia.is_enabled = 1
+        and ibc.company_id in
+        <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+            #{companyId}
+        </foreach>
+    </select>
+
+    <select id="getAreaNameByAreaId" resultType="String" >
+        select (i.area_name || ' ' || a.area_name) as areaName
+        from info_area i
+        left join info_area a
+        on i.area_id = a.parent_area_id
+        where a.area_id = #{areaId} and a.is_deleted = 0 and a.is_enabled = 1
+    </select>
+    
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.service.entity.InfoAreaEntity" id="infoAreaMap">
+        <result property="areaId" column="area_id"/>
+        <result property="areaCode" column="area_code"/>
+        <result property="areaName" column="area_name"/>
+        <result property="areaAlias" column="area_alias"/>
+        <result property="parentAreaId" column="parent_area_id"/>
+        <result property="areaLevel" column="area_level"/>
+        <result property="areaSort" column="area_sort"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+
+</mapper>

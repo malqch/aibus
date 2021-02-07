@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.officer.dao.StudentLineSeatDao">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.modules.officer.entity.StudentLineSeatEntity" id="studentLineSeatMap">
+        <result property="id" column="id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="upCompanyLineId" column="up_company_line_id"/>
+        <result property="offCompanyLineId" column="off_company_line_id"/>
+        <result property="seatNo" column="seat_no"/>
+        <result property="upStationId" column="up_station_id"/>
+        <result property="offStationId" column="off_station_id"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createDt" column="create_dt"/>
+        <result property="modifyUserId" column="modify_user_id"/>
+        <result property="modifyDt" column="modify_dt"/>
+        <result column="is_deleted" property="isDeleted"/>
+
+        <result column="default_up_station_id" property="defaultUpStationId"/>
+        <result column="default_off_station_id" property="defaultOffStationId"/>
+    </resultMap>
+
+    <update id="copyLineSeatId">
+        update student_line_seat
+        set up_station_id  = default_up_station_id,
+            off_station_id = default_off_station_id
+        where 1 = 1;
+    </update>
+</mapper>

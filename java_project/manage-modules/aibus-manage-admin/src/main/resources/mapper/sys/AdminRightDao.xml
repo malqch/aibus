@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.sys.dao.AdminRightDao">
+    <update id="deleteUpdate">
+		UPDATE admin_right SET is_enabled='0',is_deleted='1' WHERE right_id=#{rightId}
+	</update>
+
+    <select id="queryListParentId" resultType="com.wntime.modules.sys.entity.AdminRight">
+		select * from admin_right where parent_id = #{parentId} AND is_deleted='0' AND is_enabled='1' order by sort asc
+	</select>
+
+    <select id="queryNotButtonListByUser" resultType="com.wntime.modules.sys.entity.AdminRight">
+        select  * from  admin_right where create_user_id=#{userId} AND is_deleted='0' AND is_enabled='1'
+    </select>
+
+    <select id="queryNotButtonList" resultType="com.wntime.modules.sys.entity.AdminRight">
+        select distinct gar.*
+        from admin_right gar
+        left join admin_role_right garr on gar.right_id = garr.right_id
+        <where>
+            <if test="createUserId != null and createUserId != ''">
+                garr.role_id in (select distinct gar.role_id from
+                admin_user_role gaur
+                left join admin_role gar on gaur.role_id = gar.role_id
+                <where>
+                    <if test="createUserId != null and createUserId != ''">
+                        and (gaur.user_id=#{createUserId} or gar.create_user_id=#{createUserId})
+                    </if>
+                </where>
+                and gar.is_deleted='0')
+                or gar.create_user_id=#{createUserId}
+            </if>
+            and gar.type != 2
+            AND gar.is_deleted = '0'
+            AND gar.is_enabled = '1'
+        </where>
+        order by sort asc
+    </select>
+    <select id="queryCatalogList" resultType="com.wntime.modules.sys.entity.AdminRight">
+		select * from admin_right where type = 0  AND is_deleted='0' AND is_enabled='1' order by sort asc
+	</select>
+    <select id="queryRightIsExist" parameterType="com.wntime.modules.sys.entity.AdminRight"
+            resultType="com.wntime.modules.sys.entity.AdminRight">
+		SELECT * FROM admin_right WHERE is_deleted='0' AND is_enabled='1' AND name=#{name}
+	</select>
+    <select id="queryRightPathIsExist" parameterType="com.wntime.modules.sys.entity.AdminRight"
+            resultType="com.wntime.modules.sys.entity.AdminRight">
+		select  * from  admin_right where endpoint_path=#{path} and is_deleted='0' AND is_enabled='1'
+	</select>
+</mapper>

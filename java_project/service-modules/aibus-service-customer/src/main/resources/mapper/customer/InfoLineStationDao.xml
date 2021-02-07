@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.InfoLineStationDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.customer.entity.InfoLineStationEntity" id="infoLineStationMap">
+        <result property="lineStationId" column="line_station_id"/>
+        <result property="companyLineId" column="company_line_id"/>
+        <result property="busStationId" column="bus_station_id"/>
+        <result property="stationOrder" column="station_order"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+
+    <select id="queryBusIdByLineStation" resultType="long">
+        SELECT pbs.bus_id,
+               ils.company_line_id
+        FROM info_line_station ils
+                 INNER JOIN plan_bus_service pbs ON pbs.company_line_id = ils.company_line_id
+        WHERE ils.bus_station_id = #{busStationId}
+          AND ils.is_deleted = 0
+          AND ils.is_enabled = 1
+          AND pbs.is_deleted = 0
+          AND pbs.is_enabled = 1
+    </select>
+    <select id="queryList" resultType="com.wntime.service.common.vo.LineStationVo">
+        SELECT
+            line_station_id,
+            company_line_id,
+            bus_station_id,
+            station_order
+        FROM
+            info_line_station
+        WHERE
+            is_deleted = 0
+          AND is_enabled =1
+    </select>
+
+    <select id="listByLineId" resultType="com.wntime.customer.vo.InfoLineStationVo">
+        SELECT
+            ils.*,
+            ibs.bus_station_name,ibs.bus_station_code
+        FROM info_line_station ils
+                left join info_bus_station ibs on ils.bus_station_id = ibs.bus_station_id and ibs.is_deleted = 0 and ibs.is_enabled = 1
+                left join info_company_line icl on ils.company_line_id = icl.company_line_id and icl.is_deleted = 0 and icl.is_enabled = 1
+        WHERE ils.company_line_id = #{companyLineId}
+          AND ils.is_deleted = 0
+          AND ils.is_enabled = 1
+    </select>
+
+    <select id="listByCompanyIdList" resultType="com.wntime.customer.vo.InfoLineStationVo">
+        SELECT
+            ils.*,
+            ibs.bus_station_name,ibs.bus_station_code,
+            icl.company_line_code
+        FROM info_line_station ils
+                 left join info_bus_station ibs on ils.bus_station_id = ibs.bus_station_id and ibs.is_deleted = 0 and ibs.is_enabled = 1
+                 left join info_company_line icl on ils.company_line_id = icl.company_line_id and icl.is_deleted = 0 and icl.is_enabled = 1
+        WHERE icl.company_id in
+            <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                #{companyId}
+            </foreach>
+          AND ils.is_deleted = 0
+          AND ils.is_enabled = 1
+        order by icl.company_line_code asc,ils.station_order asc
+    </select>
+</mapper>

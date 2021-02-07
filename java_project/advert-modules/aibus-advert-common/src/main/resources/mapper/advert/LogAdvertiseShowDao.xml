@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.advert.dao.LogAdvertiseShowDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.advert.entity.LogAdvertiseShowEntity" id="logAdvertiseShowMap">
+        <result property="advertiseShowId" column="advertise_show_id"/>
+        <result property="advertiseDeliveryId" column="advertise_delivery_id"/>
+        <result property="advertisePositionId" column="advertise_position_id"/>
+        <result property="showTimes" column="show_times"/>
+        <result property="attachType" column="attach_type"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.advert.entity.LogAdvertiseShowEntity">
+        select s.*,
+        d.advertise_no,
+        p.position_desc ,
+        p.position_group,
+        l.company_line_name,
+        b.vin_code,
+        o.plate_code
+        from log_advertise_show s
+        left join order_advertise_delivery d
+            on s.advertise_delivery_id = d.advertise_delivery_id
+        left join info_advertise_position p
+            on s.advertise_position_id = p.advertise_position_id
+        left join info_bus b
+            on s.bus_id = b.bus_id
+            and b.is_deleted = 0 and b.is_enabled = 1
+        left join info_company_line l
+            on s.company_line_id = l.company_line_id
+            and l.is_deleted = 0 and l.is_enabled = 1
+        left join order_bus_delivery o
+            on b.bus_id = o.bus_id
+            and o.is_deleted = 0
+        <where>
+            <if test="advertiseNo != null and advertiseNo != ''">
+                and d.advertise_no LIKE concat('%', #{advertiseNo}, '%')
+            </if>
+            <if test="positionDesc != null and positionDesc != ''">
+                and p.position_group LIKE concat('%', #{positionDesc}, '%')
+            </if>
+            <if test="startTime != null">
+                and s.created_date <![CDATA[>=]]> #{startTime}
+            </if>
+
+            <if test="endTime != null">
+                and s.created_date <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        order by s.created_date desc
+    </select>
+
+    <select id="queryBusLatelyAdvertiseLog" resultType="com.wntime.advert.entity.LogAdvertiseShowEntity">
+        SELECT *
+        from log_advertise_show
+        where bus_id = #{busId}
+          and company_line_id = #{companyLineId}
+          and advertise_delivery_id = #{advertiseDeliveryId}
+        ORDER BY created_date desc
+        limit 1
+    </select>
+    <select id="queryBusLatelyAdvertiseLogId" resultType="Long">
+        SELECT advertise_show_id
+        from log_advertise_show las
+                 INNER JOIN order_advertise_delivery oad on oad.advertise_delivery_id = las.advertise_delivery_id
+            and las.bus_id = #{busId} and las.company_line_id = #{companyLineId}
+            and oad.delivery_begin &lt;= CURRENT_DATE and oad.delivery_end &gt;= CURRENT_DATE and oad.check_status = 3
+        ORDER BY las.created_date desc
+        limit 1
+    </select>
+    <update id="increaseLogPeopleCount">
+        update log_advertise_show
+        set people_count  = people_count + 1,
+            modified_date =now()
+        where advertise_show_id = #{advertiseShowId}
+    </update>
+    <select id="queryPeopleCountGroupByCompanyLine" resultType="com.wntime.advert.vo.CompanyLinePeopleCountVo">
+        SELECT SUM(las.people_count) as people_count,
+               icl.company_line_code
+        FROM log_advertise_show las
+                 INNER JOIN info_bus ib ON ib.bus_id = las.bus_id
+            AND ib.factory_id = #{factoryId}
+                 INNER JOIN info_company_line icl ON icl.company_line_id = las.company_line_id
+        GROUP BY icl.company_line_code
+        ORDER BY people_count desc
+        limit #{size}
+    </select>
+</mapper>

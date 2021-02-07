@@ -1,0 +1,5 @@
+wntime:
+  fault:
+    upload:
+      filePath: ${wntime.common.dataPath}/fault/file
+      fileUrl: ${server.webUrl}/faultFile

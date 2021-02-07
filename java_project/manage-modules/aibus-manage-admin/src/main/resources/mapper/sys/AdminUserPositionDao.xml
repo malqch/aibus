@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.sys.dao.AdminUserPositionDao">
+	<delete id="deleteBatch">
+		delete from admin_user_position where admin_user_position.position_id in
+		<foreach item="positionId" collection="array" open="(" separator="," close=")">
+			#{positionId}
+		</foreach>
+	</delete>
+
+	<select id="queryPositionIdList" resultType="long">
+		select position_id from admin_user_position where user_id = #{value} AND is_deleted='0'
+	</select>
+
+	<!--通过岗位删除岗位授权-->
+	<update id="deleteUpdateByPositionId" >
+		UPDATE admin_user_position SET is_deleted='1',modify_user_id=#{modifyUserId},modify_dt=#{modifyDt} WHERE position_id IN
+		<foreach item="PositionId" collection="positionIds" open="(" separator="," close=")">
+			#{PositionId}
+		</foreach>
+	</update>
+
+	<!--通过用户ID更新字段，来删除用户-->
+	<update id="deleteUpdateByUserId" >
+		UPDATE admin_user_position SET is_deleted='1',modify_user_id=#{modifyUserId},modify_dt=#{modifyDt} WHERE user_id IN
+		<foreach item="userId" collection="userIds" open="(" separator="," close=")">
+			#{userId}
+		</foreach>
+	</update>
+
+	<select id="queryUserPositionAuth" resultType="com.wntime.modules.sys.vo.UserPositionVo">
+		SELECT
+		apa.position_auth_id,
+		ap.system_auth,
+		s.id   as area_org_id,
+       	s.school_name as area_name
+		FROM
+		admin_user_position aup
+		INNER JOIN admin_position ap ON ap.position_id = aup.position_id
+		left join  admin_position_auth apa ON apa.position_id = ap.position_id and apa.is_deleted='0'
+		left join info_school s on apa.company_id = s.id
+		where aup.is_deleted='0' and ap.is_deleted='0' and aup.user_id = #{userId}
+		order by aup.position_id desc
+	</select>
+
+	<select id="getByOrderSells" resultType="com.wntime.modules.sys.vo.AdminUserVo">
+		SELECT
+		distinct a.* from admin_user a
+		left join  admin_user_position aup
+			on a.user_id = aup.user_id and a.is_deleted = '0' and a.is_enabled = '1'
+		left join  admin_position_auth apa
+			on apa.position_id = aup.position_id and apa.is_deleted= '0'
+    	left join info_bus_company ibc
+			on apa.company_id = ibc.company_id and ibc.is_deleted = '0'
+		where aup.is_deleted = '0' and ibc.company_id = #{companyId}
+	</select>
+
+	<select id="queryUserPositionAuths" resultType="com.wntime.modules.sys.vo.UserPositionVo">
+		<foreach collection="auths" item="auth" separator="union">
+		SELECT
+			apa.position_auth_id,
+			ap.system_auth
+		FROM
+			admin_user_position aup
+				INNER JOIN admin_position ap ON ap.position_id = aup.position_id and aup.is_deleted='0' and ap.is_deleted='0' and aup.user_id =#{userId}
+				INNER JOIN admin_position_auth apa ON apa.position_id = ap.position_id and apa.is_deleted='0'
+		</foreach>
+
+	</select>
+	<select id="queryUserPositionAuthCount" resultType="com.wntime.modules.sys.vo.UserPositionVo">
+		SELECT
+			apa.position_auth_id,
+			ap.system_auth
+		FROM
+			admin_user_position aup
+				INNER JOIN admin_position ap ON ap.position_id = aup.position_id AND aup.user_id = #{userId}  AND aup.is_deleted = '0'  AND ap.is_deleted = '0'
+				INNER JOIN admin_position_auth apa ON apa.position_id = ap.position_id AND apa.is_deleted = '0' AND apa.position_auth_id=#{positionAuthId}
+	</select>
+	<select id="queryPositionWithUserId" resultType="com.wntime.modules.sys.vo.AdminUserPositionVo">
+		SELECT
+			ap.position_id,
+			ap.NAME AS positionName,
+			CASE
+				WHEN au.user_position_id > 0 THEN
+				1 ELSE 0
+			END AS hasRole
+		FROM
+			admin_position ap
+				LEFT JOIN ( SELECT position_id, user_position_id FROM admin_user_position aup WHERE aup.user_id = #{userId} AND aup.is_deleted = '0' ) AS au ON au.position_id = ap.position_id
+		AND ap.is_deleted='0'
+	</select>
+
+
+	<select id="queryUserPositionAuthObject" resultType="com.wntime.modules.sys.vo.BusinessObjectVo">
+
+		SELECT apa.position_auth_id,apa.position_id
+		FROM admin_position_auth apa
+	</select>
+	<update id="deleteUpdateBusiObject">
+		update admin_auth_object
+		set is_deleted='1',
+			modify_user_id = #{modifyUserId},
+			modify_dt = now()
+		where user_position_id in (
+		    select user_position_id from admin_user_position where user_id=#{userId} and position_id=#{positionId} and is_deleted='1'
+			)
+	</update>
+	<select id="queryCountByPositionId" resultType="int">
+		SELECT count(1) FROM admin_user_position WHERE position_id=#{positionId} and is_deleted='0'
+	</select>
+</mapper>

@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.ec.module.sys.dao.OrderAdvertiseAttachDao">
+
+    <sql id="selectAllColumn">
+       advertise_attach_id,advertise_delivery_id,advertise_position_id,show_times,attach_type,attach_link,suffix,company_line_id
+	</sql>
+
+    <sql id="updateColumn">
+        <set>
+            <if test="advertiseAttachId != null ">advertise_attach_id = #{advertiseAttachId,jdbcType=BIGINT},</if>
+            <if test="advertiseDeliveryId != null ">advertise_delivery_id = #{advertiseDeliveryId,jdbcType=BIGINT},</if>
+            <if test="advertisePositionId != null ">advertise_position_id = #{advertisePositionId,jdbcType=BIGINT},</if>
+            <if test="showTimes != null ">show_times = #{showTimes,jdbcType=DECIMAL},</if>
+            <if test="attachType != null ">attach_type = #{attachType,jdbcType=INTEGER},</if>
+            <if test="attachLink != null and attachLink !='' ">attach_link = #{attachLink,jdbcType=VARCHAR},</if>
+            <if test="suffix != null and suffix !='' ">suffix = #{suffix,jdbcType=VARCHAR},</if>
+            <if test="companyLineId != null ">company_line_id = #{companyLineId,jdbcType=BIGINT},</if>
+        </set>
+    </sql>
+
+    <sql id="updateAllColumn">
+		SET
+			advertise_attach_id = #{advertiseAttachId,jdbcType=BIGINT},
+			advertise_delivery_id = #{advertiseDeliveryId,jdbcType=BIGINT},
+			advertise_position_id = #{advertisePositionId,jdbcType=BIGINT},
+			show_times = #{showTimes,jdbcType=DECIMAL},
+			attach_type = #{attachType,jdbcType=INTEGER},
+			attach_link = #{attachLink,jdbcType=VARCHAR},
+			suffix = #{suffix,jdbcType=VARCHAR},
+            company_line_id = #{companyLineId,jdbcType=BIGINT}
+	</sql>
+
+    <sql id="updateColumnEntity">
+        <set>
+            <if test="entity.advertiseAttachId != null ">advertise_attach_id =
+                #{entity.advertiseAttachId,jdbcType=BIGINT},
+            </if>
+            <if test="entity.advertiseDeliveryId != null ">advertise_delivery_id =
+                #{entity.advertiseDeliveryId,jdbcType=BIGINT},
+            </if>
+            <if test="entity.advertisePositionId != null ">advertise_position_id =
+                #{entity.advertisePositionId,jdbcType=BIGINT},
+            </if>
+            <if test="entity.showTimes != null ">show_times = #{entity.showTimes,jdbcType=DECIMAL},</if>
+            <if test="entity.attachType != null ">attach_type = #{entity.attachType,jdbcType=INTEGER},</if>
+            <if test="entity.attachLink != null and entity.attachLink !='' ">attach_link =
+                #{entity.attachLink,jdbcType=VARCHAR},
+            </if>
+            <if test="entity.suffix != null and entity.suffix !='' ">suffix = #{entity.suffix,jdbcType=VARCHAR},</if>
+            <if test="entity.companyLineId != null ">company_line_id = #{entity.companyLineId,jdbcType=BIGINT},</if>
+        </set>
+    </sql>
+
+    <sql id="updateAllColumnEntity">
+		SET
+			advertise_attach_id = #{entity.advertiseAttachId,jdbcType=BIGINT},
+			advertise_delivery_id = #{entity.advertiseDeliveryId,jdbcType=BIGINT},
+			advertise_position_id = #{entity.advertisePositionId,jdbcType=BIGINT},
+			show_times = #{entity.showTimes,jdbcType=DECIMAL},
+			attach_type = #{entity.attachType,jdbcType=INTEGER},
+			attach_link = #{entity.attachLink,jdbcType=VARCHAR},
+			suffix = #{entity.suffix,jdbcType=VARCHAR},
+            company_line_id = #{entity.companyLineId,jdbcType=BIGINT}
+	</sql>
+
+    <sql id="where">
+        <where>
+            <if test="advertiseAttachId != null ">
+                AND advertise_attach_id=#{advertiseAttachId,jdbcType=BIGINT}
+            </if>
+            <if test="advertiseDeliveryId != null ">
+                AND advertise_delivery_id=#{advertiseDeliveryId,jdbcType=BIGINT}
+            </if>
+            <if test="advertisePositionId != null ">
+                AND advertise_position_id=#{advertisePositionId,jdbcType=BIGINT}
+            </if>
+            <if test="showTimes != null ">
+                AND show_times=#{showTimes,jdbcType=DECIMAL}
+            </if>
+            <if test="attachType != null ">
+                AND attach_type=#{attachType,jdbcType=INTEGER}
+            </if>
+            <if test="attachLink != null and attachLink !='' ">
+                AND attach_link=#{attachLink,jdbcType=VARCHAR}
+            </if>
+            <if test="suffix != null and suffix !='' ">
+                AND suffix=#{suffix,jdbcType=VARCHAR}
+            </if>
+            <if test="companyLineId != null ">
+                and company_line_id = #{companyLineId,jdbcType=BIGINT}
+            </if>
+        </where>
+    </sql>
+
+    <sql id="whereParam">
+        <where>
+            <if test="param != null">
+                <if test="param.advertiseAttachId != null ">
+                    AND advertise_attach_id=#{param.advertiseAttachId,jdbcType=BIGINT}
+                </if>
+                <if test="param.advertiseDeliveryId != null ">
+                    AND advertise_delivery_id=#{param.advertiseDeliveryId,jdbcType=BIGINT}
+                </if>
+                <if test="param.advertisePositionId != null ">
+                    AND advertise_position_id=#{param.advertisePositionId,jdbcType=BIGINT}
+                </if>
+                <if test="param.showTimes != null ">
+                    AND show_times=#{param.showTimes,jdbcType=DECIMAL}
+                </if>
+                <if test="param.attachType != null ">
+                    AND attach_type=#{param.attachType,jdbcType=INTEGER}
+                </if>
+                <if test="param.attachLink != null and param.attachLink !='' ">
+                    and attach_link=#{param.attachLink,jdbcType=VARCHAR}
+                </if>
+                <if test="param.suffix != null and param.suffix !='' ">
+                    and suffix=#{param.suffix,jdbcType=VARCHAR}
+                </if>
+                <if test="param.companyLineId != null ">
+                    and company_line_id = #{param.companyLineId,jdbcType=BIGINT}
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert" parameterType="com.wntime.ec.module.sys.entity.OrderAdvertiseAttach">
+        INSERT INTO order_advertise_attach
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="advertiseAttachId != null ">
+                advertise_attach_id,
+            </if>
+            <if test="advertiseDeliveryId != null ">
+                advertise_delivery_id,
+            </if>
+            <if test="advertisePositionId != null ">
+                advertise_position_id,
+            </if>
+            <if test="showTimes != null ">
+                show_times,
+            </if>
+            <if test="attachType != null ">
+                attach_type,
+            </if>
+            <if test="attachLink != null and attachLink !='' ">
+                attach_link,
+            </if>
+            <if test="suffix != null and suffix !='' ">
+                suffix,
+            </if>
+            <if test="companyLineId != null">
+                company_line_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="advertiseAttachId != null ">#{advertiseAttachId,jdbcType=BIGINT},</if>
+            <if test="advertiseDeliveryId != null ">#{advertiseDeliveryId,jdbcType=BIGINT},</if>
+            <if test="advertisePositionId != null ">#{advertisePositionId,jdbcType=BIGINT},</if>
+            <if test="showTimes != null ">#{showTimes,jdbcType=DECIMAL},</if>
+            <if test="attachType != null ">#{attachType,jdbcType=INTEGER},</if>
+            <if test="attachLink != null and attachLink !='' ">#{attachLink,jdbcType=VARCHAR},</if>
+            <if test="suffix != null and suffix !='' ">#{suffix,jdbcType=VARCHAR},</if>
+            <if test="companyLineId != null">#{companyLineId,jdbcType=BIGINT},</if>
+        </trim>
+    </insert>
+
+    <insert id="insertAllColumn" parameterType="com.wntime.ec.module.sys.entity.OrderAdvertiseAttach">
+		INSERT INTO order_advertise_attach(
+		advertise_attach_id,advertise_delivery_id,advertise_position_id,show_times,attach_type,attach_link,suffix,company_line_id
+		) VALUES (
+		#{advertiseAttachId,jdbcType=BIGINT},
+		#{advertiseDeliveryId,jdbcType=BIGINT},
+		#{advertisePositionId,jdbcType=BIGINT},
+		#{showTimes,jdbcType=DECIMAL},
+		#{attachType,jdbcType=INTEGER},
+		#{attachLink,jdbcType=VARCHAR},
+		#{suffix,jdbcType=VARCHAR},
+        #{companyLineId,jdbcType=BIGINT}
+		)
+	</insert>
+
+    <update id="updateById" parameterType="com.wntime.ec.module.sys.entity.OrderAdvertiseAttach">
+        UPDATE order_advertise_attach
+        <include refid="updateColumn"/>
+        where advertise_attach_id = #{advertiseAttachId,jdbcType=BIGINT}
+    </update>
+    <update id="updateAllColumnById" parameterType="com.wntime.ec.module.sys.entity.OrderAdvertiseAttach">
+        UPDATE order_advertise_attach
+        <include refid="updateAllColumn"/>
+        where advertise_attach_id = #{advertiseAttachId,jdbcType=BIGINT}
+    </update>
+    <update id="update">
+        UPDATE order_advertise_attach
+        <include refid="updateColumnEntity"/>
+        <include refid="whereParam"/>
+    </update>
+
+    <update id="updateAllColumn">
+        UPDATE order_advertise_attach
+        <include refid="updateAllColumnEntity"/>
+        <include refid="whereParam"/>
+    </update>
+
+    <update id="updateByMap">
+        UPDATE order_advertise_attach
+        <include refid="updateColumnEntity"/>
+        <include refid="whereParam"/>
+    </update>
+
+    <update id="updateAllColumnByMap">
+        UPDATE order_advertise_attach
+        <include refid="updateAllColumnEntity"/>
+        <include refid="whereParam"/>
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+		DELETE FROM order_advertise_attach  where advertise_attach_id = #{advertiseAttachId,jdbcType=BIGINT}
+	</delete>
+    <delete id="deleteByIds" parameterType="collection">
+        DELETE FROM order_advertise_attach WHERE id IN
+        <foreach collection="collection" item="ids" open="("
+                 separator="," close=")">
+            <![CDATA[#{ids}]]>
+        </foreach>
+    </delete>
+    <delete id="delete" parameterType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryReqVo">
+        DELETE FROM order_advertise_attach
+        <include refid="where"/>
+    </delete>
+    <delete id="deleteByMap" parameterType="map">
+        DELETE FROM order_advertise_attach
+        <include refid="where"/>
+    </delete>
+
+    <select id="selectById" resultType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryRspVo"
+            parameterType="java.lang.Long">
+        SELECT
+        <include refid="selectAllColumn"/>
+        FROM order_advertise_attach
+        where advertise_attach_id = #{advertiseAttachId,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectOne" resultType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryRspVo"
+            parameterType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryReqVo">
+        SELECT
+        <include refid="selectAllColumn"/>
+        FROM order_advertise_attach
+        <include refid="where"/>
+    </select>
+
+    <select id="selectByIds" resultType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryRspVo"
+            parameterType="collection">
+        SELECT
+        <include refid="selectAllColumn"/>
+        FROM order_advertise_attach
+        WHERE id IN
+        <foreach collection="collection" item="ids" open="(" separator="," close=")">
+            <![CDATA[#{ids}]]>
+        </foreach>
+    </select>
+
+    <select id="selectList" resultType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryRspVo"
+            parameterType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryReqVo">
+        SELECT
+        <include refid="selectAllColumn"/>
+        FROM order_advertise_attach
+        <include refid="where"/>
+        ${orderBy}
+    </select>
+
+    <select id="selectListByMap" resultType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryRspVo"
+            parameterType="map">
+        SELECT
+        <include refid="selectAllColumn"/>
+        FROM order_advertise_attach
+        <include refid="where"/>
+    </select>
+
+    <select id="selectPage" resultType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryRspVo">
+        SELECT
+        <include refid="selectAllColumn"/>
+        FROM order_advertise_attach
+        <include refid="whereParam"/>
+        <if test="param != null">
+            ${param.orderBy}
+        </if>
+    </select>
+
+    <select id="selectAdvertiseAttachList" resultType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryRspVo"
+            parameterType="com.wntime.ec.module.sys.vo.OrderAdvertiseAttachQryReqVo">
+		SELECT
+			a.*, p.position_code
+		FROM
+			order_advertise_attach a,
+			info_advertise_position p
+		WHERE
+			a.advertise_delivery_id =  #{advertiseDeliveryId,jdbcType=BIGINT}
+			and a.company_line_id=#{companyLineId,jdbcType=BIGINT}
+			AND a.advertise_position_id = p.advertise_position_id
+		order by a.attach_type asc
+    </select>
+</mapper>

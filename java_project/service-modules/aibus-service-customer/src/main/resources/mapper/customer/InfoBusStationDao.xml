@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.InfoBusStationDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.customer.entity.InfoBusStationEntity" id="infoBusStationMap">
+        <result property="busStationId" column="bus_station_id"/>
+        <result property="busStationName" column="bus_station_name"/>
+        <result property="busStationCode" column="bus_station_code"/>
+        <result property="busStationLongitude" column="bus_station_longitude"/>
+        <result property="busStationLatitude" column="bus_station_latitude"/>
+        <result property="busStationDeviation" column="bus_station_deviation"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+    <select id="getDetailInfoById" resultType="com.wntime.customer.entity.InfoBusStationEntity">
+        SELECT
+        a.*,i.area_id,i.area_name
+        FROM info_bus_station a
+        left join info_area i on a.area_id = i.area_id
+        and i.is_deleted = 0 and i.is_enabled = 1
+        where a.is_deleted = 0
+        <if test="busStationId != null and busStationId != 0">
+            and a.bus_station_id = #{busStationId}
+        </if>
+    </select>
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.customer.entity.InfoBusStationEntity">
+        SELECT
+        a.bus_station_id,
+        a.bus_station_name,
+        a.bus_station_code,
+        a.bus_station_longitude,
+        a.bus_station_latitude,
+        a.bus_station_deviation,
+        a.is_deleted,
+        a.is_enabled,
+        a.created_by,
+        a.created_date,
+        a.modified_by,
+        a.modified_date,
+        i.area_id,
+        i.area_name,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_bus_station a
+        left join info_area i on a.area_id = i.area_id
+        and i.is_deleted = 0 and i.is_enabled = 1
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="busStationName != null and busStationName != ''">
+            and a.bus_station_name LIKE concat('%', #{busStationName}, '%')
+        </if>
+        <if test="areaId != null and areaId != 0">
+            and a.area_id = #{areaId}
+        </if>
+        <if test="companyIdList != null and companyIdList.size() > 0">
+            and a.area_id in
+            ( select c.area_id from info_bus_company c where c.is_deleted = 0 and c.is_enabled = 1
+                and c.company_id in
+                <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                    #{companyId}
+                </foreach>
+            )
+        </if>
+        <if test="schoolIdList != null and schoolIdList.size() > 0">
+            and a.school_id in
+            <foreach collection="schoolIdList" item="schoolId" separator="," open="(" close=")">
+                #{schoolId}
+            </foreach>
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+    <select id="getStationListByCompanyLineId" resultMap="infoBusStationMap">
+
+        select distinct ibs.*
+        from info_bus_station ibs
+        left join
+        info_line_station ils
+            on ibs.bus_station_id = ils.bus_station_id
+            and ils.is_deleted = 0 and ils.is_enabled = 1
+        where ibs.is_deleted = 0 and ibs.is_enabled = 1
+        and ils.company_line_id = #{companyLineId}
+    </select>
+
+    <select id="getStationListByCompanyId" resultType="com.wntime.customer.entity.InfoBusStationEntity">
+
+        select * from
+            (select ibs.*,icl.company_line_name,row_number() over(PARTITION BY ibs.bus_station_id) as idx from
+                info_bus_station ibs
+                    left join
+                info_line_station ils on ibs.bus_station_id = ils.bus_station_id and ils.is_deleted = 0 and ils.is_enabled = 1
+                    left join
+                info_company_line icl on ils.company_line_id = icl.company_line_id and icl.is_deleted = 0 and icl.is_enabled = 1
+                    left join
+                info_bus_company ibc on icl.company_id = ibc.company_id and ibc.is_deleted = 0 and ibc.is_enabled = 1
+             where ibs.is_deleted = 0 and ibs.is_enabled = 1
+               and ibc.company_id = #{companyId}
+            ) a where a.idx = 1	order by a.bus_station_name;
+
+    </select>
+
+    <select id="getStationAllByCompanyArea" resultType="com.wntime.customer.entity.InfoBusStationEntity">
+         select s.* from info_bus_station s
+         where s.is_deleted = 0 and s.is_enabled = 1
+             <!--and s.area_id =
+             (select b.area_id
+                from info_bus_company b
+                where b.is_deleted = 0 and b.is_enabled = 1
+                    <if test="companyId !=null and companyId != 0">
+                        and b.company_id = #{companyId}
+                    </if>
+             )-->
+    </select>
+
+    <select id="getBusStationDetailById" resultType="com.wntime.customer.vo.BusStationDetailVO">
+
+        select ibs.bus_station_id,ibs.bus_station_name,ibs.bus_station_longitude,ibs.bus_station_latitude,
+        string_agg(DISTINCT icl.company_line_name,',') company_lines,COALESCE(count(ib.bus_id),0) bus_count
+        from
+        info_bus_station ibs
+        left join
+        info_line_station ils on ibs.bus_station_id = ils.bus_station_id and ils.is_deleted = 0 and ils.is_enabled = 1
+        left join
+        info_company_line icl on ils.company_line_id = icl.company_line_id and icl.is_deleted = 0 and icl.is_enabled = 1
+        left join
+        plan_bus_service pbs on icl.company_line_id = pbs.company_line_id and pbs.is_deleted = 0 and pbs.is_enabled = 1
+        left join
+        info_bus ib on pbs.bus_id = ib.bus_id and ib.is_deleted = 0 and ib.is_enabled = 1
+        where ibs.bus_station_id = #{busStationId}
+        group by ibs.bus_station_id,ibs.bus_station_name,ibs.bus_station_longitude,ibs.bus_station_latitude
+    </select>
+    <select id="getStationsByCompanyAndLine" resultType="com.wntime.service.common.vo.BusStationVo">
+        select i.bus_station_id,i.bus_station_name,i.bus_station_code
+        from info_bus_station i
+        left join info_line_station s
+            on s.bus_station_id = i.bus_station_id
+            and s.is_deleted = 0 and s.is_enabled = 1
+        left join info_company_line c
+            on s.company_line_id = c.company_line_id
+            and c.is_deleted = 0 and c.is_enabled = 1
+        where i.is_deleted = 0 and i.is_enabled = 1
+        <if test="companyId !=null and companyId != 0">
+            and c.company_id = #{companyId}
+        </if>
+        <if test="companyLineId !=null and companyLineId != 0">
+            and s.company_line_id = #{companyLineId}
+        </if>
+        <if test="busStationName !=null and busStationName != ''">
+            and i.bus_station_name like concat('%',#{busStationName},'%')
+        </if>
+    </select>
+
+    <select id="getInitInfoByBusStation" resultType="com.wntime.customer.vo.InfoCompanyInitVo">
+        select
+                i.bus_station_id,i.bus_station_name,
+                l.company_line_id,l.company_line_name,
+                c.company_id,c.company_name,
+                a.area_id,a.area_name,
+                a.area_id,a.area_name ,
+                pa.area_id as parentAreaId,pa.area_name as parentAreaName
+        from info_bus_station i
+        left join info_line_station s
+            on i.bus_station_id = s.bus_station_id
+            and s.is_deleted = 0 and s.is_enabled = 1
+        left join info_company_line l
+            on s.company_line_id = l.company_line_id
+            and l.is_deleted = 0 and l.is_enabled = 1
+        left join info_bus_company c
+            on l.company_id = c.company_id
+            and c.is_deleted = 0 and c.is_enabled = 1
+        left join info_area a
+            on c.area_id = a.area_id
+            and a.is_deleted = 0 and i.is_enabled = 1
+        left join info_area pa
+            on a.parent_area_id = pa.area_id
+            and pa.is_deleted = 0 and pa.is_enabled = 1
+        where i.is_deleted = 0 and i.is_enabled = 1
+            <if test="companyIdList != null and companyIdList.size() > 0">
+                and c.company_id in
+                <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                    #{companyId}
+                </foreach>
+            </if>
+        and i.bus_station_id =
+        (
+            select lea.collect_attach_link
+            from log_event_detail led
+            left join log_event_attach lea
+                on led.event_detail_id = lea.event_detail_id
+            left join info_event_type t
+                on led.event_type_id = t.event_type_id
+                and t.is_deleted = 0 and t.is_enabled = 1
+            left join info_event_target iet
+                on lea.event_target_id = iet.event_target_id
+                and iet.is_deleted = 0 and iet.is_enabled = 1
+            where led.is_enabled = 1
+                and iet.event_target_code = 'bus_station'
+                and t.event_type_name = (
+                    case when #{eventTargetCode} = 'trafficEvent' then
+                    '交通违章'
+                    when #{eventTargetCode} = 'healthEvent' then
+                    '卫生防疫'
+                    when #{eventTargetCode} = 'envEvent' then
+                    'IoT采集'
+                    end
+                )
+                limit 1
+        ) limit 1
+    </select>
+
+    <select id="queryBusStationByBusCompanyId" resultType="com.wntime.modules.gemfire.vo.LineStationInfoVo">
+        SELECT
+            ibs.bus_station_id,
+            ibs.bus_station_name,
+            ils.company_line_id,
+            ils.station_order,
+            icl.company_line_code,
+            icl.company_line_name,
+            icl.company_id
+        FROM
+            info_line_station ils
+                INNER JOIN info_bus_station ibs ON ibs.bus_station_id = ils.bus_station_id
+                AND ils.bus_station_id = #{busStationId}
+                AND ils.company_line_id = #{companyLineId}
+                AND ils.is_deleted = 0
+                AND ils.is_enabled = 1
+                AND ibs.is_deleted = 0
+                AND ibs.is_enabled = 1
+                INNER JOIN info_company_line icl ON icl.company_line_id = ils.company_line_id
+                AND icl.is_deleted = 0
+                AND icl.is_enabled = 1
+    </select>
+    <select id="queryList" resultType="com.wntime.service.common.vo.InfoBusStationVo">
+        SELECT bus_station_id,
+               bus_station_name,
+               bus_station_code,
+               bus_station_longitude,
+               bus_station_latitude,
+               bus_station_deviation,
+               area_id
+        FROM info_bus_station
+        WHERE is_deleted = 0
+          AND is_enabled = 1
+    </select>
+</mapper>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.sys.dao.AdminPositionAuthDao">
+
+	<select id="queryAuthIdList" resultType="com.wntime.modules.sys.vo.AdminPositionAuthInfoVo">
+		select position_auth_id,position_id,area_org_id,is_selfonly,link_type from  admin_position_auth gapa
+		where gapa.position_id = #{value} AND gapa.is_deleted='0'
+	</select>
+
+	<delete id="deleteBatch">
+		UPDATE
+		    admin_position_auth
+		SET is_deleted='1'
+		WHERE
+			position_id in
+		<foreach item="positionId" collection="array" open="(" separator="," close=")">
+			#{positionId}
+		</foreach>
+
+	</delete>
+	<update id="deleteUpdateByPositionId">
+		UPDATE
+		    admin_position_auth
+		SET
+		    is_deleted='1',
+		    modify_user_id=#{modifyUserId},
+		    modify_dt=#{modifyDt}
+		where
+		      position_id in
+		<foreach item="positionId" collection="positionIds" open="(" separator="," close=")">
+			#{positionId}
+		</foreach>
+	</update>
+	<update id="deleteUpdateByAuthId">
+		UPDATE admin_position_auth SET is_deleted='1',modify_user_id=#{modifyUserId},modify_dt=#{modifyDt} where auth_id in
+		<foreach item="authId" collection="authIds" open="(" separator="," close=")">
+			#{authId}
+		</foreach>
+	</update>
+	<select id="queryOrganizeList" resultType="com.wntime.modules.sys.vo.AdminPositionAuthVo">
+		select ia.area_id  as organize_id,ia.area_name as label ,ia.parent_area_id  as pid,0 as type
+		from info_area ia
+		where ia.is_deleted = 0 and ia.is_enabled = 1
+		union all
+		select ibc.company_id  as organize_id, ibc.company_name as label,ibc.area_id as pid,1 as type
+		from info_bus_company ibc
+		where ibc.is_deleted = 0 and ibc.is_enabled = 1
+	</select>
+
+	<select id="queryOrganizeListWithClique" resultType="com.wntime.modules.sys.vo.AdminPositionAuthVo">
+
+		select ibc.id  as organize_id, ibc.school_name as label,ibc.education_bureau_id as pid,1 as type
+		from info_school ibc
+
+	</select>
+
+	<select id="queryPositionAuthWithPositionId" resultType="com.wntime.modules.sys.vo.AdminPositionAuthVo">
+		SELECT P
+		.organize_id,
+		P.label,
+		P.pid,
+		P.TYPE,
+		CASE
+		WHEN apa.selected IS NULL THEN
+		0 ELSE 1
+		END AS selected
+		FROM
+		(
+		SELECT
+		ibc.id	AS organize_id,
+		ibc.school_name AS label,
+		ibc.education_bureau_id AS pid,
+		1 AS TYPE
+		FROM
+		info_school ibc
+		)
+		P LEFT JOIN (
+		SELECT T.company_id, T.position_id, 1 AS selected FROM admin_position_auth T WHERE T.position_id = #{positionId} AND T.is_deleted = '0'
+		) apa ON P.organize_id = apa.company_id
+	</select>
+
+	<select id="queryAreaOrgIdByPositionIdAndLinkType" resultType="long">
+		SELECT
+			area_org_id
+		FROM
+			admin_position_auth
+		WHERE
+			is_deleted = '0'
+			AND link_type =#{linkType}
+			    <if test="positionIds!=null and positionIds.size()>0">
+					AND position_id in
+					<foreach collection="positionIds" item="positionId" open="(" close=")" separator="," >
+						#{positionId}
+					</foreach>
+				</if>
+
+	</select>
+
+
+</mapper>

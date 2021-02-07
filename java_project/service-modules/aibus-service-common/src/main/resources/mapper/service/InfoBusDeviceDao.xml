@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.service.dao.InfoBusDeviceDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.service.entity.InfoBusDeviceEntity" id="infoBusDeviceMap">
+        <result property="busDeviceId" column="bus_device_id"/>
+        <result property="deviceTypeId" column="device_type_id"/>
+        <result property="busId" column="bus_id"/>
+        <result property="deviceName" column="device_name"/>
+        <result property="deviceCode" column="device_code"/>
+        <result property="deviceStatus" column="device_status"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.service.entity.InfoBusDeviceEntity">
+        SELECT
+        a.bus_device_id,
+        a.device_type_id,
+        a.bus_id,
+        a.device_name,
+        a.device_code,
+        a.device_desc_code,
+        a.device_status,
+        a.is_deleted,
+        a.is_enabled,
+        a.created_by,
+        a.created_date,
+        a.modified_by,
+        a.modified_date,
+        idt.device_type_name ,
+        ib.vin_code ,
+        ibt.bus_type_name ,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_bus_device a
+        left join info_device_type idt on a.device_type_id = idt.device_type_id
+        left join info_bus ib on a.bus_id = ib.bus_id
+        left join info_bus_type ibt on ib.bus_type_id = ibt.bus_type_id
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="deviceName != null and deviceName != ''">
+            and a.device_name LIKE concat('%', #{deviceName}, '%')
+        </if>
+        <if test="vinCode != null and vinCode != ''">
+            and ib.vin_code LIKE concat('%', #{vinCode}, '%')
+        </if>
+
+        <if test="busId != null and busId != 0">
+            and ib.bus_id = #{busId}
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+
+    <insert id="insertBatch">
+        insert into info_bus_device(
+            bus_device_id,
+            device_type_id,
+            bus_id,
+            device_name,
+            device_code,
+            device_desc_code,
+            device_status,
+            is_deleted,
+            is_enabled,
+            created_by,
+            created_date,
+            modified_date
+        )values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.busDeviceId},
+            #{item.deviceTypeId},
+            #{item.busId},
+            #{item.deviceName},
+            #{item.deviceCode},
+            #{item.deviceDescCode},
+            #{item.deviceStatus},
+            #{item.isDeleted},
+            #{item.isEnabled},
+            #{item.createdBy},
+            #{item.createdDate},
+            #{item.modifiedDate}
+            )
+        </foreach>
+
+    </insert>
+    <update id="updateBatch">
+        <foreach collection="list" item="item" separator=";">
+            update info_bus_device set
+            device_type_id = #{item.deviceTypeId},
+            device_name = #{item.deviceName},
+            device_code = #{item.deviceCode},
+            device_desc_code = #{item.deviceDescCode},
+            device_status = #{item.deviceStatus},
+            modified_date = now()
+            where bus_device_id = #{item.busDeviceId}
+        </foreach>
+    </update>
+    <update id="deleteBach">
+        <foreach collection="list" item="item" separator=";">
+            update info_bus_device set
+            is_deleted = 1,
+            modified_date= now()
+            where bus_device_id = #{item.busDeviceId}
+        </foreach>
+    </update>
+
+    <select id="queryDeviceBusId" resultType="long">
+        SELECT
+            bus_id
+        FROM
+            info_bus_device
+        WHERE
+            bus_device_id = #{busDeviceId}
+          AND is_deleted = 0
+          AND is_enabled =1
+    </select>
+
+    <select id="queryOverTimeOnlineEC" resultType="com.wntime.service.region.BusDeviceKey">
+        SELECT bus_device_id,
+               bus_id
+        FROM info_bus_device
+        WHERE device_desc_code = 'm_i_native_ec'
+          AND is_deleted = 0
+          AND is_enabled = 1
+          AND device_status = 1
+          AND modified_date &lt; #{expireDate}
+    </select>
+
+    <update id="updateDeviceStatusOffline">
+        <foreach collection="list" item="item" separator=";">
+            update info_bus_device
+            set device_status = 0,
+            modified_date= now()
+            where bus_device_id =#{item.busDeviceId}
+        </foreach>
+    </update>
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.officer.dao.SafetyOfficerDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.modules.officer.entity.SafetyOfficerEntity" id="safetyOfficerMap">
+        <result property="id" column="id"/>
+        <result property="basicId" column="basic_id"/>
+        <result property="isPrimary" column="is_primary"/>
+        <result property="noCriminalRecordPhoto" column="no_criminal_record_photo"/>
+        <result property="mobileNumber" column="mobile_number"/>
+        <result property="loginUserId" column="login_user_id"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createDt" column="create_dt"/>
+        <result property="modifyUserId" column="modify_user_id"/>
+        <result property="modifyDt" column="modify_dt"/>
+        <result property="safetyOfficerName" column="full_name"/>
+    </resultMap>
+
+
+    <select id="getPrimarySafetyOfficerList" resultMap="safetyOfficerMap">
+        select d.*,pbf.full_name from info_safety_officer d
+        join info_people_basic_facts pbf on pbf.id = d.basic_id
+        where d.is_deleted = '0' and d.is_primary = '1'
+    </select>
+
+    <select id="getSafetyOfficerByIdNo" resultMap="safetyOfficerMap">
+        select d.*,pbf.full_name from info_safety_officer d
+        join info_people_basic_facts pbf on pbf.id = d.basic_id
+        where d.is_deleted = '0' and pbf.id_no = #{idNo}
+    </select>
+</mapper>

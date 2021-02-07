@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.common.CommonMapper">
+
+    <sql id="selectNotDelAndEnable">
+	    SELECT * FROM ${tableName} where is_deleted = 0 and is_enabled = 1
+    </sql>
+
+    <sql id="selectBusIdByCompany">
+        select DISTINCT ib.bus_id from
+        (
+        select * from info_bus_company
+        where is_deleted = 0 and is_enabled = 1
+        <if test="companyId != null">
+         and company_id=#{companyId}
+        </if>
+        ) ibc
+        LEFT JOIN
+        order_bus_company obc ON ibc.company_id = obc.company_id and obc.is_deleted = 0
+        LEFT JOIN
+        order_company_delivery ocd ON obc.order_id = ocd.order_id and ocd.is_deleted = 0
+        LEFT JOIN
+        order_bus_delivery obd ON ocd.company_delivery_id = obd.company_delivery_id and obd.is_deleted = 0
+        LEFT JOIN
+        info_bus ib ON obd.bus_id = ib.bus_id and ib.is_deleted = 0 and ib.is_enabled = 1
+    </sql>
+    <!--
+     select DISTINCT ib.bus_id from
+        (
+        select * from info_bus_company
+        where is_deleted = 0 and is_enabled = 1
+        <if test="companyId != null">
+         and company_id=#{companyId}
+        </if>
+        ) ibc
+        LEFT JOIN
+        info_company_line icl ON ibc.company_id = icl.company_id and icl.is_deleted = 0 and icl.is_enabled = 1
+        LEFT JOIN
+        plan_bus_service pbs ON icl.company_line_id = pbs.company_line_id and pbs.is_deleted = 0 and pbs.is_enabled = 1
+        LEFT JOIN
+        info_bus ib ON pbs.bus_id = ib.bus_id and ib.is_deleted = 0 and ib.is_enabled = 1
+    </sql>
+    -->
+</mapper>

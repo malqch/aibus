@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.event.dao.InfoEventTypeDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.event.entity.InfoEventTypeEntity" id="infoEventTypeMap">
+        <result property="eventTypeId" column="event_type_id"/>
+        <result property="eventTypeName" column="event_type_name"/>
+        <result property="eventTypeCode" column="event_type_code"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+
+    <select id="queryList" resultType="com.wntime.event.vo.InfoEventTypeVo">
+        select event_type_id,
+               event_type_name,
+               event_type_code
+        from info_event_type
+        where is_deleted = 0
+          and is_enabled = 1
+    </select>
+
+    <select id="listWithUser" resultType="com.wntime.event.vo.InfoEventTypeWithUserVo">
+        select a.*,x.user_name as createdUserName,y.user_name as modifiedUserName
+        from info_event_type a
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="eventTypeName != null and eventTypeName != ''">
+            and a.event_type_name LIKE concat('%', #{eventTypeName}, '%')
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+</mapper>

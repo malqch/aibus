@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.OrderBusCompanyDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.customer.entity.OrderBusCompanyEntity" id="orderBusCompanyMap">
+        <result property="orderId" column="order_id"/>
+        <result property="orderCode" column="order_code"/>
+        <result property="factoryId" column="factory_id"/>
+        <result property="companyId" column="company_id"/>
+        <result property="orderDate" column="order_date"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="getDetailById" resultType="com.wntime.customer.vo.OrderBusCompanyVo">
+        SELECT
+        a.*,
+        ibf.factory_name,ibf.factory_snapshot ,
+        ibc.company_name ,ibc.company_snapshot,ibc.company_code ,ibc.company_scope ,ibc.company_address ,ibc.company_person ,ibc.company_phone,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM
+             (<include refid="orderWithDetailAndDeliveryNum"/>)  a
+        left join info_bus_factory ibf on a.factory_id = ibf.factory_id
+        left join info_bus_company ibc on a.company_id = ibc.company_id
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.order_id = #{orderId}
+    </select>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.customer.vo.OrderBusCompanyVo">
+        SELECT
+        a.*,
+        ibf.factory_name,ibf.factory_snapshot ,
+        ibc.company_name ,
+        x.user_name create_user_name,y.user_name modified_user_name,
+        se.user_name as sellerName
+        FROM
+        (
+           <include refid="orderWithDetailAndDeliveryNum"/>
+        ) a
+        left join info_bus_factory ibf on a.factory_id = ibf.factory_id
+        left join info_bus_company ibc on a.company_id = ibc.company_id
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        left join admin_user se on a.seller_id=se.user_id
+        where a.is_deleted = 0
+        <if test="orderCode != null and orderCode != ''">
+            and a.order_code LIKE concat('%', #{orderCode}, '%')
+        </if>
+        <if test="companyIdList != null and companyIdList.size() > 0">
+            and ibc.company_id in
+            <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                #{companyId}
+            </foreach>
+        </if>
+        ORDER BY a.created_date desc
+    </select>
+
+    <select id="getByOrderStatus" parameterType="map" resultType="com.wntime.customer.vo.OrderBusCompanyVo">
+        select
+        a.company_id ,
+        a.order_id,
+        a.order_code,
+        a.is_completed
+        FROM order_bus_company a
+        where a.is_deleted = 0
+        <if test="companyId != null">
+            and a.company_id = #{companyId}
+        </if>
+
+        <if test="companyIdList != null and companyIdList.size() > 0">
+            and a.company_id in
+            <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                #{companyId}
+            </foreach>
+        </if>
+        <if test="isCompleted != null">
+            and a.is_completed = #{isCompleted}
+        </if>
+        ORDER BY a.created_date desc
+    </select>
+
+    <sql id="orderWithDetailAndDeliveryNum">
+        select o1.*,o2.order_delivery_num from
+            (
+                select
+                    obc.*,COALESCE(sum(obcd.order_detail_num),0) order_detail_num
+                from
+                    order_bus_company obc
+                        left join order_bus_company_detail obcd on obc.order_id = obcd.order_id and obcd.is_deleted = 0
+                where obc.is_deleted = 0
+                group by obc.order_id
+            ) o1
+                left join
+            (
+                select
+                    obc.*,COALESCE(count(obd.bus_delivery_id),0) order_delivery_num
+                from
+                    order_bus_company obc
+                        left join order_company_delivery ocd on obc.order_id = ocd.order_id and ocd.is_deleted = 0
+                        left join order_bus_delivery obd on ocd.company_delivery_id = obd.company_delivery_id and obd.is_deleted = 0
+                where obc.is_deleted = 0
+                group by obc.order_id
+            ) o2
+            on o1.order_id = o2.order_id
+    </sql>
+    <select id="queryFactorySalesVolume" resultType="com.wntime.service.common.vo.BusFactorySalesVo">
+        SELECT ibf.factory_name,
+               ibf.factory_latitude,
+               ibf.factory_longitude,
+               ia.area_name,
+               ibc.company_name,
+               ibc.companyt_latitude AS companyLatitude,
+               ibc.company_longitude,
+               obcs.order_sum
+        FROM (
+                 SELECT obc.factory_id,
+                        obc.company_id,
+                        SUM(obcd.order_detail_num) AS order_sum
+                 FROM order_bus_company obc
+                          INNER JOIN order_bus_company_detail obcd ON obc.order_id = obcd.order_id
+                     AND obc.is_deleted = 0
+                     AND obc.factory_id = #{factoryId}
+                     AND obcd.is_deleted = 0
+                 GROUP BY obc.factory_id,
+                          obc.company_id
+             ) obcs
+                 INNER JOIN info_bus_factory ibf ON obcs.factory_id = ibf.factory_id
+            AND ibf.is_enabled = 1
+            AND ibf.is_deleted = 0
+                 INNER JOIN info_area ia ON ibf.area_id = ia.area_id
+            AND ia.is_deleted = 0
+            AND ia.is_enabled = 1
+                 INNER JOIN info_bus_company ibc ON ibc.company_id = obcs.company_id
+            AND ibc.is_enabled = 1
+            AND ibc.is_deleted = 0
+    </select>
+</mapper>

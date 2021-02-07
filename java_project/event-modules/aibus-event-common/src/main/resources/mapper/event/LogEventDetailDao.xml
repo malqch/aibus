@@ -1,0 +1,850 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.event.dao.LogEventDetailDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.event.entity.LogEventDetailEntity" id="logEventDetailMap">
+        <result property="eventDetailId" column="event_detail_id"/>
+        <result property="collectEventId" column="collect_event_id"/>
+        <result property="busDeviceId" column="bus_device_id"/>
+        <result property="eventTypeId" column="event_type_id"/>
+        <result property="eventTargetId" column="event_target_id"/>
+        <result property="eventLevelId" column="event_level_id"/>
+        <result property="deviceTypeId" column="device_type_id"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <!--公共服务：交通违章-->
+    <select id="getTrafficSearchData" parameterType="map" resultType="com.wntime.event.vo.EventTrafficSearchApiVo"  >
+        select
+                iet.event_target_name as trafficViolationType,
+                numberPlateT.numberPlate,
+                longitudeT.longitude,
+                latitudeT.latitude,
+                img1T.image1,
+                img2T.image2,
+                img3T.image3,
+                e.created_date as happenTime,
+                addressT.address
+        from log_event_detail e
+        left join info_event_type t
+            on e.event_type_id = t.event_type_id
+            and t.is_deleted = 0 and t.is_enabled = 1
+        left join info_event_target iet
+            on e.event_target_id = iet.event_target_id
+            and iet.is_deleted = 0 and iet.is_enabled = 1
+        left join
+        (
+            select lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as numberPlate
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) numberPlateT
+            on e.event_detail_id = numberPlateT.event_detail_id
+            and numberPlateT.event_target_code = 'number_plate'
+        left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as longitude
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) longitudeT
+            on e.event_detail_id = longitudeT.event_detail_id
+            and longitudeT.event_target_code = 'longitude'
+        left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as latitude
+            from
+            log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) latitudeT
+            on e.event_detail_id = latitudeT.event_detail_id
+            and latitudeT.event_target_code = 'latitude'
+        left join  (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as image1
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) img1T
+            on e.event_detail_id = img1T.event_detail_id
+            and img1T.event_target_code = 'img1'
+        left join  (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as image2
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) img2T
+            on e.event_detail_id = img2T.event_detail_id
+            and img2T.event_target_code = 'img2'
+        left join  (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as image3
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) img3T
+            on e.event_detail_id = img3T.event_detail_id
+            and img3T.event_target_code = 'img3'
+        left join  (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as address
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) addressT
+            on e.event_detail_id = addressT.event_detail_id
+            and addressT.event_target_code = 'address'
+        where t.event_type_name = '交通违章'
+        <if test="areaName != null and areaName != ''">
+            and addressT.address LIKE concat('%', #{areaName}, '%')
+        </if>
+        <if test="startTime != null">
+            and e.created_date <![CDATA[>=]]> to_timestamp( #{startTime}, 'yyyy-MM-dd hh24:mi:ss')
+        </if>
+        <if test="endTime != null">
+            and e.created_date <![CDATA[<=]]> to_timestamp( #{endTime}, 'yyyy-MM-dd hh24:mi:ss')
+        </if>
+        order by happenTime desc
+    </select>
+
+    <!--公共服务：公共卫生-->
+    <select id="getHealthSearchData" parameterType="map" resultType="com.wntime.event.vo.EventHealthSearchApiVo"  >
+        select
+            a.area_name,
+            i.vin_code as vinCode,
+            l.company_line_name as companyLineName,
+            s.bus_station_name as busStationName,
+            longitudeT.longitude,
+            latitudeT.latitude,
+            cast(ROUND(cast(temT.value as numeric),1) as varchar)  as temperature,
+            imgT.value as image,
+            e.created_date as happenTime
+        from log_event_detail e
+        left join info_event_type t
+            on e.event_type_id = t.event_type_id
+            and t.is_deleted = 0 and t.is_enabled = 1
+        left join info_event_target iet
+            on e.event_target_id = iet.event_target_id
+            and iet.is_deleted = 0 and iet.is_enabled = 1
+        left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as longitude
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) longitudeT
+            on e.event_detail_id = longitudeT.event_detail_id
+            and longitudeT.event_target_code = 'longitude'
+        left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as latitude
+            from
+            log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) latitudeT
+            on e.event_detail_id = latitudeT.event_detail_id
+            and latitudeT.event_target_code = 'latitude'
+        left join
+        (
+            select lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as value
+                from log_event_attach lea
+                left join info_event_target iet
+                on lea.event_target_id = iet.event_target_id
+        ) imgT
+            on e.event_detail_id = imgT.event_detail_id
+            and imgT.event_target_code = 'img'
+        left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as value
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) temT
+            on e.event_detail_id = temT.event_detail_id
+            and temT.event_target_code = 'temperature'
+        left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_link as value
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) busStationT
+            on e.event_detail_id = busStationT.event_detail_id
+            and busStationT.event_target_code = 'bus_station'
+        left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_link as value
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) busLineT
+            on e.event_detail_id = busLineT.event_detail_id
+            and busLineT.event_target_code = 'bus_line'
+        left join info_bus_device d
+            on d.bus_device_id = e.bus_device_id
+            and e.is_enabled = 1 and d.is_deleted =  0 and d.is_enabled = 1
+        left join info_bus i
+            on i.bus_id = d.bus_id
+            and i.is_deleted = 0 and i.is_enabled = 1
+        left join info_bus_station s
+            on s.bus_station_id = busStationT.value
+            and s.is_deleted = 0 and s.is_enabled = 1
+        left join info_area a
+            on s.area_id = a.area_id
+            and a.is_deleted = 0 and a.is_enabled = 1
+        left join info_company_line l
+            on busLineT.value = l.company_line_id
+            and l.is_deleted = 0 and l.is_enabled = 1
+        where t.event_type_name  = '卫生防疫'
+            and iet.event_target_name = '体温'
+            and s.area_id = #{areaId}
+        order by happenTime desc
+    </select>
+
+    <!--公共服务：环境信息-->
+    <select id="getEnvSearchData" parameterType="map" resultType="com.wntime.event.vo.EventEnvSearchApiVo"  >
+        select
+            a.area_name as areaName,
+            s.bus_station_name as busStationName,
+            longitudeT.longitude,
+            latitudeT.latitude,
+            temT.event_target_code as type,
+            cast(ROUND(cast(temT.value as numeric),1) as varchar)  as value,
+            e.created_date as happenTime
+        from log_event_detail e
+        left join info_event_type t
+            on e.event_type_id = t.event_type_id
+            and t.is_deleted = 0 and t.is_enabled = 1
+        left join info_event_target iet
+            on e.event_target_id = iet.event_target_id
+            and iet.is_deleted = 0 and iet.is_enabled = 1
+            left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as longitude
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) longitudeT
+            on e.event_detail_id = longitudeT.event_detail_id
+            and longitudeT.event_target_code = 'longitude'
+        left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as latitude
+            from
+            log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) latitudeT
+            on e.event_detail_id = latitudeT.event_detail_id
+            and latitudeT.event_target_code = 'latitude'
+        left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as value
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) temT
+            on e.event_detail_id = temT.event_detail_id
+            and temT.event_target_code = #{type}
+        left join
+        (
+            select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_link as value
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+        ) busStationT
+            on e.event_detail_id = busStationT.event_detail_id
+            and busStationT.event_target_code = 'bus_station'
+        left join info_bus_station s
+            on s.bus_station_id = busStationT.value
+            and s.is_deleted = 0 and s.is_enabled = 1
+        left join info_area a
+            on s.area_id = a.area_id
+            and a.is_deleted = 0 and a.is_enabled = 1
+        where iet.event_target_name  = '环境数据'
+            and temT.event_target_code = #{type}
+            and s.bus_station_id = #{busStationId}
+        order by happenTime desc
+    </select>
+
+    <select id="getEventCountByEventTypeAndCompanyIdGroupByBus" resultType="java.util.LinkedHashMap">
+        select ib.bus_id,ib.vin_code,COALESCE(count(led.event_detail_id),0) traffic_event_count
+        from
+        info_bus ib
+        left join
+        log_bus_drive lbd on ib.bus_id = lbd.bus_id and lbd.is_enabled = 1
+        left join
+        (
+        select  * from log_event_detail where is_enabled = 1
+        <if test="startTime != null">
+            and created_date <![CDATA[>=]]> #{startTime}
+        </if>
+        ) led
+        on  lbd.bus_drive_id = led.bus_drive_id
+        left join
+        info_event_type iet
+        on led.event_type_id = iet.event_type_id and iet.is_deleted = 0 and iet.is_enabled = 1
+
+        where ib.is_deleted = 0 and ib.is_enabled = 1
+        and iet.event_type_name = '交通违章'
+        and ib.bus_id in
+        (
+        <include refid="com.wntime.common.CommonMapper.selectBusIdByCompany"/>
+        )
+        group by ib.bus_id,ib.vin_code
+        order by traffic_event_count desc limit 5
+    </select>
+
+    <select id="getEventCountByEventTypeAndCompanyIdGroupByTimeWindow" resultType="java.util.LinkedHashMap">
+        select to_char(led.created_date, 'yyyy-MM-dd HH24') time_range,COALESCE(count(led.event_detail_id),0) traffic_event_count
+        from
+        (
+        select  * from log_event_detail where is_enabled = 1
+        <if test="startTime != null">
+            and created_date <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime != null">
+            and created_date <![CDATA[<=]]> #{endTime}
+        </if>
+        ) led
+        left join
+        info_event_type iet on led.event_type_id = iet.event_type_id and iet.is_deleted = 0 and iet.is_enabled = 1
+        left join
+        log_bus_drive lbd on lbd.bus_drive_id = led.bus_drive_id and lbd.is_enabled = 1
+        left join
+        info_bus ib
+        on ib.bus_id = lbd.bus_id and ib.is_deleted = 0 and ib.is_enabled = 1
+        where ib.bus_id in
+        (
+        <include refid="com.wntime.common.CommonMapper.selectBusIdByCompany"/>
+        )
+        and iet.event_type_name = '交通违章'
+        group by time_range
+        order by traffic_event_count desc limit 5
+    </select>
+
+    <select id="getEnvMetricDataPointsByLogEventDetailIdList" resultType="java.util.LinkedHashMap">
+     select concat(to_char(led.created_date, 'yyyy-mm-dd HH24'), ':', lpad(CAST(FLOOR(date_part('minute', led.created_date) / 10)* 10 as VARCHAR), 2, '0'),':00') as time_range,
+        cast(round(cast(avg(lea.collect_attach_value) as numeric ),2) as float8) as data_value
+        from
+        (
+        select  * from log_event_detail where is_enabled = 1
+        and event_detail_id in
+        <foreach item="logEventDetailId" collection="logEventDetailIdList" open="(" separator="," close=")">
+            #{logEventDetailId}
+        </foreach>
+        ) led
+        left join
+        info_event_target iet
+        on led.event_target_id = iet.event_target_id and iet.is_deleted = 0 and iet.is_enabled = 1
+        left join
+        (
+        select * from log_event_attach
+        ) lea
+        on led.event_detail_id = lea.event_detail_id
+        left join
+        info_event_target iet2
+        on lea.event_target_id = iet2.event_target_id and iet2.is_deleted = 0 and iet2.is_enabled = 1
+        where iet2.event_target_code =#{subEventTargetCode}
+        group by time_range
+        order by time_range asc
+    </select>
+
+    <select id="getLogEventDetailIdListByStationId" resultType="long">
+     select DISTINCT led.event_detail_id
+        from
+        (
+        select  * from log_event_detail where is_enabled = 1
+        <if test="startTime != null">
+            and created_date <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime != null">
+            and created_date <![CDATA[<=]]> #{endTime}
+        </if>
+        ) led
+        left join
+        info_event_target iet
+        on led.event_target_id = iet.event_target_id and iet.is_deleted = 0 and iet.is_enabled = 1
+        left join
+        (
+        select * from log_event_attach
+        ) lea
+        on led.event_detail_id = lea.event_detail_id
+        left join
+        info_event_target iet2
+        on lea.event_target_id = iet2.event_target_id and iet2.is_deleted = 0 and iet2.is_enabled = 1
+        where iet2.event_target_code = 'bus_station' and lea.collect_attach_link = #{busStationId}
+        <!-- todo 回头换成code -->
+        and iet.event_target_name='环境数据'
+    </select>
+
+    <select id="getTrafficStatByCompanyAndLinePage" parameterType="map" resultType="com.wntime.event.vo.EventTrafficStatVo"  >
+        select
+            binfo.event_detail_id,
+            binfo.bus_id,
+            binfo.vin_code,
+            y.plate_code,
+            y.bus_code,
+            binfo.company_line_id,
+            binfo.company_line_name,
+            binfo.event_type_name,
+            binfo.event_type_code,
+            binfo.event_target_name,
+            binfo.event_target_code,
+            binfo.numberPlate,
+            binfo.longitude,
+            binfo.latitude,
+            binfo.address,
+            binfo.busStationId,
+            binfo.img1,
+            binfo.img2,
+            binfo.img3,
+            binfo.happenTime
+        from
+        (
+            select  e.event_detail_id,
+                    i.bus_id as bus_id,
+                    i.vin_code as vin_code,
+                    l.company_line_id,
+                    l.company_line_name,
+                    t.event_type_name,
+                    t.event_type_code,
+                    iet.event_target_name,
+                    iet.event_target_code,
+                    e.created_date as happenTime,
+                    numberPlateT.numberPlate,
+                    longitudeT.longitude,
+                    latitudeT.latitude,
+                    addressT.address,
+                    busStationIdT.busStationId,
+                    img1T.img1,
+                    img2T.img2,
+                    img3T.img3
+            from log_event_detail e
+            left join  log_bus_drive d
+                on  e.bus_drive_id = d.bus_drive_id
+                and d.is_enabled = 1
+            left join info_bus i
+                    on i.bus_id = d.bus_id
+                    and i.is_deleted = 0 and i.is_enabled = 1
+            left join info_event_type t
+                    on e.event_type_id = t.event_type_id
+                    and t.is_deleted = 0 and t.is_enabled = 1
+            left join info_event_target iet
+                    on e.event_target_id = iet.event_target_id
+                    and iet.is_deleted = 0 and iet.is_enabled = 1
+            left join
+                    (
+                    select lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as numberPlate
+                    from log_event_attach lea
+                    left join info_event_target iet
+                        on lea.event_target_id = iet.event_target_id
+                    ) numberPlateT
+                    on e.event_detail_id = numberPlateT.event_detail_id
+                    and numberPlateT.event_target_code = 'number_plate'
+            left join
+                    (
+                    select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as longitude
+                    from log_event_attach lea
+                    left join info_event_target iet
+                        on lea.event_target_id = iet.event_target_id
+                    ) longitudeT
+                    on e.event_detail_id = longitudeT.event_detail_id
+                    and longitudeT.event_target_code = 'longitude'
+            left join
+                    (
+                    select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as latitude
+                    from
+                            log_event_attach lea
+                            left join info_event_target iet
+                                on lea.event_target_id = iet.event_target_id
+                    ) latitudeT
+                    on e.event_detail_id = latitudeT.event_detail_id
+                    and latitudeT.event_target_code = 'latitude'
+            left join  (
+                select  lea.event_detail_id,iet.event_target_code,lea.collect_attach_char as address
+                from log_event_attach lea
+                left join info_event_target iet
+                    on lea.event_target_id = iet.event_target_id
+                ) addressT
+                on e.event_detail_id = addressT.event_detail_id
+                and addressT.event_target_code = 'address'
+            left join  (
+                select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_link as busStationId
+                from log_event_attach lea
+                left join info_event_target iet
+                    on lea.event_target_id = iet.event_target_id
+                ) busStationIdT
+                    on e.event_detail_id = busStationIdT.event_detail_id
+                    and busStationIdT.event_target_code = 'bus_station'
+            left join  (
+                select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_link as busLineId
+                from log_event_attach lea
+                left join info_event_target iet
+                on lea.event_target_id = iet.event_target_id
+                ) busLineIdT
+                    on e.event_detail_id = busLineIdT.event_detail_id
+                    and busLineIdT.event_target_code = 'bus_line'
+            left join info_company_line l
+                on busLineIdT.busLineId = l.company_line_id
+                and l.is_deleted = 0 and l.is_enabled = 1
+            left join  (
+                        select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as img1
+                        from log_event_attach lea
+                            left join info_event_target iet
+                            on lea.event_target_id = iet.event_target_id
+                        ) img1T
+                            on e.event_detail_id = img1T.event_detail_id
+                            and img1T.event_target_code = 'img1'
+            left join  (
+                        select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as img2
+                        from log_event_attach lea
+                        left join info_event_target iet
+                            on lea.event_target_id = iet.event_target_id
+                        ) img2T
+                            on e.event_detail_id = img2T.event_detail_id
+                            and img2T.event_target_code = 'img2'
+            left join  (
+                        select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as img3
+                        from log_event_attach lea
+                        left join info_event_target iet
+                            on lea.event_target_id = iet.event_target_id
+                        ) img3T
+                            on e.event_detail_id = img3T.event_detail_id
+                            and img3T.event_target_code = 'img3'
+            where t.event_type_name = '交通违章'
+                    <if test="eventTargetName != null and eventTargetName != ''">
+                        and iet.event_target_name like concat('%',#{eventTargetName},'%')
+                    </if>
+                    <if test="busIdList != null and busIdList.size() > 0">
+                        and i.bus_id in
+                        <foreach collection="busIdList" item="busId" separator="," open="(" close=")">
+                            #{busId}
+                        </foreach>
+                    </if>
+                    <if test="startTime != null">
+                        and e.created_date <![CDATA[>=]]> to_timestamp( #{startTime}, 'yyyy-MM-dd hh24:mi:ss')
+                    </if>
+                    <if test="endTime != null">
+                        and e.created_date <![CDATA[<=]]> to_timestamp( #{endTime}, 'yyyy-MM-dd hh24:mi:ss')
+                    </if>
+                    order by happenTime desc
+        ) binfo
+        left join order_bus_delivery y
+            on binfo.bus_id = y.bus_id
+        where y.is_deleted = 0
+    </select>
+
+    <select id="getTempStatByCompanyAndLinePage" resultType="com.wntime.event.vo.EventHealthTempStatVo">
+        select bInfo.bus_id,bInfo.vin_code,
+        l.company_line_id,l.company_line_name,
+        s.bus_station_id,s.bus_station_name,
+        s.bus_station_longitude as longitude,
+        s.bus_station_latitude as latitude,
+        bInfo.overPersonCount,bInfo.eventDetailId
+        from
+        (
+            select i.bus_id as bus_id,i.vin_code as vin_code,busStationT.value as bus_station_id,busLineT.value as line_id,
+            array_to_string(array_agg(distinct e.event_detail_id),',')  as eventDetailId,coalesce(count(distinct e.event_detail_id),0) as overPersonCount
+            from log_event_detail e
+            left join info_bus_device d
+            on d.bus_device_id = e.bus_device_id
+            and e.is_enabled = 1 and d.is_deleted =  0 and d.is_enabled = 1
+            left join info_bus i
+            on i.bus_id = d.bus_id
+            and i.is_deleted = 0 and i.is_enabled = 1
+            left join info_event_type t
+            on e.event_type_id = t.event_type_id
+            and t.is_deleted = 0 and t.is_enabled = 1
+            left join info_event_target iet
+            on e.event_target_id = iet.event_target_id
+            and iet.is_deleted = 0 and iet.is_enabled = 1
+            inner join
+            (
+            select lea.event_detail_id,iet.event_target_code, lea.collect_attach_link as value
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+            ) busStationT
+            on e.event_detail_id = busStationT.event_detail_id
+            and busStationT.event_target_code = 'bus_station'
+            inner join
+            (
+            select lea.event_detail_id,iet.event_target_code, lea.collect_attach_link as value
+            from log_event_attach lea
+            left join info_event_target iet
+            on lea.event_target_id = iet.event_target_id
+            ) busLineT
+            on e.event_detail_id = busLineT.event_detail_id
+            and busLineT.event_target_code = 'bus_line'
+            where t.event_type_name  = '卫生防疫'
+            and iet.event_target_name = '体温'
+            <if test="busStationIdList != null and busStationIdList.size() > 0">
+                and busStationT.value in
+                <foreach collection="busStationIdList" item="busStationId" separator="," open="(" close=")">
+                    #{busStationId}
+                </foreach>
+            </if>
+            group by i.bus_id,busStationT.value ,busLineT.value
+        ) bInfo
+        left join info_bus_station s
+        on s.bus_station_id = bInfo.bus_station_id
+        left join info_company_line l
+        on bInfo.line_id = l.company_line_id
+        and l.is_deleted = 0 and l.is_enabled = 1
+        where s.is_deleted = 0 and s.is_enabled = 1
+        <if test="companyLineId != null and companyLineId != 0L">
+            and l.company_line_id= #{companyLineId}
+        </if>
+
+    </select>
+
+    <select id="getTempDetailByEventDetailId" resultType="com.wntime.service.common.vo.StatisticsResultVo">
+        select  e.event_detail_id,
+                img.event_target_code,
+                img.name as name,
+                tem.event_target_code,
+                cast(ROUND(cast(tem.value as numeric),1) as varchar)  as value
+        from log_event_detail e
+        inner join info_event_type t
+                on e.event_type_id = t.event_type_id
+                and t.is_deleted = 0 and t.is_enabled = 1
+        inner join
+            (
+                select lea.event_detail_id,iet.event_target_code, lea.collect_attach_char as name
+                    from log_event_attach lea
+                    left join info_event_target iet
+                        on lea.event_target_id = iet.event_target_id
+            ) img
+                on e.event_detail_id = img.event_detail_id
+                and img.event_target_code = 'img'
+        inner join
+            (
+                select  lea.event_detail_id,iet.event_target_code, lea.collect_attach_value as value
+                from log_event_attach lea
+                left join info_event_target iet
+                    on lea.event_target_id = iet.event_target_id
+            ) tem
+                on e.event_detail_id = tem.event_detail_id
+                and tem.event_target_code = 'temperature'
+        where t.event_type_name  = '卫生防疫'
+                <if test="eventDetailIdList != null and eventDetailIdList.size() > 0">
+                    and e.event_detail_id in
+                    <foreach collection="eventDetailIdList" item="eventDetailId" separator="," open="(" close=")">
+                        #{eventDetailId}
+                    </foreach>
+                </if>
+    </select>
+
+    <select id="getEventCountByCompanyIdGroupByTrafficEventType" resultType="java.util.LinkedHashMap">
+        select ieta.event_target_id,ieta.event_target_code,ieta.event_target_name,COALESCE(count(led.event_detail_id),0)
+        event_target_count
+        from
+        info_event_target ieta
+        left join
+        (
+         select * from log_event_detail l
+         left join
+         log_bus_drive
+         lbd on l.bus_drive_id = lbd.bus_drive_id and lbd.is_enabled = 1
+         where l.is_enabled = 1
+         and lbd.bus_id in
+         (
+         <include refid="com.wntime.common.CommonMapper.selectBusIdByCompany"/>
+         )
+        )led on led.event_target_id = ieta.event_target_id
+
+        where ieta.is_deleted = 0 and ieta.is_enabled = 1
+        and ieta.event_target_id in
+        (
+        select
+               i.event_target_id
+        from
+        info_collect_event ice
+        left join
+        info_event_type iet on ice.event_type_id = iet.event_type_id and iet.is_deleted = 0 and iet.is_enabled = 1
+        left join
+        info_event_target i on ice.event_target_id = i.event_target_id  and i.is_deleted = 0 and i.is_enabled = 1
+        where ice.is_deleted = 0 and ice.is_enabled = 1
+        and iet.event_type_name = '交通违章'
+        order by ice.event_type,ice.event_detail
+        )
+        group by ieta.event_target_id,ieta.event_target_code,ieta.event_target_name
+    </select>
+
+    <select id="listDetail" resultType="com.wntime.event.vo.LogEventDetailVo">
+        select
+            led.*,
+            lbd.*,
+            ib.vin_code,
+            obd.plate_code,
+            obd.bus_code,
+            ice.collect_event,
+            iel.event_level_name,
+            iet.event_type_name,
+            ieta.event_target_name,
+            ibd.device_name as busDeviceName,
+            idt.device_type_name
+
+            from log_event_detail led
+            left join log_bus_drive lbd on led.bus_drive_id = lbd.bus_drive_id and lbd.is_enabled = 1
+            inner join info_bus ib on lbd.bus_id = ib.bus_id and ib.is_deleted = 0
+            left join order_bus_delivery obd on ib.bus_id = obd.bus_id and obd.is_deleted = 0
+            left join info_collect_event ice on led.collect_event_id = ice.collect_event_id and ice.is_deleted = 0 and ice.is_enabled = 1
+            left join info_event_level iel on led.event_level_id = iel.event_level_id and iel.is_deleted = 0 and iel.is_enabled = 1
+            left join info_event_type iet on led.event_type_id = iet.event_type_id and iet.is_deleted = 0 and iet.is_enabled = 1
+            left join info_event_target ieta on led.event_target_id = ieta.event_target_id and ieta.is_deleted = 0 and ieta.is_enabled = 1
+            left join info_bus_device ibd on led.bus_device_id = ibd.bus_device_id and ibd.is_deleted =0 and ibd.is_enabled = 1
+            left join info_device_type idt on led.device_type_id = idt.device_type_id and idt.is_deleted = 0 and idt.is_enabled = 1
+        <where>
+            <if test="startTime != null">
+                and led.created_date <![CDATA[ >= ]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                and led.created_date <![CDATA[ <= ]]> #{endTime}
+            </if>
+            <if test="vinCode != null and vinCode != ''">
+                and ib.vin_code = #{vinCode}
+            </if>
+            <if test="plateCode != null and plateCode != ''">
+                and obd.plate_code LIKE concat('%', #{plateCode}, '%')
+            </if>
+            <if test="collectEventId != null">
+                and led.collect_event_id = #{collectEventId}
+            </if>
+            <if test="eventLevelId != null">
+                and led.event_level_id = #{eventLevelId}
+            </if>
+            <if test="eventTypeId != null">
+                and led.event_type_id = #{eventTypeId}
+            </if>
+            <if test="eventTargetId != null">
+                and led.event_target_id = #{eventTargetId}
+            </if>
+            <if test="busDeviceId != null">
+                and led.bus_device_id = #{busDeviceId}
+            </if>
+            <if test="deviceTypeId != null">
+                and led.device_type_id = #{deviceTypeId}
+            </if>
+        </where>
+        order by led.created_date desc
+
+    </select>
+
+    <select id="getDetail" resultType="com.wntime.event.vo.LogEventDetailVo">
+        select
+        led.*,
+        lbd.*,
+        ib.vin_code,
+        ice.collect_event,
+        iel.event_level_name,
+        iet.event_type_name,
+        ieta.event_target_name,
+        ibd.device_name,
+        idt.device_type_name
+
+        from log_event_detail led
+        left join log_bus_drive lbd on led.bus_drive_id = lbd.bus_drive_id and lbd.is_enabled = 1
+        left join info_bus ib on lbd.bus_id = ib.bus_id and ib.is_deleted = 0 and ib.is_enabled = 1
+        left join info_collect_event ice on led.collect_event_id = ice.collect_event_id and ice.is_deleted = 0 and ice.is_enabled = 1
+        left join info_event_level iel on led.event_level_id = iel.event_level_id and iel.is_deleted = 0 and iel.is_enabled = 1
+        left join info_event_type iet on led.event_type_id = iet.event_type_id and iet.is_deleted = 0 and iet.is_enabled = 1
+        left join info_event_target ieta on led.event_target_id = ieta.event_target_id and ieta.is_deleted = 0 and ieta.is_enabled = 1
+        left join info_bus_device ibd on led.bus_device_id = ibd.bus_device_id and ibd.is_deleted =0 and ibd.is_enabled = 1
+        left join info_device_type idt on led.device_type_id = idt.device_type_id and idt.is_deleted = 0 and idt.is_enabled = 1
+        where led.event_detail_id = #{eventDetailId}
+    </select>
+
+    <select id="getParamConfigStationName" resultType="string">
+        select param_char from info_config_param
+            where param_code = 'stationCode'
+            and param_group = 'stationCodeGroup'
+    </select>
+
+    <select id="queryEventTargetGroupCount" resultType="com.wntime.event.vo.EventCountVo">
+        SELECT iet.event_target_code as code,
+               COUNT(iet.event_target_code) AS COUNT
+        FROM info_event_target iet
+                 INNER JOIN log_event_detail led ON led.event_target_id = iet.event_target_id
+            AND iet.event_target_code
+            IN
+            <foreach collection="eventTargetCodes" item="item" open="(" close=")" separator=",">
+             #{item}
+            </foreach>
+            AND led.is_enabled = 1
+            AND iet.is_deleted = 0
+            AND iet.is_enabled = 1
+            and led.created_date &gt; CURRENT_DATE
+            AND led.created_date &lt; CURRENT_DATE + INTERVAL '1 day'
+                 INNER JOIN info_bus_device ibd ON ibd.bus_device_id = led.bus_device_id
+            AND ibd.is_deleted = 0
+            AND ibd.is_enabled = 1
+            AND ibd.bus_id = #{busId}
+        GROUP BY iet.event_target_code
+    </select>
+    <select id="queryEventTypeGroupCount" resultType="com.wntime.event.vo.EventCountVo">
+        SELECT iet.event_type_code,
+            COUNT ( iet.event_type_code ) as count
+        FROM
+            log_event_detail led
+        INNER JOIN info_event_type iet ON led.event_type_id = iet.event_type_id
+        AND iet.event_type_code IN
+            <foreach collection="eventTypeCodes" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        AND led.is_enabled = 1
+        AND iet.is_deleted = 0
+        AND iet.is_enabled = 1
+        AND led.created_date &gt; CURRENT_DATE
+        AND led.created_date &lt; CURRENT_DATE + INTERVAL '1 day'
+        INNER JOIN info_bus_device ibd ON ibd.bus_device_id = led.bus_device_id
+        AND ibd.is_deleted = 0
+        AND ibd.is_enabled = 1
+        AND ibd.bus_id = #{busId}
+        GROUP BY
+        iet.event_type_code
+    </select>
+    <select id="queryEventLogListByTypeCode" resultType="com.wntime.event.vo.EventDetailVo">
+        SELECT led.event_detail_id,
+               led.event_type_id,
+               iet.event_type_code,
+               iet.event_type_name ,
+               iel.event_level_name ,
+               ied.description_content ,
+               led.created_date as event_date,
+               lea.collect_attach_value,
+               lea.collect_attach_char,
+               lea.collect_attach_link,
+               ietr.event_target_grope,
+               ietr.event_target_code
+        FROM
+            log_event_detail led
+        INNER JOIN info_event_type iet ON led.event_type_id = iet.event_type_id
+        AND iet.event_type_code IN
+            <foreach collection="eventTypeCodes" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+            AND led.is_enabled = 1
+            AND iet.is_deleted = 0
+            AND iet.is_enabled = 1
+            AND led.created_date &gt; CURRENT_DATE
+            AND led.created_date &lt; CURRENT_DATE + INTERVAL '1 day'
+        INNER JOIN info_bus_device ibd ON ibd.bus_device_id = led.bus_device_id
+            AND ibd.is_deleted = 0
+            AND ibd.is_enabled = 1
+            AND ibd.bus_id = #{busId}
+        INNER JOIN info_event_level iel ON iel.event_level_id = led.event_level_id
+            AND iel.is_deleted = 0
+            AND iel.is_enabled = 1
+        INNER JOIN info_event_description ied ON ied.event_target_id=led.event_target_id
+        INNER JOIN log_event_attach lea ON lea.event_detail_id=led.event_detail_id
+        INNER JOIN info_event_target ietr ON ietr.event_target_id=lea.event_target_id
+            AND ietr.is_deleted = 0
+            AND ietr.is_enabled = 1
+        ORDER BY led.created_date desc
+    </select>
+</mapper>

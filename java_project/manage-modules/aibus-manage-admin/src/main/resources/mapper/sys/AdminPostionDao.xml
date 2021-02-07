@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.sys.dao.AdminPositionDao">
+    <update id="deleteUpdate">
+        UPDATE
+        admin_position
+        SET
+        is_deleted='1',
+        modify_user_id=#{modifyUserId},
+        modify_dt=#{modifyDt}
+        WHERE position_id IN
+        <foreach item="postionId" collection="positionIds" open="(" separator="," close=")">
+            #{postionId}
+        </foreach>
+    </update>
+
+    <select id="queryPositionIsExist" resultType="int">
+        SELECT count(1)
+        FROM admin_position
+        WHERE name = #{name}
+        AND is_deleted = '0' AND is_enabled = '1'
+        <if test="positionId!=null">
+            and position_id !=#{positionId}
+        </if>
+    </select>
+    <!--listByUser-->
+    <select id="listByUser" parameterType="map" resultType="com.wntime.modules.sys.vo.AdminUserPositionVo">
+        <!--新增用户时查询岗位-->
+        <if test="userId==null">
+            select ap.position_id ,ap.name as position_name
+            from admin_position ap
+            where ap.is_deleted = '0' and ap.is_enabled = '1'
+        </if>
+		<!--编辑用户时查询岗位-->
+        <if test="userId!=null">
+            select a.position_id ,a.position_name,
+            CASE WHEN b.selected is null THEN
+            0 ELSE 1
+            END AS selected
+            from
+            (select ap.position_id ,ap.name as position_name from admin_position ap
+            where ap.is_deleted = '0' and ap.is_enabled = '1'
+            )a left join
+            (select aup.position_id,1 as selected
+            from admin_user_position aup
+            where aup.user_id = #{userId} and aup.is_deleted = '0'
+            ) b on a.position_id = b.position_id
+        </if>
+    </select>
+
+    <!--查询用户拥有的职位和自己创建的职位-->
+    <select id="queryPositionIdList" resultType="long">
+        SELECT position_id FROM admin_position
+        <where>
+            <if test="createUserId != null and createUserId != ''">
+                create_user_id=#{createUserId}
+            </if>
+        </where>
+        AND is_deleted='0' AND is_enabled='1'
+        UNION
+        SELECT ap.position_id FROM admin_user_position up
+        left join admin_position ap on up.position_id=ap.position_id
+        <where>
+            <if test="createUserId != null and createUserId != ''">
+                and (up.user_id=#{createUserId} or up.user_id=#{userId})
+            </if>
+        </where>
+
+        AND ap.is_deleted='0'
+    </select>
+
+    <!-- 查询用户创建的角色ID列表 -->
+    <select id="queryRoleIdList" resultType="long">
+        select position_id from admin_position where create_user_id = #{createUserId}
+        AND is_deleted='0' AND is_enabled='1'
+    </select>
+    <!--queryAdminPositionList-->
+
+    <select id="queryAdminPositionList" parameterType="map" resultType="map">
+        SELECT distinct a.position_id
+        FROM admin_position a
+        left join admin_user b on a.create_user_id=b.user_id
+        left join admin_user c on a.modify_user_id=c.user_id
+        left join admin_user_position gaup on a.position_id=gaup.position_id
+        where
+        a.is_deleted='0' and a.is_enabled='1'
+        and (a.create_user_id = #{createUserId} or gaup.user_id=#{createUserId})
+        intersect
+
+        SELECT distinct a.position_id
+        FROM admin_position a
+        left join admin_user b on a.create_user_id=b.user_id
+        left join admin_user c on a.modify_user_id=c.user_id
+        where ( a.create_user_id=#{createUserId})
+        and a.is_deleted='0' and a.is_enabled='1'
+    </select>
+    <!--多表关联查询，主要是为了获取创建人和修改人的name-->
+    <select id="queryAdminPositionListAll" parameterType="map" resultType="com.wntime.modules.sys.vo.AdminPositionVo">
+        SELECT
+        distinct a.*,
+        b.user_name as create_user_name,
+        c.user_name as modify_user_name
+        FROM admin_position a
+        left join admin_user b on a.create_user_id=b.user_id
+        left join admin_user c on a.modify_user_id=c.user_id
+        left join admin_user_position gaup on a.position_id = gaup.position_id
+        <where>
+            <!--<if test="create_user_id != null and create_user_id != ''">
+                (a.create_user_id = #{create_user_id} or gaup.user_id=#{create_user_id})
+            </if>-->
+            <if test="name != null and name != ''">
+                and a.name LIKE concat('%', #{name}, '%')
+            </if>
+            and a.is_deleted='0'
+        </where>
+        ORDER BY a.create_dt desc
+    </select>
+
+
+</mapper>

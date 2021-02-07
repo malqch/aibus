@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.service.dao.InfoUpdateListDao">
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.service.vo.InfoUpdateListVo">
+        SELECT  a.update_list_id, a.update_type, a.update_desc, a.update_url,a.original_file_name, a.is_published, a.publish_date, a.created_by, a.created_date, a.modified_by, a.modified_date,
+       b.param_name as update_type_name,
+       x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_update_list a
+        left join (select a.param_code ,a.param_name  from info_config_param a where a.param_group='更新类型') b on a.update_type = b.param_code
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+	    ORDER BY a.is_published desc,a.publish_date desc
+    </select>
+
+    <select id="getDetailById" parameterType="Long" resultType="com.wntime.service.vo.InfoUpdateListVo">
+         SELECT  a.update_list_id, a.update_type, a.update_desc, a.update_url, a.original_file_name, a.is_published, a.publish_date, a.created_by, a.created_date, a.modified_by, a.modified_date,
+       b.param_name as update_type_name,
+       x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_update_list a
+        left join (select a.param_code ,a.param_name  from info_config_param a where a.param_group='更新类型') b on a.update_type = b.param_code
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.update_list_id = #{id}
+    </select>
+
+    <update id="delById">
+        UPDATE info_update_list SET is_deleted = 1 WHERE update_list_id=#{id}
+	</update>
+
+    <select id="isEnableInsert" parameterType="Map" resultType="Integer">
+       select count(*) from info_update_list a
+        where a.is_deleted=0
+    </select>
+
+    <select id="isEnableUpdate" parameterType="Map" resultType="Integer">
+       select count(*)
+       from info_update_list a
+       where a.is_deleted=0
+    </select>
+
+    <select id="queryUpdateType" resultType="Map">
+        select a.param_code as "updateType",a.param_name as "updateTypeName"
+        from info_config_param a where a.param_group='更新类型' and a.param_code != '1' and a.is_enabled = 1 and a.is_deleted = 0
+    </select>
+
+
+    <update id="updatePublishStatus">
+        UPDATE info_update_list
+        SET is_published = 0
+        WHERE update_type = #{updateType}
+	</update>
+
+    <update id="updateData">
+        UPDATE info_update_list
+        SET modified_by = #{userId},publish_date = #{modifiedDate},modified_date = #{modifiedDate}
+        WHERE update_type = #{updateType}
+    </update>
+
+    <select id="isTableUpdate" resultType="boolean">
+        select count(*) > 0 from ${tableName} where created_date > #{date} or modified_date > #{date}
+    </select>
+
+    <select id="isTableUpdate1" resultType="boolean">
+        select count(*) > 0 from ${tableName} where create_dt > #{date} or modify_dt > #{date}
+    </select>
+</mapper>

@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.ec.module.sys.dao.InfoAdvertisePositionDao">
+
+	<sql id="selectAllColumn">
+       advertise_position_id,position_desc,position_code,position_group,pixel_height,pixel_width,screen_height,screen_width,advertise_type
+	</sql>
+	
+	<sql id="updateColumn">
+		<set>
+			<if test="advertisePositionId != null "> advertise_position_id = #{advertisePositionId,jdbcType=BIGINT}, </if>
+			<if test="positionDesc != null and positionDesc !='' "> position_desc = #{positionDesc,jdbcType=VARCHAR}, </if>
+			<if test="positionCode != null and positionCode !='' "> position_code = #{positionCode,jdbcType=VARCHAR}, </if>
+			<if test="positionGroup != null and positionGroup !='' "> position_group = #{positionGroup,jdbcType=VARCHAR}, </if>
+			<if test="pixelHeight != null "> pixel_height = #{pixelHeight,jdbcType=INTEGER}, </if>
+			<if test="pixelWidth != null "> pixel_width = #{pixelWidth,jdbcType=INTEGER}, </if>
+			<if test="screenHeight != null "> screen_height = #{screenHeight,jdbcType=INTEGER}, </if>
+			<if test="screenWidth != null "> screen_width = #{screenWidth,jdbcType=INTEGER}, </if>
+			<if test="advertiseType != null "> advertise_type = #{advertiseType,jdbcType=INTEGER}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumn">
+		SET
+			advertise_position_id = #{advertisePositionId,jdbcType=BIGINT},
+			position_desc = #{positionDesc,jdbcType=VARCHAR},
+			position_code = #{positionCode,jdbcType=VARCHAR},
+			position_group = #{positionGroup,jdbcType=VARCHAR},
+			pixel_height = #{pixelHeight,jdbcType=INTEGER},
+			pixel_width = #{pixelWidth,jdbcType=INTEGER},
+			screen_height = #{screenHeight,jdbcType=INTEGER},
+			screen_width = #{screenWidth,jdbcType=INTEGER},
+			advertise_type = #{advertiseType,jdbcType=INTEGER}
+
+	</sql>
+
+	<sql id="updateColumnEntity">
+		<set>
+			<if test="entity.advertisePositionId != null "> advertise_position_id = #{entity.advertisePositionId,jdbcType=BIGINT}, </if>
+			<if test="entity.positionDesc != null and entity.positionDesc !='' "> position_desc = #{entity.positionDesc,jdbcType=VARCHAR}, </if>
+			<if test="entity.positionCode != null and entity.positionCode !='' "> position_code = #{entity.positionCode,jdbcType=VARCHAR}, </if>
+			<if test="entity.positionGroup != null and entity.positionGroup !='' "> position_group = #{entity.positionGroup,jdbcType=VARCHAR}, </if>
+			<if test="entity.pixelHeight != null "> pixel_height = #{entity.pixelHeight,jdbcType=INTEGER}, </if>
+			<if test="entity.pixelWidth != null "> pixel_width = #{entity.pixelWidth,jdbcType=INTEGER}, </if>
+			<if test="entity.screenHeight != null "> screen_height = #{entity.screenHeight,jdbcType=INTEGER}, </if>
+			<if test="entity.screenWidth != null "> screen_width = #{entity.screenWidth,jdbcType=INTEGER}, </if>
+			<if test="entity.advertiseType != null "> advertise_type = #{entity.advertiseType,jdbcType=INTEGER}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumnEntity">
+		SET
+			advertise_position_id = #{entity.advertisePositionId,jdbcType=BIGINT},
+			position_desc = #{entity.positionDesc,jdbcType=VARCHAR},
+			position_code = #{entity.positionCode,jdbcType=VARCHAR},
+			position_group = #{entity.positionGroup,jdbcType=VARCHAR},
+			pixel_height = #{entity.pixelHeight,jdbcType=INTEGER},
+			pixel_width = #{entity.pixelWidth,jdbcType=INTEGER},
+			screen_height = #{entity.screenHeight,jdbcType=INTEGER},
+			screen_width = #{entity.screenWidth,jdbcType=INTEGER},
+			advertise_type = #{entity.advertiseType,jdbcType=INTEGER}
+
+	</sql>
+
+	<sql id="where">
+		<where>
+			<if test="advertisePositionId != null "> 
+ 				AND advertise_position_id=#{advertisePositionId,jdbcType=BIGINT}  
+			</if> 
+			<if test="positionDesc != null and positionDesc !='' "> 
+ 				AND position_desc=#{positionDesc,jdbcType=VARCHAR}  
+			</if> 
+			<if test="positionCode != null and positionCode !='' "> 
+ 				AND position_code=#{positionCode,jdbcType=VARCHAR}  
+			</if> 
+			<if test="positionGroup != null and positionGroup !='' "> 
+ 				AND position_group=#{positionGroup,jdbcType=VARCHAR}  
+			</if> 
+			<if test="pixelHeight != null "> 
+ 				AND pixel_height=#{pixelHeight,jdbcType=INTEGER}  
+			</if> 
+			<if test="pixelWidth != null "> 
+ 				AND pixel_width=#{pixelWidth,jdbcType=INTEGER}  
+			</if> 
+			<if test="screenHeight != null "> 
+ 				AND screen_height=#{screenHeight,jdbcType=INTEGER}  
+			</if> 
+			<if test="screenWidth != null "> 
+ 				AND screen_width=#{screenWidth,jdbcType=INTEGER}  
+			</if> 
+			<if test="advertiseType != null "> 
+ 				AND advertise_type=#{advertiseType,jdbcType=INTEGER}  
+			</if> 
+
+		</where>
+	</sql>
+
+	<sql id="whereParam">
+		<where>
+			<if test="param != null">
+				<if test="param.advertisePositionId != null "> 
+ 					AND advertise_position_id=#{param.advertisePositionId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.positionDesc != null and param.positionDesc !='' "> 
+ 					and position_desc=#{param.positionDesc,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.positionCode != null and param.positionCode !='' "> 
+ 					and position_code=#{param.positionCode,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.positionGroup != null and param.positionGroup !='' "> 
+ 					and position_group=#{param.positionGroup,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.pixelHeight != null "> 
+ 					AND pixel_height=#{param.pixelHeight,jdbcType=INTEGER}  
+				</if> 
+				<if test="param.pixelWidth != null "> 
+ 					AND pixel_width=#{param.pixelWidth,jdbcType=INTEGER}  
+				</if> 
+				<if test="param.screenHeight != null "> 
+ 					AND screen_height=#{param.screenHeight,jdbcType=INTEGER}  
+				</if> 
+				<if test="param.screenWidth != null "> 
+ 					AND screen_width=#{param.screenWidth,jdbcType=INTEGER}  
+				</if> 
+				<if test="param.advertiseType != null "> 
+ 					AND advertise_type=#{param.advertiseType,jdbcType=INTEGER}  
+				</if> 
+
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insert" parameterType="com.wntime.ec.module.sys.entity.InfoAdvertisePosition">
+		INSERT INTO info_advertise_position
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="advertisePositionId != null "> 
+ 				advertise_position_id,  
+			</if> 
+			<if test="positionDesc != null and positionDesc !='' "> 
+ 				position_desc,  
+			</if> 
+			<if test="positionCode != null and positionCode !='' "> 
+ 				position_code,  
+			</if> 
+			<if test="positionGroup != null and positionGroup !='' "> 
+ 				position_group,  
+			</if> 
+			<if test="pixelHeight != null "> 
+ 				pixel_height,  
+			</if> 
+			<if test="pixelWidth != null "> 
+ 				pixel_width,  
+			</if> 
+			<if test="screenHeight != null "> 
+ 				screen_height,  
+			</if> 
+			<if test="screenWidth != null "> 
+ 				screen_width,  
+			</if> 
+			<if test="advertiseType != null "> 
+ 				advertise_type,  
+			</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="advertisePositionId != null "> #{advertisePositionId,jdbcType=BIGINT}, </if>
+			<if test="positionDesc != null and positionDesc !='' "> #{positionDesc,jdbcType=VARCHAR}, </if>
+			<if test="positionCode != null and positionCode !='' "> #{positionCode,jdbcType=VARCHAR}, </if>
+			<if test="positionGroup != null and positionGroup !='' "> #{positionGroup,jdbcType=VARCHAR}, </if>
+			<if test="pixelHeight != null "> #{pixelHeight,jdbcType=INTEGER}, </if>
+			<if test="pixelWidth != null "> #{pixelWidth,jdbcType=INTEGER}, </if>
+			<if test="screenHeight != null "> #{screenHeight,jdbcType=INTEGER}, </if>
+			<if test="screenWidth != null "> #{screenWidth,jdbcType=INTEGER}, </if>
+			<if test="advertiseType != null "> #{advertiseType,jdbcType=INTEGER}, </if>
+
+		</trim>
+	</insert>
+
+	<insert id="insertAllColumn" parameterType="com.wntime.ec.module.sys.entity.InfoAdvertisePosition">
+		INSERT INTO info_advertise_position(
+		advertise_position_id,position_desc,position_code,position_group,pixel_height,pixel_width,screen_height,screen_width,advertise_type
+		) VALUES (
+		#{advertisePositionId,jdbcType=BIGINT},
+		#{positionDesc,jdbcType=VARCHAR},
+		#{positionCode,jdbcType=VARCHAR},
+		#{positionGroup,jdbcType=VARCHAR},
+		#{pixelHeight,jdbcType=INTEGER},
+		#{pixelWidth,jdbcType=INTEGER},
+		#{screenHeight,jdbcType=INTEGER},
+		#{screenWidth,jdbcType=INTEGER},
+		#{advertiseType,jdbcType=INTEGER}
+
+		)
+	</insert>
+
+	<update id="updateById" parameterType="com.wntime.ec.module.sys.entity.InfoAdvertisePosition">
+        UPDATE info_advertise_position 
+		<include refid="updateColumn" />
+		where advertise_position_id = #{advertisePositionId,jdbcType=BIGINT}
+	</update>
+	<update id="updateAllColumnById" parameterType="com.wntime.ec.module.sys.entity.InfoAdvertisePosition">
+		UPDATE info_advertise_position <include refid="updateAllColumn" />
+		where advertise_position_id = #{advertisePositionId,jdbcType=BIGINT}
+	</update>
+	<update id="update">
+		UPDATE info_advertise_position <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumn">
+		UPDATE info_advertise_position <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateByMap">
+		UPDATE info_advertise_position <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumnByMap">
+		UPDATE info_advertise_position <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<delete id="deleteById" parameterType="java.lang.Long">
+		DELETE FROM info_advertise_position  where advertise_position_id = #{advertisePositionId,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteByIds" parameterType="collection">
+		DELETE FROM info_advertise_position  WHERE id IN
+		<foreach collection="collection" item="ids" open="("
+			separator="," close=")">
+          <![CDATA[#{ids}]]>
+		</foreach>
+	</delete>
+	<delete id="delete" parameterType="com.wntime.ec.module.sys.vo.InfoAdvertisePositionQryReqVo">
+		DELETE FROM  info_advertise_position
+		<include refid="where" />
+	</delete>
+	<delete id="deleteByMap" parameterType="map">
+		DELETE FROM info_advertise_position
+		<include refid="where" />
+	</delete>
+
+	<select id="selectById" resultType="com.wntime.ec.module.sys.vo.InfoAdvertisePositionQryRspVo" parameterType="java.lang.Long">
+		SELECT
+		<include refid="selectAllColumn" />
+		FROM  info_advertise_position
+		where advertise_position_id = #{advertisePositionId,jdbcType=BIGINT}
+	</select>
+	
+	<select id="selectOne" resultType="com.wntime.ec.module.sys.vo.InfoAdvertisePositionQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoAdvertisePositionQryReqVo">
+        SELECT
+        <include refid="selectAllColumn" />
+        FROM info_advertise_position
+        <include refid="where" />
+    </select>
+	
+	<select id="selectByIds" resultType="com.wntime.ec.module.sys.vo.InfoAdvertisePositionQryRspVo" parameterType="collection">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_advertise_position
+		WHERE id IN
+		<foreach collection="collection" item="ids" open="(" separator="," close=")">
+			<![CDATA[#{ids}]]>
+		</foreach>
+	</select>
+
+	<select id="selectList" resultType="com.wntime.ec.module.sys.vo.InfoAdvertisePositionQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoAdvertisePositionQryReqVo">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_advertise_position
+		<include refid="where" />
+		${orderBy}
+	</select>
+
+	<select id="selectListByMap" resultType="com.wntime.ec.module.sys.vo.InfoAdvertisePositionQryRspVo" parameterType="map">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_advertise_position
+		<include refid="where" />
+	</select>
+
+    <select id="selectPage" resultType="com.wntime.ec.module.sys.vo.InfoAdvertisePositionQryRspVo">
+        SELECT <include refid="selectAllColumn" />
+        FROM info_advertise_position
+        <include refid="whereParam" />
+        <if test="param != null">
+        	${param.orderBy}
+        </if>
+    </select>
+	
+</mapper>

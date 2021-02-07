@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.ec.module.sys.dao.InfoEventLevelDao">
+
+	<sql id="selectAllColumn">
+       event_level_id,event_level_name,event_level_code,is_deleted,is_enabled,created_by, created_date,modified_by, modified_date
+	</sql>
+	
+	<sql id="updateColumn">
+		<set>
+			<if test="eventLevelId != null "> event_level_id = #{eventLevelId,jdbcType=BIGINT}, </if>
+			<if test="eventLevelName != null and eventLevelName !='' "> event_level_name = #{eventLevelName,jdbcType=VARCHAR}, </if>
+			<if test="eventLevelCode != null and eventLevelCode !='' "> event_level_code = #{eventLevelCode,jdbcType=VARCHAR}, </if>
+			<if test="isDeleted != null "> is_deleted = #{isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="isEnabled != null "> is_enabled = #{isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="createdBy != null "> created_by = #{createdBy,jdbcType=BIGINT}, </if>
+			<if test="createdDate != null "> created_date = #{createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifiedBy != null "> modified_by = #{modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="modifiedDate != null "> modified_date = #{modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumn">
+		SET
+			event_level_id = #{eventLevelId,jdbcType=BIGINT},
+			event_level_name = #{eventLevelName,jdbcType=VARCHAR},
+			event_level_code = #{eventLevelCode,jdbcType=VARCHAR},
+			is_deleted = #{isDeleted,jdbcType=SMALLINT},
+			is_enabled = #{isEnabled,jdbcType=SMALLINT},
+			created_by = #{createdBy,jdbcType=BIGINT},
+			created_date = #{createdDate,jdbcType=TIMESTAMP},
+			modified_by = #{modifiedBy,jdbcType=BIGINT},
+			modified_date = #{modifiedDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="updateColumnEntity">
+		<set>
+			<if test="entity.eventLevelId != null "> event_level_id = #{entity.eventLevelId,jdbcType=BIGINT}, </if>
+			<if test="entity.eventLevelName != null and entity.eventLevelName !='' "> event_level_name = #{entity.eventLevelName,jdbcType=VARCHAR}, </if>
+			<if test="entity.eventLevelCode != null and entity.eventLevelCode !='' "> event_level_code = #{entity.eventLevelCode,jdbcType=VARCHAR}, </if>
+			<if test="entity.isDeleted != null "> is_deleted = #{entity.isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="entity.isEnabled != null "> is_enabled = #{entity.isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="entity.createdBy != null "> created_by = #{entity.createdBy,jdbcType=BIGINT}, </if>
+			<if test="entity.createdDate != null "> created_date = #{entity.createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="entity.modifiedBy != null "> modified_by = #{entity.modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="entity.modifiedDate != null "> modified_date = #{entity.modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumnEntity">
+		SET
+			event_level_id = #{entity.eventLevelId,jdbcType=BIGINT},
+			event_level_name = #{entity.eventLevelName,jdbcType=VARCHAR},
+			event_level_code = #{entity.eventLevelCode,jdbcType=VARCHAR},
+			is_deleted = #{entity.isDeleted,jdbcType=SMALLINT},
+			is_enabled = #{entity.isEnabled,jdbcType=SMALLINT},
+			created_by = #{entity.createdBy,jdbcType=BIGINT},
+			created_date = #{entity.createdDate,jdbcType=TIMESTAMP},
+			modified_by = #{entity.modifiedBy,jdbcType=BIGINT},
+			modified_date = #{entity.modifiedDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="where">
+		<where>
+			<if test="eventLevelId != null "> 
+ 				AND event_level_id=#{eventLevelId,jdbcType=BIGINT}  
+			</if> 
+			<if test="eventLevelName != null and eventLevelName !='' "> 
+ 				AND event_level_name=#{eventLevelName,jdbcType=VARCHAR}  
+			</if> 
+			<if test="eventLevelCode != null and eventLevelCode !='' "> 
+ 				AND event_level_code=#{eventLevelCode,jdbcType=VARCHAR}  
+			</if> 
+			<if test="isDeleted != null "> 
+ 				AND is_deleted=#{isDeleted,jdbcType=SMALLINT}  
+			</if> 
+			<if test="isEnabled != null "> 
+ 				AND is_enabled=#{isEnabled,jdbcType=SMALLINT}  
+			</if> 
+			<if test="createdBy != null "> 
+ 				AND created_by=#{createdBy,jdbcType=BIGINT}  
+			</if> 
+			<if test="createdDate != null "> 
+ 				AND created_date =  #{createdDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="createdDateStart != null "> 
+ 				AND created_date <![CDATA[ >= ]]> #{createdDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="createdDateEnd != null "> 
+ 				AND created_date <![CDATA[ <= ]]> #{createdDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedBy != null "> 
+ 				AND modified_by=#{modifiedBy,jdbcType=BIGINT}  
+			</if> 
+			<if test="modifiedDate != null "> 
+ 				AND modified_date =  #{modifiedDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedDateStart != null "> 
+ 				AND modified_date <![CDATA[ >= ]]> #{modifiedDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedDateEnd != null "> 
+ 				AND modified_date <![CDATA[ <= ]]> #{modifiedDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+
+		</where>
+	</sql>
+
+	<sql id="whereParam">
+		<where>
+			<if test="param != null">
+				<if test="param.eventLevelId != null "> 
+ 					AND event_level_id=#{param.eventLevelId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.eventLevelName != null and param.eventLevelName !='' "> 
+ 					and event_level_name=#{param.eventLevelName,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.eventLevelCode != null and param.eventLevelCode !='' "> 
+ 					and event_level_code=#{param.eventLevelCode,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.isDeleted != null "> 
+ 					AND is_deleted=#{param.isDeleted,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.isEnabled != null "> 
+ 					AND is_enabled=#{param.isEnabled,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.createdBy != null "> 
+ 					AND created_by=#{param.createdBy,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.createdDate != null "> 
+ 					AND created_date = #{param.createdDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.createdDateStart != null "> 
+ 					AND created_date <![CDATA[ >= ]]> #{param.createdDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.createdDateEnd != null "> 
+ 					AND created_date <![CDATA[ <= ]]> #{param.createdDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedBy != null "> 
+ 					AND modified_by=#{param.modifiedBy,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.modifiedDate != null "> 
+ 					AND modified_date = #{param.modifiedDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedDateStart != null "> 
+ 					AND modified_date <![CDATA[ >= ]]> #{param.modifiedDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedDateEnd != null "> 
+ 					AND modified_date <![CDATA[ <= ]]> #{param.modifiedDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insert" parameterType="com.wntime.ec.module.sys.entity.InfoEventLevel">
+		INSERT INTO info_event_level
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="eventLevelId != null "> 
+ 				event_level_id,  
+			</if> 
+			<if test="eventLevelName != null and eventLevelName !='' "> 
+ 				event_level_name,  
+			</if> 
+			<if test="eventLevelCode != null and eventLevelCode !='' "> 
+ 				event_level_code,  
+			</if> 
+			<if test="isDeleted != null "> 
+ 				is_deleted,  
+			</if> 
+			<if test="isEnabled != null "> 
+ 				is_enabled,  
+			</if> 
+			<if test="createdBy != null "> 
+ 				created_by,  
+			</if> 
+			<if test="createdDate != null "> 
+ 				created_date,  
+			</if> 
+			<if test="modifiedBy != null "> 
+ 				modified_by,  
+			</if> 
+			<if test="modifiedDate != null "> 
+ 				modified_date,  
+			</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="eventLevelId != null "> #{eventLevelId,jdbcType=BIGINT}, </if>
+			<if test="eventLevelName != null and eventLevelName !='' "> #{eventLevelName,jdbcType=VARCHAR}, </if>
+			<if test="eventLevelCode != null and eventLevelCode !='' "> #{eventLevelCode,jdbcType=VARCHAR}, </if>
+			<if test="isDeleted != null "> #{isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="isEnabled != null "> #{isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="createdBy != null "> #{createdBy,jdbcType=BIGINT}, </if>
+			<if test="createdDate != null "> #{createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifiedBy != null "> #{modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="modifiedDate != null "> #{modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</trim>
+	</insert>
+
+	<insert id="insertAllColumn" parameterType="com.wntime.ec.module.sys.entity.InfoEventLevel">
+		INSERT INTO info_event_level(
+		event_level_id,event_level_name,event_level_code,is_deleted,is_enabled,created_by,created_date,modified_by,modified_date
+		) VALUES (
+		#{eventLevelId,jdbcType=BIGINT},
+		#{eventLevelName,jdbcType=VARCHAR},
+		#{eventLevelCode,jdbcType=VARCHAR},
+		#{isDeleted,jdbcType=SMALLINT},
+		#{isEnabled,jdbcType=SMALLINT},
+		#{createdBy,jdbcType=BIGINT},
+		#{createdDate,jdbcType=TIMESTAMP},
+		#{modifiedBy,jdbcType=BIGINT},
+		#{modifiedDate,jdbcType=TIMESTAMP}
+
+		)
+	</insert>
+
+	<update id="updateById" parameterType="com.wntime.ec.module.sys.entity.InfoEventLevel">
+        UPDATE info_event_level 
+		<include refid="updateColumn" />
+		where event_level_id = #{eventLevelId,jdbcType=BIGINT}
+	</update>
+	<update id="updateAllColumnById" parameterType="com.wntime.ec.module.sys.entity.InfoEventLevel">
+		UPDATE info_event_level <include refid="updateAllColumn" />
+		where event_level_id = #{eventLevelId,jdbcType=BIGINT}
+	</update>
+	<update id="update">
+		UPDATE info_event_level <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumn">
+		UPDATE info_event_level <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateByMap">
+		UPDATE info_event_level <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumnByMap">
+		UPDATE info_event_level <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<delete id="deleteById" parameterType="java.lang.Long">
+		DELETE FROM info_event_level  where event_level_id = #{eventLevelId,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteByIds" parameterType="collection">
+		DELETE FROM info_event_level  WHERE id IN
+		<foreach collection="collection" item="ids" open="("
+			separator="," close=")">
+          <![CDATA[#{ids}]]>
+		</foreach>
+	</delete>
+	<delete id="delete" parameterType="com.wntime.ec.module.sys.vo.InfoEventLevelQryReqVo">
+		DELETE FROM  info_event_level
+		<include refid="where" />
+	</delete>
+	<delete id="deleteByMap" parameterType="map">
+		DELETE FROM info_event_level
+		<include refid="where" />
+	</delete>
+
+	<select id="selectById" resultType="com.wntime.ec.module.sys.vo.InfoEventLevelQryRspVo" parameterType="java.lang.Long">
+		SELECT
+		<include refid="selectAllColumn" />
+		FROM  info_event_level
+		where event_level_id = #{eventLevelId,jdbcType=BIGINT}
+	</select>
+	
+	<select id="selectOne" resultType="com.wntime.ec.module.sys.vo.InfoEventLevelQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoEventLevelQryReqVo">
+        SELECT
+        <include refid="selectAllColumn" />
+        FROM info_event_level
+        <include refid="where" />
+    </select>
+	
+	<select id="selectByIds" resultType="com.wntime.ec.module.sys.vo.InfoEventLevelQryRspVo" parameterType="collection">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_event_level
+		WHERE id IN
+		<foreach collection="collection" item="ids" open="(" separator="," close=")">
+			<![CDATA[#{ids}]]>
+		</foreach>
+	</select>
+
+	<select id="selectList" resultType="com.wntime.ec.module.sys.vo.InfoEventLevelQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoEventLevelQryReqVo">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_event_level
+		<include refid="where" />
+		${orderBy}
+	</select>
+
+	<select id="selectListByMap" resultType="com.wntime.ec.module.sys.vo.InfoEventLevelQryRspVo" parameterType="map">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_event_level
+		<include refid="where" />
+	</select>
+
+    <select id="selectPage" resultType="com.wntime.ec.module.sys.vo.InfoEventLevelQryRspVo">
+        SELECT <include refid="selectAllColumn" />
+        FROM info_event_level
+        <include refid="whereParam" />
+        <if test="param != null">
+        	${param.orderBy}
+        </if>
+    </select>
+	
+</mapper>

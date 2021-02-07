@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.officer.dao.GuardianDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.modules.officer.entity.GuardianEntity" id="guardianMap">
+        <result property="id" column="id"/>
+        <result property="basicId" column="basic_id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="seqNumber" column="seq_number"/>
+        <result property="relationStudent" column="relation_student"/>
+        <result property="mobileNumber" column="mobile_number"/>
+        <result property="loginUserId" column="login_user_id"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createDt" column="create_dt"/>
+        <result property="modifyUserId" column="modify_user_id"/>
+        <result property="modifyDt" column="modify_dt"/>
+    </resultMap>
+
+
+</mapper>

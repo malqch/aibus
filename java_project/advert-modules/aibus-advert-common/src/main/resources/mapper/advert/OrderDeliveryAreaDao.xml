@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.advert.dao.OrderDeliveryAreaDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.advert.entity.OrderDeliveryAreaEntity" id="orderDeliveryAreaMap">
+        <result property="deliveryAreaId" column="delivery_area_id"/>
+        <result property="advertiseDeliveryId" column="advertise_delivery_id"/>
+        <result property="companyLineId" column="company_line_id"/>
+        <result property="lineStationId" column="line_station_id"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryDeliveryAreaDetailByCompanyLineId" resultType="com.wntime.advert.vo.AdvertiseDeliveryDetailVo">
+        SELECT NULL AS delivery_area_id,
+               NULL AS company_line_id,
+               NULL AS line_station_id,
+               odt.delivery_target_id,
+               odt.advertise_target_id,
+               icp.param_code AS advertise_delivery_type,
+               oad.advertise_delivery_id,
+               oad.delivery_begin,
+               oad.delivery_end,
+               oad.check_status,
+               oad.is_interrupt,
+               oad.interrupt_notice,
+               oad.advertise_no,
+               oaa.advertise_attach_id,
+               oaa.advertise_position_id,
+               oaa.show_times,
+               oaa.attach_type,
+               oaa.attach_link
+        FROM (
+                 SELECT advertise_delivery_id,
+                        advertise_delivery_type,
+                        delivery_begin,
+                        delivery_end,
+                        check_status,
+                        is_interrupt,
+                        interrupt_notice,
+                        advertise_no
+                 FROM order_advertise_delivery
+                 WHERE check_status = 3
+                   AND delivery_begin &lt;= CURRENT_TIMESTAMP
+                   AND delivery_end &gt;= CURRENT_TIMESTAMP
+                   AND is_interrupt = 1
+             ) oad
+                 LEFT JOIN order_delivery_target odt ON odt.advertise_delivery_id = oad.advertise_delivery_id
+                 LEFT JOIN info_config_param icp ON icp.config_param_id = oad.advertise_delivery_type
+                 LEFT JOIN order_advertise_attach oaa ON oaa.advertise_delivery_id = oad.advertise_delivery_id
+        UNION ALL
+        SELECT oda.delivery_area_id,
+               oda.company_line_id,
+               oda.line_station_id,
+               odt.delivery_target_id,
+               odt.advertise_target_id,
+               icp.param_code AS advertise_delivery_type,
+               oad.advertise_delivery_id,
+               oad.delivery_begin,
+               oad.delivery_end,
+               oad.check_status,
+               oad.is_interrupt,
+               oad.interrupt_notice,
+               oad.advertise_no,
+               oaa.advertise_attach_id,
+               oaa.advertise_position_id,
+               oaa.show_times,
+               oaa.attach_type,
+               oaa.attach_link
+        FROM (
+                 SELECT advertise_delivery_id,
+                        advertise_delivery_type,
+                        delivery_begin,
+                        delivery_end,
+                        check_status,
+                        is_interrupt,
+                        interrupt_notice,
+                        advertise_no
+                 FROM order_advertise_delivery
+                 WHERE check_status = 3
+                   AND delivery_begin &lt;= CURRENT_TIMESTAMP
+                   AND delivery_end &gt;= CURRENT_TIMESTAMP
+                   AND is_interrupt = 0
+             ) oad
+                 INNER JOIN order_delivery_target odt ON odt.advertise_delivery_id = oad.advertise_delivery_id
+                 INNER JOIN info_config_param icp ON icp.config_param_id = oad.advertise_delivery_type
+                 INNER JOIN order_advertise_attach oaa ON oaa.advertise_delivery_id = oad.advertise_delivery_id
+                 INNER JOIN order_delivery_area oda ON oad.advertise_delivery_id = oda.advertise_delivery_id
+            AND oda.company_line_id = #{companyLineId}
+    </select>
+
+
+    <select id="listLineCodeByAdvertise" resultType="com.wntime.advert.vo.DeliveryLineVo">
+        SELECT
+            DISTINCT(icl.company_line_code)
+        from
+            order_delivery_area oda
+                left join info_company_line icl on oda.company_line_id = icl.company_line_id and icl.is_enabled = 1 and icl.is_deleted = 0
+        where oda.advertise_delivery_id = #{advertiseId}
+            and icl.company_line_id NOTNULL
+        order by icl.company_line_code
+    </select>
+
+    <select id="listStationByAdvertiseId" resultType="string">
+        SELECT
+            ibs.bus_station_code
+        from
+            order_delivery_area oda
+                left join info_line_station ils on oda.line_station_id = ils.line_station_id and ils.is_enabled = 1 and ils.is_deleted = 0
+                left join info_bus_station ibs on ils.bus_station_id = ibs.bus_station_id and ibs.is_enabled = 1 and ibs.is_deleted = 0
+        where oda.advertise_delivery_id = #{advertiseId}
+        and ibs.bus_station_code NOTNULL
+        order by ibs.bus_station_code
+    </select>
+</mapper>

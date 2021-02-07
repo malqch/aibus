@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.sys.dao.AdminUserRoleDao">
+
+    <delete id="deleteBatch">
+        delete from admin_user_role where role_id in
+        <foreach item="roleId" collection="array" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </delete>
+
+    <select id="queryRoleIdList" resultType="long">
+		select role_id from admin_user_role where user_id = #{value} AND is_deleted='0'
+	</select>
+
+    <!--通过角色ID更新字段，来删除用户-->
+    <update id="deleteUpdateByRoleId">
+        UPDATE admin_user_role SET is_deleted='1',modify_user_id=#{modifyUserId},modify_dt=#{modifyDt} WHERE role_id IN
+        <foreach item="roleId" collection="roleIds" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </update>
+
+    <!--通过用户ID更新字段，来删除用户-->
+    <update id="deleteUpdateByUserId">
+        UPDATE admin_user_role SET is_deleted='1',modify_user_id=#{modifyUserId},modify_dt=#{modifyDt} WHERE
+        admin_user_role.user_id IN
+        <foreach item="userId" collection="userIds" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </update>
+    <select id="getUserRoleId" resultType="long">
+		select a.id
+		from admin_user_role a
+		where a.is_deleted='0' and a.user_id = #{userId} and a.role_id=#{roleId}
+	</select>
+
+    <update id="deleteUserRoleByUserId">
+        UPDATE
+            admin_user_role
+        SET is_deleted='1'
+        WHERE
+            user_id =#{userId}
+    </update>
+
+    <update id="deleteUserRole">
+        UPDATE admin_user_role SET is_deleted='1',modify_user_id=#{operationId},modify_dt=#{modifyDt}
+        WHERE admin_user_role.user_id =#{userId}
+    </update>
+
+</mapper>

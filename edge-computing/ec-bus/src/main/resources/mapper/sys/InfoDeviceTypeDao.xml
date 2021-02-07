@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.ec.module.sys.dao.InfoDeviceTypeDao">
+
+	<sql id="selectAllColumn">
+       device_type_id,device_type_name,device_type_code,is_deleted,is_enabled,created_by, created_date,modified_by, modified_date
+	</sql>
+	
+	<sql id="updateColumn">
+		<set>
+			<if test="deviceTypeId != null "> device_type_id = #{deviceTypeId,jdbcType=BIGINT}, </if>
+			<if test="deviceTypeName != null and deviceTypeName !='' "> device_type_name = #{deviceTypeName,jdbcType=VARCHAR}, </if>
+			<if test="deviceTypeCode != null and deviceTypeCode !='' "> device_type_code = #{deviceTypeCode,jdbcType=VARCHAR}, </if>
+			<if test="isDeleted != null "> is_deleted = #{isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="isEnabled != null "> is_enabled = #{isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="createdBy != null "> created_by = #{createdBy,jdbcType=BIGINT}, </if>
+			<if test="createdDate != null "> created_date = #{createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifiedBy != null "> modified_by = #{modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="modifiedDate != null "> modified_date = #{modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumn">
+		SET
+			device_type_id = #{deviceTypeId,jdbcType=BIGINT},
+			device_type_name = #{deviceTypeName,jdbcType=VARCHAR},
+			device_type_code = #{deviceTypeCode,jdbcType=VARCHAR},
+			is_deleted = #{isDeleted,jdbcType=SMALLINT},
+			is_enabled = #{isEnabled,jdbcType=SMALLINT},
+			created_by = #{createdBy,jdbcType=BIGINT},
+			created_date = #{createdDate,jdbcType=TIMESTAMP},
+			modified_by = #{modifiedBy,jdbcType=BIGINT},
+			modified_date = #{modifiedDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="updateColumnEntity">
+		<set>
+			<if test="entity.deviceTypeId != null "> device_type_id = #{entity.deviceTypeId,jdbcType=BIGINT}, </if>
+			<if test="entity.deviceTypeName != null and entity.deviceTypeName !='' "> device_type_name = #{entity.deviceTypeName,jdbcType=VARCHAR}, </if>
+			<if test="entity.deviceTypeCode != null and entity.deviceTypeCode !='' "> device_type_code = #{entity.deviceTypeCode,jdbcType=VARCHAR}, </if>
+			<if test="entity.isDeleted != null "> is_deleted = #{entity.isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="entity.isEnabled != null "> is_enabled = #{entity.isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="entity.createdBy != null "> created_by = #{entity.createdBy,jdbcType=BIGINT}, </if>
+			<if test="entity.createdDate != null "> created_date = #{entity.createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="entity.modifiedBy != null "> modified_by = #{entity.modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="entity.modifiedDate != null "> modified_date = #{entity.modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumnEntity">
+		SET
+			device_type_id = #{entity.deviceTypeId,jdbcType=BIGINT},
+			device_type_name = #{entity.deviceTypeName,jdbcType=VARCHAR},
+			device_type_code = #{entity.deviceTypeCode,jdbcType=VARCHAR},
+			is_deleted = #{entity.isDeleted,jdbcType=SMALLINT},
+			is_enabled = #{entity.isEnabled,jdbcType=SMALLINT},
+			created_by = #{entity.createdBy,jdbcType=BIGINT},
+			created_date = #{entity.createdDate,jdbcType=TIMESTAMP},
+			modified_by = #{entity.modifiedBy,jdbcType=BIGINT},
+			modified_date = #{entity.modifiedDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="where">
+		<where>
+			<if test="deviceTypeId != null "> 
+ 				AND device_type_id=#{deviceTypeId,jdbcType=BIGINT}  
+			</if> 
+			<if test="deviceTypeName != null and deviceTypeName !='' "> 
+ 				AND device_type_name=#{deviceTypeName,jdbcType=VARCHAR}  
+			</if> 
+			<if test="deviceTypeCode != null and deviceTypeCode !='' "> 
+ 				AND device_type_code=#{deviceTypeCode,jdbcType=VARCHAR}  
+			</if> 
+			<if test="isDeleted != null "> 
+ 				AND is_deleted=#{isDeleted,jdbcType=SMALLINT}  
+			</if> 
+			<if test="isEnabled != null "> 
+ 				AND is_enabled=#{isEnabled,jdbcType=SMALLINT}  
+			</if> 
+			<if test="createdBy != null "> 
+ 				AND created_by=#{createdBy,jdbcType=BIGINT}  
+			</if> 
+			<if test="createdDate != null "> 
+ 				AND created_date =  #{createdDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="createdDateStart != null "> 
+ 				AND created_date <![CDATA[ >= ]]> #{createdDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="createdDateEnd != null "> 
+ 				AND created_date <![CDATA[ <= ]]> #{createdDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedBy != null "> 
+ 				AND modified_by=#{modifiedBy,jdbcType=BIGINT}  
+			</if> 
+			<if test="modifiedDate != null "> 
+ 				AND modified_date =  #{modifiedDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedDateStart != null "> 
+ 				AND modified_date <![CDATA[ >= ]]> #{modifiedDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedDateEnd != null "> 
+ 				AND modified_date <![CDATA[ <= ]]> #{modifiedDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+
+		</where>
+	</sql>
+
+	<sql id="whereParam">
+		<where>
+			<if test="param != null">
+				<if test="param.deviceTypeId != null "> 
+ 					AND device_type_id=#{param.deviceTypeId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.deviceTypeName != null and param.deviceTypeName !='' "> 
+ 					and device_type_name=#{param.deviceTypeName,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.deviceTypeCode != null and param.deviceTypeCode !='' "> 
+ 					and device_type_code=#{param.deviceTypeCode,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.isDeleted != null "> 
+ 					AND is_deleted=#{param.isDeleted,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.isEnabled != null "> 
+ 					AND is_enabled=#{param.isEnabled,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.createdBy != null "> 
+ 					AND created_by=#{param.createdBy,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.createdDate != null "> 
+ 					AND created_date = #{param.createdDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.createdDateStart != null "> 
+ 					AND created_date <![CDATA[ >= ]]> #{param.createdDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.createdDateEnd != null "> 
+ 					AND created_date <![CDATA[ <= ]]> #{param.createdDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedBy != null "> 
+ 					AND modified_by=#{param.modifiedBy,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.modifiedDate != null "> 
+ 					AND modified_date = #{param.modifiedDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedDateStart != null "> 
+ 					AND modified_date <![CDATA[ >= ]]> #{param.modifiedDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedDateEnd != null "> 
+ 					AND modified_date <![CDATA[ <= ]]> #{param.modifiedDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insert" parameterType="com.wntime.ec.module.sys.entity.InfoDeviceType">
+		INSERT INTO info_device_type
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="deviceTypeId != null "> 
+ 				device_type_id,  
+			</if> 
+			<if test="deviceTypeName != null and deviceTypeName !='' "> 
+ 				device_type_name,  
+			</if> 
+			<if test="deviceTypeCode != null and deviceTypeCode !='' "> 
+ 				device_type_code,  
+			</if> 
+			<if test="isDeleted != null "> 
+ 				is_deleted,  
+			</if> 
+			<if test="isEnabled != null "> 
+ 				is_enabled,  
+			</if> 
+			<if test="createdBy != null "> 
+ 				created_by,  
+			</if> 
+			<if test="createdDate != null "> 
+ 				created_date,  
+			</if> 
+			<if test="modifiedBy != null "> 
+ 				modified_by,  
+			</if> 
+			<if test="modifiedDate != null "> 
+ 				modified_date,  
+			</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="deviceTypeId != null "> #{deviceTypeId,jdbcType=BIGINT}, </if>
+			<if test="deviceTypeName != null and deviceTypeName !='' "> #{deviceTypeName,jdbcType=VARCHAR}, </if>
+			<if test="deviceTypeCode != null and deviceTypeCode !='' "> #{deviceTypeCode,jdbcType=VARCHAR}, </if>
+			<if test="isDeleted != null "> #{isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="isEnabled != null "> #{isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="createdBy != null "> #{createdBy,jdbcType=BIGINT}, </if>
+			<if test="createdDate != null "> #{createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifiedBy != null "> #{modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="modifiedDate != null "> #{modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</trim>
+	</insert>
+
+	<insert id="insertAllColumn" parameterType="com.wntime.ec.module.sys.entity.InfoDeviceType">
+		INSERT INTO info_device_type(
+		device_type_id,device_type_name,device_type_code,is_deleted,is_enabled,created_by,created_date,modified_by,modified_date
+		) VALUES (
+		#{deviceTypeId,jdbcType=BIGINT},
+		#{deviceTypeName,jdbcType=VARCHAR},
+		#{deviceTypeCode,jdbcType=VARCHAR},
+		#{isDeleted,jdbcType=SMALLINT},
+		#{isEnabled,jdbcType=SMALLINT},
+		#{createdBy,jdbcType=BIGINT},
+		#{createdDate,jdbcType=TIMESTAMP},
+		#{modifiedBy,jdbcType=BIGINT},
+		#{modifiedDate,jdbcType=TIMESTAMP}
+
+		)
+	</insert>
+
+	<update id="updateById" parameterType="com.wntime.ec.module.sys.entity.InfoDeviceType">
+        UPDATE info_device_type 
+		<include refid="updateColumn" />
+		where device_type_id = #{deviceTypeId,jdbcType=BIGINT}
+	</update>
+	<update id="updateAllColumnById" parameterType="com.wntime.ec.module.sys.entity.InfoDeviceType">
+		UPDATE info_device_type <include refid="updateAllColumn" />
+		where device_type_id = #{deviceTypeId,jdbcType=BIGINT}
+	</update>
+	<update id="update">
+		UPDATE info_device_type <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumn">
+		UPDATE info_device_type <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateByMap">
+		UPDATE info_device_type <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumnByMap">
+		UPDATE info_device_type <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<delete id="deleteById" parameterType="java.lang.Long">
+		DELETE FROM info_device_type  where device_type_id = #{deviceTypeId,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteByIds" parameterType="collection">
+		DELETE FROM info_device_type  WHERE id IN
+		<foreach collection="collection" item="ids" open="("
+			separator="," close=")">
+          <![CDATA[#{ids}]]>
+		</foreach>
+	</delete>
+	<delete id="delete" parameterType="com.wntime.ec.module.sys.vo.InfoDeviceTypeQryReqVo">
+		DELETE FROM  info_device_type
+		<include refid="where" />
+	</delete>
+	<delete id="deleteByMap" parameterType="map">
+		DELETE FROM info_device_type
+		<include refid="where" />
+	</delete>
+
+	<select id="selectById" resultType="com.wntime.ec.module.sys.vo.InfoDeviceTypeQryRspVo" parameterType="java.lang.Long">
+		SELECT
+		<include refid="selectAllColumn" />
+		FROM  info_device_type
+		where device_type_id = #{deviceTypeId,jdbcType=BIGINT}
+	</select>
+	
+	<select id="selectOne" resultType="com.wntime.ec.module.sys.vo.InfoDeviceTypeQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoDeviceTypeQryReqVo">
+        SELECT
+        <include refid="selectAllColumn" />
+        FROM info_device_type
+        <include refid="where" />
+    </select>
+	
+	<select id="selectByIds" resultType="com.wntime.ec.module.sys.vo.InfoDeviceTypeQryRspVo" parameterType="collection">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_device_type
+		WHERE id IN
+		<foreach collection="collection" item="ids" open="(" separator="," close=")">
+			<![CDATA[#{ids}]]>
+		</foreach>
+	</select>
+
+	<select id="selectList" resultType="com.wntime.ec.module.sys.vo.InfoDeviceTypeQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoDeviceTypeQryReqVo">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_device_type
+		<include refid="where" />
+		${orderBy}
+	</select>
+
+	<select id="selectListByMap" resultType="com.wntime.ec.module.sys.vo.InfoDeviceTypeQryRspVo" parameterType="map">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_device_type
+		<include refid="where" />
+	</select>
+
+    <select id="selectPage" resultType="com.wntime.ec.module.sys.vo.InfoDeviceTypeQryRspVo">
+        SELECT <include refid="selectAllColumn" />
+        FROM info_device_type
+        <include refid="whereParam" />
+        <if test="param != null">
+        	${param.orderBy}
+        </if>
+    </select>
+	
+</mapper>

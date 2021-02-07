@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.sys.dao.AdminUserTokenDao">
+
+	<select id="queryByToken" resultType="com.wntime.modules.sys.entity.AdminUserToken">
+		select * from admin_user_token  where token = #{value}
+	</select>
+	<delete id="deleteToken">
+		delete from admin_user_token where token = #{value}
+	</delete>
+</mapper>

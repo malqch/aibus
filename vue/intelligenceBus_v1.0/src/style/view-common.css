@@ -1,0 +1,514 @@
+/**
+ * @Author: songwenxin
+ * @Filename: view-common.css
+ * @ProjectName: gfm-manage
+ * @Mail: songwenxin666@sina.com
+ * @Date: 2019-09-29 10:42
+ */
+.clear{clear:both;}
+ul li {
+    list-style: none;
+}
+
+.cotroller_box {
+    width: 100%;
+    float: left;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    border: 1px solid #c4c8d0;
+    /*margin-bottom: 10px;*/
+}
+.cotroller_box .el-form{
+    margin-bottom: -22px;
+}
+
+.show_table{
+
+}
+.table_div{
+    float: left;
+    border:1px solid #E8EAEC;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+.add_btn{
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+}
+.table_div:hover{
+    box-shadow: 0px 0px 14px rgba(0,0,0,0.2);
+}
+.show_table_controller{
+    float: left;
+    width:100%;
+    margin-bottom:5px;
+    border-bottom:2px solid #0F95FF;
+    background-color: #f1f1f1;
+    height: 50px;
+    line-height: 50px;
+}
+
+.show_table_controller .title{
+    float: left;
+    margin-left: 10px;
+    margin-top: 0px;
+    font-size:20px;
+    font-weight: bold;
+    color: #666;
+}
+.show_table_controller .table_title_span{
+    display: block;
+    width:4px;
+    height:30px;
+    background-color:#0F95FF;
+    float: left;
+    margin-top: 10px;
+}
+.show_table_controller .btn_list{
+    margin-top: 10px;
+}
+
+.el-input__inner {
+    height: 34px !important;
+    line-height: 34px !important;
+    background-color: #EAEFF3 !important;
+    border: 1px solid #E5E5E5 !important;
+    color: #333 !important;
+    border-color: #999 !important;
+}
+
+.el-form-item__label {
+
+    font-size: 14px !important;
+}
+label.el-form-item__label {
+
+    color: #0e0e0e !important;
+}
+
+
+.el-table tr {
+    background-color: #F8F8F9 !important;
+
+}
+
+
+.el-table th{
+    background-color:#E3E3E3 !important;
+    background-color:#0F95FF !important;
+    color:#fff !important;
+    padding: 6px 0px !important;
+    font-size: 12px !important;
+}
+.el-table--enable-row-hover .el-table__body tr:hover>td{
+    background-color: #EAEFF3 !important;
+}
+.el-table--enable-row-hover .el-table__body tr td{
+    /*background-color: #fff !important;*/
+    border-bottom: 1px solid #f1f1f1 !important;
+}
+
+.el-table th.is-leaf{
+    color: #fff;
+    border-bottom:none !important;
+    font-weight: bold;
+    font-size:13px;
+}
+.el-table td {
+    border-bottom: 2px solid #ffffff !important;
+    color: #000 !important;
+    padding: 4px 0px !important;
+}
+
+.el-table_1_column_5 {
+    min-width: 300px !important;
+}
+
+
+
+.el-dialog__title,
+.el-checkbox__label,
+.el-form-item__label,
+.el-tree-node__label {
+    color: #FFF !important;
+}
+.el-pagination{
+    background-color: #ffffff !important;
+    margin-top: 0px !important;
+    padding: 10px 0 10px 0 !important;
+    margin-right: 10px;
+}
+.el-pagination__total,
+.el-pagination__jump {
+    color: #464749 !important;
+}
+.el-pagination .el-pagination__jump{
+    margin-right: 10px !important;
+}
+
+.el-pagination__sizes .el-input--mini .el-input__inner {
+    height: 28px !important;
+    line-height: 28px !important;
+}
+
+.el-pagination__editor.el-input .el-input__inner {
+    height: 28px !important;
+}
+.el-pagination .btn-prev,.el-pagination .btn-next{
+    color: #409EFF !important;
+    background: #fff !important;
+    border:1px solid #666 !important;
+}
+.el-pager .number:not(.active){
+    background: #fff !important;
+    border:1px solid #666 !important;
+}
+.el-pager .more{
+    background: #fff !important;
+    border:1px solid #666 !important;
+}
+
+
+
+.el-dialog__title,
+.el-checkbox__label,
+.el-form-item__label,
+.el-tree-node__label {
+    color: #757575 !important;
+}
+
+.el-dialog__headerbtn .el-dialog__close {
+    font-size: 25px;
+}
+
+.el-dialog__title {
+    border-left: 4px solid #0F95FF;
+    padding-left: 10px;
+}
+
+.el-date-table .available {
+    padding: 0px !important;
+}
+
+.el-range-editor {
+    margin-top: 3px;
+}
+
+.el-date-editor .el-range-separator {
+    color: #9b9b9b !important;
+    line-height: 27px !important;
+}
+
+.el-range-editor .el-range-input {
+    background-color: #EAEFF3;
+    color: #333 !important;
+}
+
+.el-range-editor .el-range__icon {
+    line-height: 27px !important;
+}
+
+.el-date-range-picker__time-header>.el-icon-arrow-right {
+    color: #FFFFFF !important;
+}
+
+.el-table {
+    position: unset !important;
+    font-size: 12px !important;
+}
+
+.el-table__empty-block {
+    background-color: #FFFFFF;
+}
+
+.el-dialog .el-dialog__body,
+.el-dialog .el-dialog__header,
+
+
+.el-dialog__header {
+    border-bottom: 1px solid #0F95FF;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.el-dialog__footer {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+
+.el-dialog__body .el-checkbox-group {
+    /*background-color: #eaeff3 !important;*/
+}
+
+.el-dialog__body .el-form {
+    width: 98%;
+    margin: 0px auto;
+}
+
+.el-dialog__body .el-select {
+    display: block;
+}
+
+
+
+
+.el-select-dropdown.is-multiple .el-select-dropdown__item.selected{
+    background: none !important;
+}
+.el-form--inline .el-select .el-input__inner{
+    padding-bottom: 1px;
+}
+.el-table__row .cell .el-button{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+
+
+
+.table_div{
+    box-sizing:border-box;
+    padding:15px;
+    background-color:#ffffff;
+    float: left;
+    width:100%;
+}
+.el-form textarea{
+    background-color: #EAEFF3;
+}
+.el-checkbox-group .el-checkbox{
+    /*float: left;*/
+    /*width: 160px;*/
+    /*margin: 0;*/
+    /*padding: 0;*/
+}
+.el-checkbox__label{
+    white-space: initial;
+}
+.el-menu-item:focus, .el-menu-item:hover{
+    background-color: #ecf5ff !important;
+}
+
+.app-container{
+    background-color: #ffffff;
+    border: 1px solid #c4c8d0;
+    padding: 10px;
+    border-radius: 3px;
+}
+
+.el-button.el-button--mini.is-disabled{
+    color: #FFF;
+    background-color: #c0c0c0;
+    border-color: #c0c0c0;
+}
+.el-button.el-button--mini.is-disabled:hover{
+    color: #FFF;
+    background-color: #c0c0c0;
+    border-color: #c0c0c0;
+}
+
+.icons{
+    float: left;
+    width:30px;
+    height:30px;
+    margin-top: 8px;
+
+}
+.el-table--border::after, .el-table--group::after, .el-table::before{
+    background-color:rgba(0,0,0, 0) !important;
+}
+
+#nprogress .bar{
+    background-color:red !important;
+}
+.el-header{
+    height:44px !important;
+}
+.el-menu--horizontal>.el-submenu .el-submenu__title{
+    height:44px !important;
+    line-height: 44px !important;
+}
+.el-breadcrumb__inner{
+    color:#fff !important;
+
+    font-size: 12px !important;
+}
+
+/*卡片通用样式*/
+.card-text span{
+    font-size: 12px;
+}
+.mtop{
+    margin-top: 10px;
+}
+.text-public{
+    float:left;
+    margin-left:20px;
+    margin-right:20px;
+}
+.card-title-box-h1{
+    height:280px;
+
+}
+.card-title-box-h2{
+    height:150px;
+
+}
+.card-title-box{
+    width:100%;
+    float: left;
+    background-color:#f8f8f8;
+}
+.title-box{
+    display: flex;
+    justify-content: center;
+    margin-bottom:10px;
+    box-sizing: border-box;
+    padding-top: 20px;
+}
+.title-bg-box{
+    width:120px;
+    height:120px;
+    border:2px solid #0f95ff;
+    border-radius:50%;
+    overflow: hidden
+}
+.title-text-box{
+    width:100%;
+    box-sizing: border-box;
+    padding:10px;
+}
+.title-text-content{
+    color:#fff;
+    box-sizing: border-box;
+    padding:8px;
+    background-color:#0f95ff;
+    margin-top:20px;
+    font-size: 14px;
+    text-align: center;
+}
+.card-right-box-h1{
+    height:260px;
+}
+.card-right-box-h2{
+    height:150px;
+}
+.card-right-content{
+    width:100%;
+    border-left: 1px solid #ccc;
+}
+.card-right-content-h1{
+    height:280px;
+
+}
+.card-right-content-h2{
+    height:150px;
+
+}
+.title-icon-box{
+    width:100px;
+    height:100px;
+    overflow: hidden
+}
+.title-box-svg{
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    padding-top: 0px;
+}
+.title-bg-box-svg{
+    width:90px;
+    height:90px;
+    overflow: hidden
+}
+.title-text-box-svg{
+    width:100%;
+    box-sizing: border-box;
+    padding:10px;
+}
+.title-text-content-svg{
+    color:#fff;
+    box-sizing: border-box;
+    padding:5px;
+    background-color:#0f95ff;
+    margin-top:0px;
+    text-align: center;
+    font-size:14px;
+}
+
+/*2020-03-07*/
+
+.el-tree-node :nth-child(2) {
+    padding: 1px !important;
+    overflow: visible !important;
+}
+
+/*2020-03-12*/
+.el-table__fixed-right::before, .el-table__fixed::before{
+    background-color: #fff !important;
+}
+
+.change-btn-style .el-button{
+    padding: 5px 12px !important;
+}
+
+.wrap-left .el-tree-node__label{
+    font-size:13px;
+}
+
+.search-box .el-input-group__append, .search-box .el-input-group__prepend{
+    border:1px solid #0F95FF !important;
+    border-radius : 0px;
+}
+.el-input-number {
+    line-height:32px !important;
+}
+
+
+/*2020-03-16*/
+.el-tooltip__popper {
+    max-width:30% !important;
+    background-color:rgba(0,0,0,0.8) !important;
+}
+
+/* 2020-04-09*/
+.el-pagination{
+    float: left;
+}
+
+.el-popover{
+    /*background-color:rgba(0,0,0, 0.7);*/
+    border:none;
+}
+.el-popover .el-radio{
+    /*color:#fff !important;*/
+    margin-right:15px !important;
+}
+.el-popper[x-placement^=top] .popper__arrow::after{
+    /*border-top-color:rgba(0,0,0,0.7)!important;*/
+}
+.el-popover--plain{
+    padding:8px 10px;
+    /*top: 140px !important;*/
+    /*left:676px !important;*/
+}
+.el-popover{
+    font-size:12px;
+}
+
+
+.el-scrollbar .el-scrollbar__wrap {
+    overflow-x: auto;
+}
+
+.el-menu-item.is-active{
+    color: #409EFF !important;
+}
+
+.el-scrollbar .el-scrollbar__wrap {
+        margin-bottom: 0 !important;
+    }

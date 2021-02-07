@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.advert.dao.LogCheckItemDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.advert.entity.LogCheckItemEntity" id="logCheckItemMap">
+        <result property="checkItemId" column="check_item_id"/>
+        <result property="advertiseDeliveryId" column="advertise_delivery_id"/>
+        <result property="checkItem" column="check_item"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="listByAdvertise" resultType="com.wntime.advert.vo.ItemVo">
+        select lci.check_item item_id,icp.param_name item_name,icp.param_code item_code
+            from log_check_item  lci
+            left join info_config_param icp on lci.check_item = icp.config_param_id and icp.param_group = 'advertiseViolateType' and icp.is_deleted = 0 and icp.is_enabled = 1
+            where lci.advertise_delivery_id = #{advertiseId}
+    </select>
+
+</mapper>

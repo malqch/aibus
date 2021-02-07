@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.InfoBusCompanyDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.customer.entity.InfoBusCompanyEntity" id="infoBusCompanyMap">
+        <result property="companyId" column="company_id"/>
+        <result property="areaId" column="area_id"/>
+        <result property="schoolId" column="school_id"/>
+        <result property="companyName" column="company_name"/>
+        <result property="companySnapshot" column="company_snapshot"/>
+        <result property="companyCode" column="company_code"/>
+        <result property="companyScope" column="company_scope"/>
+        <result property="companyAddress" column="company_address"/>
+        <result property="companyPerson" column="company_person"/>
+        <result property="companyPhone" column="company_phone"/>
+        <result property="companyEmail" column="company_email"/>
+        <result property="companyLongitude" column="company_longitude"/>
+        <result property="companytLatitude" column="companyt_latitude"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.customer.vo.InfoBusCompanyVo">
+        SELECT
+        a.company_id,
+        a.area_id,
+        a.company_name,
+        a.company_snapshot,
+        a.company_code,
+        a.company_scope,
+        a.company_address,
+        a.company_person,
+        a.company_phone,
+        a.company_email,
+        a.company_longitude,
+        a.companyt_latitude,
+        a.parent_company_id,
+        a.is_clique,
+        a.is_deleted,
+        a.is_enabled,
+        a.created_by,
+        a.created_date,
+        a.modified_by,
+        a.modified_date,
+        ia.area_name ,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_bus_company a
+        left join info_area ia on a.area_id  = ia.area_id
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="companyName != null and companyName != ''">
+            and a.company_name LIKE concat('%', #{companyName}, '%')
+        </if>
+        <if test="companyIdList != null and companyIdList.size() > 0">
+            and a.company_id in
+            <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                #{companyId}
+            </foreach>
+        </if>
+        <if test="schoolIdList != null and schoolIdList.size() > 0">
+            and a.school_id in
+            <foreach collection="schoolIdList" item="schoolId" separator="," open="(" close=")">
+                #{schoolId}
+            </foreach>
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+    <select id="getDetailById" parameterType="map" resultType="com.wntime.customer.vo.InfoBusCompanyVo">
+        SELECT
+        a.company_id,
+        a.area_id,
+        a.company_name,
+        a.company_snapshot,
+        a.company_code,
+        a.company_scope,
+        a.company_address,
+        a.company_person,
+        a.company_phone,
+        a.company_email,
+        a.company_longitude,
+        a.companyt_latitude,
+        a.parent_company_id,
+        a.is_clique,
+        a.is_deleted,
+        a.is_enabled,
+        a.created_by,
+        a.created_date,
+        a.modified_by,
+        a.modified_date,
+        ia.area_name ,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_bus_company a
+        left join info_area ia on a.area_id  = ia.area_id
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.company_id = #{id}
+    </select>
+
+    <!--查询指定地区车辆交付量-->
+    <select id="getBusDeliveryCountByAreaId" resultType="int">
+        select COALESCE(sum(d.order_delivery_num),0)
+            from info_bus_company i
+            left join order_bus_company o
+                on i.company_id = o.company_id
+                and i.is_deleted = 0 and i.is_enabled = 1
+                and i.is_clique = 0
+            left join order_company_delivery d
+                on o.order_id = d.order_id
+                and o.is_deleted = 0 and d.is_deleted = 0
+            <where>
+            <if test="companyIdList != null and companyIdList.size() > 0">
+                and i.company_id in
+                <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                    #{companyId}
+                </foreach>
+            </if>
+            </where>
+    </select>
+    <!--查询指定地区客户数量-->
+    <select id="getCompanyCountByAreaId" resultType="int">
+        select COALESCE(count(*),0)
+        from info_bus_company i
+        where i.area_id = #{areaId} and i.is_deleted = 0 and i.is_enabled = 1
+        and is_clique = 0
+        <if test="companyIdList != null and companyIdList.size() > 0">
+            and i.company_id in
+            <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                #{companyId}
+            </foreach>
+        </if>
+    </select>
+
+    <!--查询指定地区客户列表-->
+    <select id="getCompanyListByAreaId" resultType="com.wntime.customer.vo.InfoBusCompanyVo">
+        select i.*,a.area_name from info_bus_company i
+            left join info_area a
+            on i.area_id = a.area_id and a.is_deleted = 0 and a.is_enabled = 1
+        where i.is_deleted = 0 and i.is_enabled = 1
+            and i.is_clique = 0
+            <if test="areaId != null">
+                and i.area_id = #{areaId}
+            </if>
+
+            <if test="companyIdList != null and companyIdList.size() > 0">
+                and i.company_id in
+                <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                    #{companyId}
+                </foreach>
+            </if>
+    </select>
+
+    <!--查询指定地区客户列表-->
+    <select id="getCompanyListByAreaIdList" resultType="com.wntime.customer.vo.InfoBusCompanyVo">
+        select i.*,a.area_name from info_bus_company i
+        left join info_area a
+        on i.area_id = a.area_id and a.is_deleted = 0 and a.is_enabled = 1
+        where i.is_deleted = 0 and i.is_enabled = 1
+        and i.is_clique = 0
+        <if test="areaIdList != null and areaIdList.size() > 0">
+            and i.area_id in
+            <foreach collection="areaIdList" item="areaId" separator="," open="(" close=")">
+                #{areaId}
+            </foreach>
+        </if>
+
+        <if test="companyIdList != null and companyIdList.size() > 0">
+            and i.company_id in
+            <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                #{companyId}
+            </foreach>
+        </if>
+    </select>
+
+
+    <!--查询指定地区客户列表 （包括订单总量，交付量）-->
+    <select id="getCompanyStatListByAreaId" parameterType="map" resultType="com.wntime.customer.vo.InfoBusCompanyVo">
+         select i.*,a.area_name,coalesce(ocd.deliveryCount,0) as deliveryCount,
+         coalesce(obcd.orderCount,0) as orderCount from info_bus_company i
+            left join info_area a
+            on i.area_id = a.area_id and a.is_deleted = 0 and a.is_enabled = 1
+            left join
+            (
+                select i.company_id, coalesce(sum(d.order_delivery_num),0) as deliveryCount
+                from info_bus_company i
+                left join order_bus_company o
+                on i.company_id = o.company_id
+                and i.is_deleted = 0 and i.is_enabled = 1
+                inner join order_company_delivery d
+                on o.order_id = d.order_id
+                and o.is_deleted = 0
+                where i.is_deleted = 0
+                <if test="areaIdList != null and areaIdList.size() > 0">
+                    and i.area_id in
+                    <foreach collection="areaIdList" item="areaId" separator="," open="(" close=")">
+                        #{areaId}
+                    </foreach>
+                </if>
+                <if test="companyIdList != null and companyIdList.size() > 0">
+                    and i.company_id in
+                    <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                        #{companyId}
+                    </foreach>
+                </if>
+                group by i.company_id
+            ) ocd
+            on i.company_id = ocd.company_id
+            left join
+            (
+                select i.company_id,coalesce(sum(d.order_detail_num),0) as orderCount
+                from info_bus_company i
+                left join order_bus_company o
+                on i.company_id = o.company_id
+                and i.is_deleted = 0 and i.is_enabled = 1
+                inner join order_bus_company_detail d
+                on o.order_id = d.order_id
+                and o.is_deleted = 0
+
+                where i.is_deleted = 0
+                <if test="areaIdList != null and areaIdList.size() > 0">
+                    and i.area_id in
+                    <foreach collection="areaIdList" item="areaId" separator="," open="(" close=")">
+                        #{areaId}
+                    </foreach>
+                </if>
+                <if test="companyIdList != null and companyIdList.size() > 0">
+                    and i.company_id in
+                    <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                        #{companyId}
+                    </foreach>
+                </if>
+                group by i.company_id
+            )  obcd
+            on i.company_id = obcd.company_id
+         where i.is_deleted = 0
+                and i.is_clique = 0
+             <if test="areaIdList != null and areaIdList.size() > 0">
+                and i.area_id in
+                <foreach collection="areaIdList" item="areaId" separator="," open="(" close=")">
+                    #{areaId}
+                </foreach>
+             </if>
+             <if test="companyIdList != null and companyIdList.size() > 0">
+                and i.company_id in
+                <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                    #{companyId}
+                </foreach>
+             </if>
+         order by orderCount desc
+    </select>
+
+    <!--按地区查询公司分车型订单总量、交付量-->
+    <select id="getDeliveryStatByBusTypeAndAreaId" parameterType="map" resultType="com.wntime.customer.vo.InfoCompanyBusTypeStatVo">
+        select
+            tt.bus_type_id as id,
+            tt.bus_type_id,
+             (tt.bus_type_name || '订单总量') as firstName,
+             coalesce(orderT.orderCount,0) as firstCount,
+            (tt.bus_type_name || '订单交付量') as secondName,
+            coalesce(deliveryT.deliveryCount,0) as secondCount
+            from info_bus_type tt
+            left join
+            (
+                select t.bus_type_id as id,  t.bus_type_id as busTypeId,
+                (t.bus_type_name || '订单总量') busTypeOrder, coalesce (sum(d.order_detail_num),0) as orderCount
+                from info_bus_type t
+                left join order_bus_company_detail d
+                    on d.bus_type_id = t.bus_type_id
+                    and t.is_deleted = 0 and t.is_enabled = 1
+                left join order_bus_company o
+                    on o.order_id = d.order_id
+                    and o.is_deleted = 0
+                left join info_bus_company i
+                    on i.company_id = o.company_id
+                    and i.is_deleted = 0 and i.is_enabled = 1
+                where i.company_id =#{companyId}
+                    and d.is_deleted = 0
+                group by t.bus_type_id
+            ) as orderT
+            on orderT.busTypeId = tt.bus_type_id
+            left join
+            (
+                select t.bus_type_id as id, t.bus_type_id as busTypeId,
+                (t.bus_type_name || '订单交付量') as busTypeDelivery,coalesce(sum(d.order_delivery_num),0)  as deliveryCount
+                from info_bus_type t
+                left join order_company_delivery d
+                    on d.bus_type_id = t.bus_type_id
+                    and t.is_deleted = 0 and t.is_enabled = 1
+                left join order_bus_company o
+                    on o.order_id = d.order_id
+                    and o.is_deleted = 0
+                left join info_bus_company i
+                    on i.company_id = o.company_id
+                    and t.is_deleted = 0 and t.is_enabled = 1
+                where i.company_id =#{companyId}
+                    and d.is_deleted = 0
+                group by t.bus_type_id
+            ) as deliveryT
+            on tt.bus_type_id = deliveryT.busTypeId
+            where tt.is_deleted = 0 and tt.is_enabled = 1
+            and orderT.orderCount > 0
+            order by firstCount desc
+    </select>
+
+    <!--按地区查询公司分车型订单总量、出保量-->
+    <select id="getOutDateStatByBusTypeAndAreaId" parameterType="map" resultType="com.wntime.customer.vo.InfoCompanyBusTypeStatVo">
+        select
+            tt.bus_type_id as id,
+            tt.bus_type_id,
+             (tt.bus_type_name || '交付量') as firstName,
+             coalesce(orderT.orderCount,0) as firstCount,
+            (tt.bus_type_name || '出保量') as secondName,
+            coalesce(deliveryT.deliveryCount,0) as secondCount
+        from info_bus_type tt
+        left join
+        (
+            select t.bus_type_id as id, t.bus_type_id as busTypeId,
+            (t.bus_type_name || '交付量') as busTypeOrder , coalesce(sum(d.order_delivery_num),0)  as orderCount
+            from info_bus_type t
+            left join order_company_delivery d
+            on d.bus_type_id = t.bus_type_id
+            and t.is_deleted = 0 and t.is_enabled = 1
+            left join order_bus_company o
+            on o.order_id = d.order_id
+            and o.is_deleted = 0
+            left join info_bus_company i
+            on i.company_id = o.company_id
+            and i.is_deleted = 0 and i.is_enabled = 1
+            where i.company_id =#{companyId} and i.is_clique = 0
+                and d.is_deleted = 0
+            group by t.bus_type_id
+        ) as orderT
+        on tt.bus_type_id = orderT.busTypeId
+        left join
+        (
+            select t.bus_type_id as id, t.bus_type_id as busTypeId,
+            (t.bus_type_name || '出保量') as busTypeDelivery , COALESCE(count(obd.bus_delivery_id),0) as deliveryCount
+            from info_bus_type t
+            left join order_company_delivery d
+            on d.bus_type_id = t.bus_type_id
+            and t.is_deleted = 0 and t.is_enabled = 1
+            left join order_bus_company o
+            on o.order_id = d.order_id
+            and o.is_deleted = 0
+            left join info_bus_company i
+            on i.company_id = o.company_id
+            and i.is_deleted = 0 and i.is_enabled = 1
+            left join order_bus_delivery obd
+            on d.company_delivery_id = obd.company_delivery_id
+            and obd.is_deleted = 0 and obd.order_out_date <![CDATA[<]]> now()
+            where i.company_id =#{companyId} and i.is_clique = 0
+                and d.is_deleted = 0
+            group by t.bus_type_id
+            ) as deliveryT
+        on tt.bus_type_id = deliveryT.busTypeId
+        where tt.is_deleted = 0 and tt.is_enabled = 1
+        and orderT.orderCount > 0
+        order by firstCount desc
+    </select>
+
+    <!--查询指定地区客户基础信息列表-->
+    <select id="getCompanyBaseInfoListByAreaId" resultType="com.wntime.customer.vo.InfoBusCompanyStatVo">
+         select DISTINCT i.company_id,i.company_name,i.area_id from info_bus_company i
+            inner join order_bus_company o
+            on i.company_id = o.company_id
+            inner join order_company_delivery d
+            on o.order_id = d.order_id
+            and d.is_deleted = 0
+        where  i.is_deleted = 0 and i.is_enabled = 1 and o.is_deleted = 0
+                and i.is_clique = 0
+            <if test="areaIdList != null and areaIdList.size() > 0">
+                and i.area_id in
+                <foreach collection="areaIdList" item="areaId" separator="," open="(" close=")">
+                    #{areaId}
+                </foreach>
+            </if>
+            <if test="companyIdList != null and companyIdList.size() > 0">
+                and i.company_id in
+                <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                    #{companyId}
+                </foreach>
+            </if>
+    </select>
+
+    <!--查询指定地区省份 + 市 信息-->
+    <select id="getAreaNameShowByAreaId" resultType="String" >
+        select  string_agg(a.area_name, ' ')  as name
+        from (select a.area_name,a.is_deleted
+            from info_area a where  a.is_deleted = 0 and a.is_enabled = 1
+            <if test="areaIdList != null and areaIdList.size() > 0">
+                and a.area_id in
+                <foreach collection="areaIdList" item="areaId" separator="," open="(" close=")">
+                    #{areaId}
+                </foreach>
+            </if>
+            order by a.area_level asc
+            ) a
+        group by a.is_deleted
+    </select>
+
+    <select id="selectByIdWithArea" resultType="com.wntime.customer.vo.InfoBusCompanyEntityWithAreaVO">
+        select ibc.*,ia.area_name from
+        info_bus_company
+         ibc left join
+        info_area ia on ibc.area_id=ia.area_id and ia.is_deleted = 0 and ia.is_enabled = 1
+        where ibc.is_deleted = 0 and ibc.is_enabled = 1
+        and company_id = #{id}
+    </select>
+
+    <select id="queryChildrenCompanyList" resultType="com.wntime.service.common.vo.BusCompanyBaseInfoVo">
+        SELECT
+            company_id,
+            company_name
+        FROM
+            info_bus_company
+        WHERE
+            is_enabled = 1
+          AND is_deleted =0
+            AND parent_company_id =#{companyId}
+    </select>
+
+    <select id="getUserCompanyIdList" resultType="long">
+        select c.company_id from info_bus_company c
+            where c.company_id in (
+                select a.company_id from admin_position_auth a
+                left join admin_user_position p
+                on a.position_id = p.position_id
+                where a.is_deleted = '0' and p.is_deleted = '0'
+                and p.user_id = #{userId}
+            )
+        and c.is_deleted = 0 and c.is_enabled = 1
+    </select>
+
+    <select id="getValidCompanyListByUserId" resultType="com.wntime.customer.vo.ValidCompanyVO">
+        select ibc.company_id,ibc.company_name,count(ib.bus_id) bus_count,
+               ia.area_id,ia.area_name,
+               ia2.area_id parent_area_id,ia2.area_name parent_area_name
+        from
+            info_bus_company ibc
+                left join info_company_line icl on ibc.company_id = icl.company_id and icl.is_deleted = 0 and icl.is_enabled = 1
+                left join plan_bus_service pbs on icl.company_line_id = pbs.company_line_id and pbs.is_deleted = 0 and pbs.is_enabled = 1
+                left join info_bus ib on pbs.bus_id = ib.bus_id and ib.is_deleted = 0 and ib.is_enabled = 1
+                left join info_area ia on ibc.area_id = ia.area_id and ia.is_deleted = 0 and ia.is_enabled = 1
+                left join info_area ia2 on ia2.area_id = ia.parent_area_id and ia2.is_deleted = 0 and ia2.is_enabled = 1
+        where ibc.is_deleted = 0 and ibc.is_enabled = 1
+        <if test="userId != 1">
+          and ibc.company_id in (
+            select apa.company_id from
+                admin_position_auth apa
+                    left join admin_user_position aup on aup.position_id = apa.position_id
+            where apa.is_deleted = '0' and aup.is_deleted = '0'
+              and aup.user_id = #{userId}
+          )
+        </if>
+        GROUP BY ibc.company_id,ibc.company_name,ia.area_id,ia.area_name,ia2.area_id,ia2.area_name
+        HAVING count(ib.bus_id) > 0
+        limit 1
+    </select>
+
+    <select id="queryCompanyAreaName" resultType="com.wntime.customer.vo.ValidCompanyVO">
+        SELECT
+            ibc.company_name,
+            ia.area_name,
+            ia.area_id
+        FROM
+            info_bus_company ibc
+                INNER JOIN info_area ia ON ibc.area_id = ia.area_id
+        WHERE
+            company_id = #{companyId}
+          AND ibc.is_deleted = 0
+          AND ibc.is_enabled = 1
+          AND ia.is_deleted = 0
+          AND ia.is_enabled =1
+    </select>
+    <select id="queryCompanyBusCount" resultType="int">
+        SELECT count(obd.bus_id)
+        FROM order_bus_company obc
+                 INNER JOIN order_company_delivery ocd ON obc.order_id = ocd.order_id
+            AND obc.is_deleted = 0
+            AND ocd.is_deleted = 0
+                 INNER JOIN order_bus_delivery obd ON obd.company_delivery_id = ocd.company_delivery_id
+            AND obd.is_deleted = 0
+            AND obc.company_id = #{companyId}
+    </select>
+    <select id="queryBusOrderBaseInfo" resultType="com.wntime.service.common.vo.BusBaseInfoVo">
+        SELECT
+            obc.company_id,
+            obc.factory_id,
+            ib.vin_code,
+            ibt.people_number as peopleLoadCount,
+            obd.bus_id,
+            obd.plate_code
+        FROM
+            order_bus_company obc
+                INNER JOIN order_company_delivery ocd ON obc.order_id = ocd.order_id
+                AND obc.is_deleted = 0
+                AND ocd.is_deleted = 0
+                INNER JOIN order_bus_delivery obd ON obd.company_delivery_id = ocd.company_delivery_id
+                AND obd.is_deleted = 0
+                AND obd.bus_id = #{busId}
+                INNER JOIN info_bus ib ON ib.bus_id = obd.bus_id
+                AND ib.is_deleted = 0
+                AND ib.is_enabled = 1
+                INNER JOIN info_bus_type ibt ON ibt.bus_type_id = ib.bus_type_id
+                AND ibt.is_deleted = 0
+                AND ibt.is_enabled =1
+    </select>
+</mapper>

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.ec.module.sys.dao.PlanBusServiceDao">
+
+	<sql id="selectAllColumn">
+       plan_service_id,bus_id,company_line_id, begin_date, end_date
+	</sql>
+	
+	<sql id="updateColumn">
+		<set>
+			<if test="planServiceId != null "> plan_service_id = #{planServiceId,jdbcType=BIGINT}, </if>
+			<if test="busId != null "> bus_id = #{busId,jdbcType=BIGINT}, </if>
+			<if test="companyLineId != null "> company_line_id = #{companyLineId,jdbcType=BIGINT}, </if>
+			<if test="beginDate != null "> begin_date = #{beginDate,jdbcType=TIMESTAMP}, </if>
+			<if test="endDate != null "> end_date = #{endDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumn">
+		SET
+			plan_service_id = #{planServiceId,jdbcType=BIGINT},
+			bus_id = #{busId,jdbcType=BIGINT},
+			company_line_id = #{companyLineId,jdbcType=BIGINT},
+			begin_date = #{beginDate,jdbcType=TIMESTAMP},
+			end_date = #{endDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="updateColumnEntity">
+		<set>
+			<if test="entity.planServiceId != null "> plan_service_id = #{entity.planServiceId,jdbcType=BIGINT}, </if>
+			<if test="entity.busId != null "> bus_id = #{entity.busId,jdbcType=BIGINT}, </if>
+			<if test="entity.companyLineId != null "> company_line_id = #{entity.companyLineId,jdbcType=BIGINT}, </if>
+			<if test="entity.beginDate != null "> begin_date = #{entity.beginDate,jdbcType=TIMESTAMP}, </if>
+			<if test="entity.endDate != null "> end_date = #{entity.endDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumnEntity">
+		SET
+			plan_service_id = #{entity.planServiceId,jdbcType=BIGINT},
+			bus_id = #{entity.busId,jdbcType=BIGINT},
+			company_line_id = #{entity.companyLineId,jdbcType=BIGINT},
+			begin_date = #{entity.beginDate,jdbcType=TIMESTAMP},
+			end_date = #{entity.endDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="where">
+		<where>
+			<if test="planServiceId != null "> 
+ 				AND plan_service_id=#{planServiceId,jdbcType=BIGINT}  
+			</if> 
+			<if test="busId != null "> 
+ 				AND bus_id=#{busId,jdbcType=BIGINT}  
+			</if> 
+			<if test="companyLineId != null "> 
+ 				AND company_line_id=#{companyLineId,jdbcType=BIGINT}  
+			</if> 
+			<if test="beginDate != null "> 
+ 				AND begin_date =  #{beginDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="beginDateStart != null "> 
+ 				AND begin_date <![CDATA[ >= ]]> #{beginDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="beginDateEnd != null "> 
+ 				AND begin_date <![CDATA[ <= ]]> #{beginDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="endDate != null "> 
+ 				AND end_date =  #{endDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="endDateStart != null "> 
+ 				AND end_date <![CDATA[ >= ]]> #{endDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="endDateEnd != null "> 
+ 				AND end_date <![CDATA[ <= ]]> #{endDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+
+		</where>
+	</sql>
+
+	<sql id="whereParam">
+		<where>
+			<if test="param != null">
+				<if test="param.planServiceId != null "> 
+ 					AND plan_service_id=#{param.planServiceId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.busId != null "> 
+ 					AND bus_id=#{param.busId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.companyLineId != null "> 
+ 					AND company_line_id=#{param.companyLineId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.beginDate != null "> 
+ 					AND begin_date = #{param.beginDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.beginDateStart != null "> 
+ 					AND begin_date <![CDATA[ >= ]]> #{param.beginDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.beginDateEnd != null "> 
+ 					AND begin_date <![CDATA[ <= ]]> #{param.beginDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.endDate != null "> 
+ 					AND end_date = #{param.endDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.endDateStart != null "> 
+ 					AND end_date <![CDATA[ >= ]]> #{param.endDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.endDateEnd != null "> 
+ 					AND end_date <![CDATA[ <= ]]> #{param.endDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insert" parameterType="com.wntime.ec.module.sys.entity.PlanBusService">
+		INSERT INTO plan_bus_service
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="planServiceId != null "> 
+ 				plan_service_id,  
+			</if> 
+			<if test="busId != null "> 
+ 				bus_id,  
+			</if> 
+			<if test="companyLineId != null "> 
+ 				company_line_id,  
+			</if> 
+			<if test="beginDate != null "> 
+ 				begin_date,  
+			</if> 
+			<if test="endDate != null "> 
+ 				end_date,  
+			</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="planServiceId != null "> #{planServiceId,jdbcType=BIGINT}, </if>
+			<if test="busId != null "> #{busId,jdbcType=BIGINT}, </if>
+			<if test="companyLineId != null "> #{companyLineId,jdbcType=BIGINT}, </if>
+			<if test="beginDate != null "> #{beginDate,jdbcType=TIMESTAMP}, </if>
+			<if test="endDate != null "> #{endDate,jdbcType=TIMESTAMP}, </if>
+
+		</trim>
+	</insert>
+
+	<insert id="insertAllColumn" parameterType="com.wntime.ec.module.sys.entity.PlanBusService">
+		INSERT INTO plan_bus_service(
+		plan_service_id,bus_id,company_line_id,begin_date,end_date
+		) VALUES (
+		#{planServiceId,jdbcType=BIGINT},
+		#{busId,jdbcType=BIGINT},
+		#{companyLineId,jdbcType=BIGINT},
+		#{beginDate,jdbcType=TIMESTAMP},
+		#{endDate,jdbcType=TIMESTAMP}
+
+		)
+	</insert>
+
+	<update id="updateById" parameterType="com.wntime.ec.module.sys.entity.PlanBusService">
+        UPDATE plan_bus_service 
+		<include refid="updateColumn" />
+		where plan_service_id = #{planServiceId,jdbcType=BIGINT}
+	</update>
+	<update id="updateAllColumnById" parameterType="com.wntime.ec.module.sys.entity.PlanBusService">
+		UPDATE plan_bus_service <include refid="updateAllColumn" />
+		where plan_service_id = #{planServiceId,jdbcType=BIGINT}
+	</update>
+	<update id="update">
+		UPDATE plan_bus_service <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumn">
+		UPDATE plan_bus_service <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateByMap">
+		UPDATE plan_bus_service <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumnByMap">
+		UPDATE plan_bus_service <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<delete id="deleteById" parameterType="java.lang.Long">
+		DELETE FROM plan_bus_service  where plan_service_id = #{planServiceId,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteByIds" parameterType="collection">
+		DELETE FROM plan_bus_service  WHERE id IN
+		<foreach collection="collection" item="ids" open="("
+			separator="," close=")">
+          <![CDATA[#{ids}]]>
+		</foreach>
+	</delete>
+	<delete id="delete" parameterType="com.wntime.ec.module.sys.vo.PlanBusServiceQryReqVo">
+		DELETE FROM  plan_bus_service
+		<include refid="where" />
+	</delete>
+	<delete id="deleteByMap" parameterType="map">
+		DELETE FROM plan_bus_service
+		<include refid="where" />
+	</delete>
+
+	<select id="selectById" resultType="com.wntime.ec.module.sys.vo.PlanBusServiceQryRspVo" parameterType="java.lang.Long">
+		SELECT
+		<include refid="selectAllColumn" />
+		FROM  plan_bus_service
+		where plan_service_id = #{planServiceId,jdbcType=BIGINT}
+	</select>
+	
+	<select id="selectOne" resultType="com.wntime.ec.module.sys.vo.PlanBusServiceQryRspVo" parameterType="com.wntime.ec.module.sys.vo.PlanBusServiceQryReqVo">
+        SELECT
+        <include refid="selectAllColumn" />
+        FROM plan_bus_service
+        <include refid="where" />
+    </select>
+	
+	<select id="selectByIds" resultType="com.wntime.ec.module.sys.vo.PlanBusServiceQryRspVo" parameterType="collection">
+		SELECT <include refid="selectAllColumn" />
+		FROM plan_bus_service
+		WHERE id IN
+		<foreach collection="collection" item="ids" open="(" separator="," close=")">
+			<![CDATA[#{ids}]]>
+		</foreach>
+	</select>
+
+	<select id="selectList" resultType="com.wntime.ec.module.sys.vo.PlanBusServiceQryRspVo" parameterType="com.wntime.ec.module.sys.vo.PlanBusServiceQryReqVo">
+		SELECT <include refid="selectAllColumn" />
+		FROM plan_bus_service
+		<include refid="where" />
+		${orderBy}
+	</select>
+
+	<select id="selectListByMap" resultType="com.wntime.ec.module.sys.vo.PlanBusServiceQryRspVo" parameterType="map">
+		SELECT <include refid="selectAllColumn" />
+		FROM plan_bus_service
+		<include refid="where" />
+	</select>
+
+    <select id="selectPage" resultType="com.wntime.ec.module.sys.vo.PlanBusServiceQryRspVo">
+        SELECT <include refid="selectAllColumn" />
+        FROM plan_bus_service
+        <include refid="whereParam" />
+        <if test="param != null">
+        	${param.orderBy}
+        </if>
+    </select>
+	
+</mapper>

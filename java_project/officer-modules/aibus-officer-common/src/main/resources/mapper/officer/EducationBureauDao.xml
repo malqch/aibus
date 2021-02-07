@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.officer.dao.EducationBureauDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.modules.officer.entity.EducationBureauEntity" id="educationBureauMap">
+        <result property="id" column="id"/>
+        <result property="orgName" column="org_name"/>
+        <result property="website" column="website"/>
+        <result property="address" column="address"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createDt" column="create_dt"/>
+        <result property="modifyUserId" column="modify_user_id"/>
+        <result property="modifyDt" column="modify_dt"/>
+    </resultMap>
+
+
+</mapper>

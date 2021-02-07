@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.maintain.dao.LogBusMaintenanceDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.maintain.entity.LogBusMaintenanceEntity" id="logBusMaintenanceMap">
+        <result property="maintenanceId" column="maintenance_id"/>
+        <result property="busId" column="bus_id"/>
+        <result property="companyLineId" column="company_line_id"/>
+        <result property="maintenanceDesc" column="maintenance_desc"/>
+        <result property="createdDate" column="created_date"/>
+    </resultMap>
+
+    <select id="getMaintainBusDetailByStatusAndCompanyIdAndTime" resultType="com.wntime.maintain.vo.MaintainBusVO">
+        select ib.bus_id busId,ib.vin_code,ibs.bus_status_id,ibs.bus_status_code,ibs.bus_status_name,lbm.created_date
+         from info_bus ib
+        left join
+        (
+         select config_param_id as bus_status_id,param_code as bus_status_code,param_name as bus_status_name
+         from info_config_param where is_enabled = 1 and is_deleted = 0 and param_group = 'bus_status'
+         ) ibs
+         on ib.bus_status = ibs.bus_status_id
+        left join
+        (
+            SELECT llbm.*
+            FROM
+            (
+            SELECT lbm.maintenance_id,
+            lbm.created_date,
+            lbm.bus_id,
+            lbm.maintenance_desc,
+            ROW_NUMBER() OVER(PARTITION BY lbm.bus_id ORDER BY lbm.created_date DESC) AS ranks
+            FROM log_bus_maintenance lbm
+            ) llbm
+            WHERE llbm.ranks = 1
+        ) lbm
+        on ib.bus_id = lbm.bus_id
+        left join order_bus_delivery obd
+        on obd.bus_id = ib.bus_id and obd.is_deleted =0
+        left join order_company_delivery ocd
+        on ocd.company_delivery_id = obd.company_delivery_id and ocd.is_deleted = 0
+        left join order_bus_company obc
+        on obc.order_id = ocd.order_id and obc.is_deleted = 0
+        left join info_bus_company ibc
+        on ibc.company_id = obc.company_id and ibc.is_deleted = 0 and ibc.is_enabled = 1
+        where
+        ib.is_enabled = 1 and ib.is_deleted = 0
+        and ibc.company_id = #{companyId}
+        <choose>
+            <when test="status == 0">
+                and ibs.bus_status_code = 'maintenance'
+            </when>
+            <otherwise>
+                and ibs.bus_status_code = 'complete'
+            </otherwise>
+        </choose>
+        <if test="startTime != null">
+        and <![CDATA[ lbm.created_date >= #{startTime} ]]>
+        </if>
+        <if test="endTime != null">
+        and <![CDATA[ lbm.created_date <= #{endTime} ]]>
+        </if>
+
+    </select>
+
+    <select id="queryBusMaintenanceCount" resultType="int">
+        SELECT COUNT
+                   (lbm.maintenance_id)
+        FROM log_bus_maintenance lbm
+                 INNER JOIN info_bus ib ON ib.bus_id = lbm.bus_id
+            AND ib.factory_id = #{factoryId}
+                 INNER JOIN info_config_param icp ON lbm.bus_status = icp.config_param_id
+            AND icp.param_group = 'bus_status'
+            AND icp.param_code = 'maintenance'
+            AND ib.is_deleted = 0
+            AND ib.is_enabled = 1
+            AND icp.is_deleted = 0
+            AND icp.is_enabled = 1
+    </select>
+</mapper>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>智能公交后台管理系统</title>
+      <script type="text/javascript">
+          function initialize() {
+              var mp = new BMap.Map('map');
+              mp.centerAndZoom(new BMap.Point(121.491, 31.233), 11);
+          }
+
+          function loadScript() {
+              var script = document.createElement("script");
+              script.src = "http://api.map.baidu.com/api?v=2.0&ak=n1geIe7AUlmOtjmxU5lpe8WlrFFl4i0H";
+              document.body.appendChild(script);
+          }
+
+          window.onload = loadScript;
+      </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

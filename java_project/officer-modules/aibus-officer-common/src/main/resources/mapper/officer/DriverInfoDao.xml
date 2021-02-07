@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.modules.officer.dao.DriverInfoDao">
+    <resultMap id="resultMap" type="com.wntime.modules.officer.dto.DriverInfoDto">
+        <id column="id" property="id"/>
+        <result column="basic_id" property="basicId"/>
+        <result column="driving_license_no" property="drivingLicenseNo"/>
+        <result column="first_issue_date" property="firstIssueDate"/>
+        <result column="driving_license_class" property="drivingLicenseClass"/>
+        <result column="mobile_number" property="mobileNumber"/>
+        <result column="drivers_license_photo" property="driversLicensePhoto"/>
+        <result column="valid_period_start" property="validPeriodStart"/>
+        <result column="valid_period_end" property="validPeriodEnd"/>
+        <result column="no_criminal_record_photo" property="noCriminalRecordPhoto"/>
+        <result column="login_user_id" property="loginUserId"/>
+        <result column="login_name" property="loginName"/>
+        <result column="is_primary" property="isPrimary"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="create_dt" property="createDt"/>
+        <result column="modify_user_id" property="modifyUserId"/>
+        <result column="modify_dt" property="modifyDt"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="id_no" property="idNo"/>
+        <result column="full_name" property="fullName"/>
+        <result column="sex" property="sex"/>
+        <result column="age" property="age"/>
+        <result column="take_photo" property="takePhoto"/>
+        <result column="residential_address" property="residentialAddress"/>
+        <result column="category" property="category"/>
+        <result column="create_user_name" property="createUserName"/>
+        <result column="modify_user_name" property="modifiedUserName"/>
+    </resultMap>
+
+    <select id="query" resultMap="resultMap">
+        select idr.id,
+               idr.basic_id,
+               idr.driving_license_no,
+               idr.first_issue_date,
+               idr.driving_license_class,
+               idr.mobile_number,
+               idr.drivers_license_photo,
+               idr.valid_period_start,
+               idr.valid_period_end,
+               idr.no_criminal_record_photo,
+               idr.login_user_id,
+               u.login_name,
+               idr.is_primary,
+               idr.create_user_id,
+               idr.create_dt,
+               idr.modify_user_id,
+               idr.modify_dt,
+               idr.is_deleted,
+               ipbf.id_no,
+               ipbf.full_name,
+               ipbf.sex,
+               ipbf.age,
+               ipbf.take_photo,
+               ipbf.residential_address,
+               ipbf.category,
+               cu.user_name as create_user_name,
+               mu.user_name as modify_user_name
+        from info_driver idr
+                     inner join info_people_basic_facts ipbf on idr.basic_id = ipbf.id
+                     left join admin_user cu on idr.create_user_id = cu.user_id
+                     left join admin_user mu on idr.modify_user_id = mu.user_id
+                     left join admin_user u on idr.login_user_id = u.user_id
+                ${ew.customSqlSegment}
+    </select>
+</mapper>

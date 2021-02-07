@@ -1,0 +1,37 @@
+{
+    "detail":"获取地区",
+    "data":{
+        "provinceList":[
+            {
+                "areaId":12, 
+                "areaName":"河北", 
+                "areaCode":1001,
+                "parentAreaId":0,
+                "areaLevel":"一级"
+            },
+            {
+                "areaId":13,
+                "areaName":"河南", 
+                "areaCode":1003,
+                "parentAreaId":0, 
+                "areaLevel":"一级"
+            }
+        ],
+        "cityList":[
+            {
+                "areaId":15,
+                "areaName":"石家庄",
+                "areaCode":1005,
+                "parentAreaId":12,
+                "areaLevel":"一级"
+            },
+            {
+                "areaId":16,
+                "areaName":"保定", 
+                "areaCode":1006,
+                "parentAreaId":12, 
+                "areaLevel":"一级"
+            }
+        ]
+    }
+}

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.OrderCompanyDeliveryDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.customer.entity.OrderCompanyDeliveryEntity" id="orderCompanyDeliveryMap">
+        <result property="companyDeliveryId" column="company_delivery_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="busTypeId" column="bus_type_id"/>
+        <result property="orderDeliveryNum" column="order_delivery_num"/>
+        <result property="orderDeliveryDate" column="order_delivery_date"/>
+        <result property="orderDetailDesc" column="order_detail_desc"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.customer.entity.OrderCompanyDeliveryEntity">
+        SELECT
+        a.company_delivery_id,
+        a.order_id,
+        a.bus_type_id,
+        a.order_delivery_num,
+        a.order_delivery_date,
+        a.order_detail_desc,
+        a.is_deleted,
+        a.created_date,
+        a.modified_date,
+        ibt.bus_type_name,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM order_company_delivery a
+        left join order_bus_company obc on a.order_id = obc.order_id
+        left join info_bus_type ibt on a.bus_type_id = ibt.bus_type_id
+        left join admin_user x on obc.created_by=x.user_id
+        left join admin_user y on obc.modified_by=y.user_id
+        where a.is_deleted = 0
+        ORDER BY a.created_date desc
+    </select>
+
+    <select id="getAllList" parameterType="map" resultType="com.wntime.customer.entity.OrderCompanyDeliveryEntity">
+        SELECT
+        a.order_id ,
+        a.company_delivery_id,
+        a.is_completed ,
+        ibt.bus_type_name ||'_' ||a.order_delivery_num as order_desc
+        FROM order_company_delivery a
+        left join order_bus_company obc on a.order_id = obc.order_id
+        left join info_bus_type ibt on a.bus_type_id = ibt.bus_type_id
+        where a.is_deleted = 0
+        <if test="orderId != null">
+            and a.order_id = #{orderId}
+        </if>
+        <if test="isCompleted != null">
+            and a.is_completed = #{isCompleted}
+        </if>
+        ORDER BY a.created_date desc
+    </select>
+
+
+    <select id="getOrderCompanyDeliveryByOrderId" parameterType="map" resultType="com.wntime.customer.entity.OrderCompanyDeliveryEntity">
+        SELECT
+        a.company_delivery_id,
+        a.order_id,
+        a.bus_type_id,
+        a.order_delivery_num,
+        a.order_delivery_date,
+        a.order_detail_desc,
+        a.is_deleted,
+        a.created_date,
+        a.modified_date,
+        ibt.bus_type_name,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM order_company_delivery a
+        left join order_bus_company obc on a.order_id = obc.order_id
+        left join info_bus_type ibt on a.bus_type_id = ibt.bus_type_id
+        left join admin_user x on obc.created_by=x.user_id
+        left join admin_user y on obc.modified_by=y.user_id
+        where a.order_id = #{orderId} and a.is_deleted = 0
+        ORDER BY a.created_date desc
+    </select>
+
+    <select id="queryCompleteDeliveryBusSum" resultType="int">
+        SELECT COALESCE
+                   ( COUNT ( obd.bus_id ), 0 )
+        FROM
+            order_company_delivery ocd
+                INNER JOIN order_bus_company obc ON ocd.order_id = obc.order_id
+                AND obc.factory_id = #{factoryId}
+                AND ocd.is_deleted = 0
+                AND obc.is_deleted = 0
+                INNER JOIN order_bus_delivery obd ON obd.company_delivery_id = ocd.company_delivery_id
+                AND obd.is_deleted =0
+    </select>
+    <select id="queryOrderBusSum" resultType="int">
+        SELECT COALESCE(SUM
+                   (ocd.order_detail_num),0)
+        FROM order_bus_company_detail ocd
+                 INNER JOIN order_bus_company obc ON ocd.order_id = obc.order_id
+            AND obc.factory_id = #{factoryId}
+            AND ocd.is_deleted = 0
+            AND obc.is_deleted = 0
+    </select>
+</mapper>

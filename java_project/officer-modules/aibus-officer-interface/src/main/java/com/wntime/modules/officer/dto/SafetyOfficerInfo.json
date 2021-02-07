@@ -1,0 +1,23 @@
+{
+  "id": 1352511858698878978,
+  "basic_id": 1352503542065135617,
+  "mobile_number": "15950829416",
+  "no_criminal_record_photo": "/aa/bb/cc",
+  "login_user_id": 1351421326841085953,
+  "login_name": "li",
+  "is_primary": "1",
+  "create_user_id": 1351438597974130689,
+  "create_dt": "2021-01-23",
+  "modify_user_id": 1351438597974130689,
+  "modify_dt": "2021-01-23",
+  "is_deleted": 0,
+  "id_no": "123456789098765432",
+  "full_name": "李却龙",
+  "sex": "1",
+  "age": 45,
+  "take_photo": "/aa/",
+  "residential_address": "霜革",
+  "category": "安全员",
+  "create_user_name": "sw",
+  "modify_user_name": "sw"
+}

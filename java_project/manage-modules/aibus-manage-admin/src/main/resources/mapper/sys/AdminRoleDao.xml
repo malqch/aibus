@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.sys.dao.AdminRoleDao">
+    <update id="deleteUpdate">
+        UPDATE admin_role SET is_deleted='1',is_enabled='0',modify_user_id=#{modifyUserId},modify_dt=#{modifyDt}
+        WHERE role_id IN
+        <foreach item="roleId" collection="roleIds" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </update>
+
+    <!--角色是否重复-->
+    <select id="queryRoleIsExist" parameterType="com.wntime.modules.sys.entity.AdminRole"
+            resultType="com.wntime.modules.sys.entity.AdminRole">
+        SELECT *
+        FROM admin_role
+        WHERE name = #{name}
+        AND is_deleted = '0' AND is_enabled = '1'
+    </select>
+    <!-- 查询用户创建的角色ID列表 -->
+    <select id="queryRoleIdList" resultType="long">
+        SELECT role_id FROM admin_role
+        <where>
+            <if test="createUserId != null and createUserId != ''">
+                and (create_user_id = #{createUserId} OR modify_user_id=#{createUserId})
+            </if>
+        </where>
+        AND is_deleted = '0' AND is_enabled = '1'
+
+        UNION SELECT ur.role_id FROM admin_user_role ur
+        LEFT JOIN admin_role ar ON ur.role_id=ar.role_id
+        <where>
+            <if test="createUserId != null and createUserId != ''">
+                and (ur.user_id = #{createUserId} OR ur.user_id=#{userId})
+            </if>
+        </where>
+        AND ar.is_deleted = '0'
+
+    </select>
+
+    <!--listByUser查询自己创建的或者是自己拥有的-->
+    <select id="listByUser" parameterType="map" resultType="map">
+        select ar.* from admin_user_role ur
+        LEFT JOIN admin_role ar on ur.role_id = ar.role_id
+        <where>
+            <if test="create_user_id != null and create_user_id != ''">
+                and (ur.user_id=#{create_user_id} OR ur.user_id=#{user_id})
+            </if>
+            AND ar.is_deleted='0'
+        </where>
+        UNION
+        select *
+        from admin_role
+        <where>
+            <if test="create_user_id != null and create_user_id != ''">
+                and (create_user_id = #{create_user_id} OR modify_user_id=#{create_user_id})
+            </if>
+            AND is_deleted='0' AND is_enabled='1'
+        </where>
+    </select>
+
+    <!--queryAdminRoleList -->
+    <!--多表关联查询，主要是为了获取创建人和修改人的name-->
+    <select id="queryAdminRoleList" parameterType="map" resultType="map">
+         SELECT  distinct a.role_id
+            FROM admin_role a
+            left join admin_user b on a.create_user_id=b.user_id
+            left join admin_user c on a.modify_user_id=c.user_id
+            left join admin_user_role gaur on a.role_id = gaur.role_id
+         where
+            a.is_deleted='0' and a.is_enabled='1'
+           and (a.create_user_id = #{createUserId} or gaur.user_id=#{createUserId})
+
+        intersect
+
+         SELECT distinct a.role_id
+              FROM admin_role a
+              left join admin_user b on a.create_user_id=b.user_id
+              left join admin_user c on a.modify_user_id=c.user_id
+                where (  a.create_user_id=#{createUserId})
+            and a.is_deleted='0' and a.is_enabled='1' and a.role_id!=1
+    </select>
+
+    <select id="queryAdminRoleListAll" parameterType="map" resultType="map">
+        SELECT distinct ''||a.role_id as "role_id", a.name, a.description, a.is_deleted, a.is_enabled, a.create_user_id, a.create_dt, a.modify_user_id, a.modify_dt,
+        a.role_code, b.user_name create_user_name,c.user_name modify_user_name
+        FROM admin_role a
+        left join admin_user b on a.create_user_id=b.user_id
+        left join admin_user c on a.modify_user_id=c.user_id
+        left join admin_user_role gaur on a.role_id = gaur.role_id
+        <where>
+            <!--<if test="create_user_id != null and create_user_id != ''">
+                (a.create_user_id = #{create_user_id} or gaur.user_id=#{create_user_id})
+            </if>-->
+            <if test="name != null and name != ''">
+                and a.name LIKE concat('%', #{name}, '%')
+            </if>
+            and a.is_deleted='0' and a.is_enabled='1'
+        </where>
+        ORDER BY a.create_dt desc
+    </select>
+
+    <select id="selectUserRole" parameterType="Long" resultType="com.wntime.modules.sys.entity.AdminRole">
+        SELECT a.*
+        FROM admin_role a
+		left join admin_user_role b on a.role_id = b.role_id
+        WHERE 1=1
+        AND a.is_deleted = '0' AND a.is_enabled = '1' and b.is_deleted = '0' and b.user_id = #{userId}
+    </select>
+
+    <select id="selectOtherRole" parameterType="Long" resultType="com.wntime.modules.sys.entity.AdminRole">
+        SELECT a.*
+        FROM admin_role a
+        WHERE 1=1
+        AND a.is_deleted = '0' AND a.is_enabled = '1' and a.role_id > 199 or a.role_id = 1
+    </select>
+    <select id="queryHomeUserRoleName" resultType="com.wntime.modules.sys.vo.UserRoleVo">
+       SELECT
+            u.NAME AS roleName,
+            u.role_id
+            <!--r.object_id AS areaId,
+            i.area_name-->
+        FROM
+            admin_role u
+            INNER JOIN admin_user_role r ON u.role_id = r.role_id
+            <!--LEFT JOIN info_area i ON i.area_id = r.object_id-->
+            WHERE r.user_id = #{userId}
+            AND u.is_deleted = '0'
+            AND u.is_enabled = '1'
+            and r.is_deleted = '0'
+    </select>
+
+    <select id="queryRolesWithUser" resultType="com.wntime.modules.sys.vo.AdminUserRoleVo">
+        SELECT
+            ar.role_id,
+            ar.NAME AS roleName
+            <if test="userId!=null">
+               ,
+            CASE
+                WHEN ur.ID > 0 THEN
+                    1 ELSE 0
+                END AS hasRole
+               </if>
+        FROM
+            admin_role ar
+                <if test="userId!=null">
+                LEFT JOIN ( SELECT role_id, ID FROM admin_user_role aur WHERE aur.user_id = #{userId} AND aur.is_deleted = '0' ) AS ur ON ur.role_id = ar.role_id
+                </if>
+        WHERE ar.is_deleted='0'
+        AND  ar.is_enabled='1'
+    </select>
+</mapper>

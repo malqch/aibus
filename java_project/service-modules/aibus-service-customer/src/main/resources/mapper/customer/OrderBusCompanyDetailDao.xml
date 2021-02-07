@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.OrderBusCompanyDetailDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.customer.entity.OrderBusCompanyDetailEntity" id="orderBusCompanyDetailMap">
+        <result property="orderDetailId" column="order_detail_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="busTypeId" column="bus_type_id"/>
+        <result property="orderDetailNum" column="order_detail_num"/>
+        <result property="orderDetailDesc" column="order_detail_desc"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.customer.entity.OrderBusCompanyDetailEntity">
+        SELECT
+        a.order_detail_id,
+        a.order_id,
+        a.bus_type_id,
+        a.order_detail_num,
+        a.order_detail_desc,
+        a.is_deleted,
+        a.created_date,
+        a.modified_date,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM order_bus_company_detail a
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+    <select id="getOrderBusCompanyDetailByOrderId" parameterType="map" resultType="com.wntime.customer.entity.OrderBusCompanyDetailEntity">
+        SELECT
+        a.order_detail_id,
+        a.order_id,
+        a.bus_type_id,
+        a.order_detail_num,
+        a.order_detail_desc,
+        a.is_deleted,
+        a.created_date,
+        a.modified_date,
+        ibt.bus_type_name,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM order_bus_company_detail a
+        left join order_bus_company obc on a.order_id = obc.order_id
+        left join info_bus_type ibt on a.bus_type_id = ibt.bus_type_id
+        left join admin_user x on obc.created_by=x.user_id
+        left join admin_user y on obc.modified_by=y.user_id
+        where a.order_id = #{orderId} and a.is_deleted = 0
+        ORDER BY a.created_date desc
+    </select>
+
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.advert.dao.OrderDeliveryTargetDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.advert.entity.OrderDeliveryTargetEntity" id="orderDeliveryTargetMap">
+        <result property="deliveryTargetId" column="delivery_target_id"/>
+        <result property="advertiseDeliveryId" column="advertise_delivery_id"/>
+        <result property="advertiseTargetId" column="advertise_target_id"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <delete id="deleteBatchByAdvertiseId">
+        delete from order_delivery_target where advertise_delivery_id = #{advertiseId}
+    </delete>
+
+    <select id="listByAdvertiseIdAndGroup" resultType="com.wntime.advert.entity.OrderDeliveryTargetEntity">
+        select * from
+            order_delivery_target odt
+            left join info_advertise_target iat on odt.advertise_target_id = iat.advertise_target_id and iat.is_enabled = 1 and iat.is_deleted = 0
+        where odt.advertise_delivery_id = #{advertiseId} and iat.advertise_target_grope = #{group}
+    </select>
+</mapper>

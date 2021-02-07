@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.modules.officer.dao.StudentInfoDao">
+    <resultMap id="queryResultMap" type="com.wntime.modules.officer.dto.StudentInfoDto">
+        <id column="id" property="id"/>
+        <result column="basic_id" property="basicId"/>
+        <result column="student_name" property="studentName"/>
+        <result column="student_take_photo" property="studentTakePhoto"/>
+        <result column="student_sex" property="studentSex"/>
+        <result column="student_age" property="studentAge"/>
+        <result column="up_company_line_id" property="upCompanyLineId"/>
+        <result column="up_company_line_name" property="upCompanyLineName"/>
+        <result column="off_company_line_id" property="offCompanyLineId"/>
+        <result column="off_company_line_name" property="offCompanyLineName"/>
+        <result column="seat_no" property="seatNo"/>
+        <result column="up_station_id" property="upStationId"/>
+        <result column="up_bus_station_name" property="upBusStationName"/>
+        <result column="off_station_id" property="offStationId"/>
+        <result column="off_bus_station_name" property="offBusStationName"/>
+        <result column="relation_student" property="relationStudent"/>
+        <result column="mobile_number" property="mobileNumber"/>
+        <result column="guardian_id" property="guardianId"/>
+        <result column="guardian_name" property="guardianName"/>
+        <result column="guardian_take_photo" property="guardianTakePhoto"/>
+        <result column="classes_id" property="classesId"/>
+        <result column="school_id" property="schoolId"/>
+        <result column="create_dt" property="createDt"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="modify_user_id" property="modifyUserId"/>
+        <result column="modify_dt" property="modifyDt"/>
+    </resultMap>
+    <select id="query" resultType="com.wntime.modules.officer.dto.StudentInfoDto" resultMap="queryResultMap">
+        select ins.id,
+               ins.basic_id,
+               ipbf.full_name  as student_name,
+               ipbf.take_photo as student_take_photo,
+               ipbf.sex        as student_sex,
+               ipbf.age        as student_age,
+               ipbf.id_no      as student_id_no,
+               sls.up_company_line_id,
+               sls.up_company_line_name,
+               sls.off_company_line_id,
+               sls.off_company_line_name,
+               sls.seat_no,
+               sls.up_station_id,
+               sls.up_bus_station_name,
+               sls.off_station_id,
+               sls.off_bus_station_name,
+               ig.full_name    as guardian_name,
+               ig.take_photo   as guardian_take_photo,
+               ig.relation_student,
+               ig.mobile_number,
+               ig.id_no as guardian_id_no,
+               ins.guardian_id,
+               ins.classes_id,
+               ins.school_id,
+               ins.create_dt,
+               ins.create_user_id,
+               ins.modify_user_id,
+               ins.modify_dt
+        from info_student ins
+                     inner join (
+                select seat.id,
+                       seat.student_id,
+                       seat.up_company_line_id,
+                       upline.company_line_code as up_company_line_code,
+                       upline.company_line_name as up_company_line_name,
+                       seat.off_company_line_id,
+                       ofline.company_line_code as off_company_line_code,
+                       ofline.company_line_name as off_company_line_name,
+                       seat.seat_no,
+                       seat.up_station_id,
+                       upibs.bus_station_code   as up_bus_station_code,
+                       upibs.bus_station_name   as up_bus_station_name,
+                       seat.off_station_id,
+                       ofibs.bus_station_code   as off_bus_station_code,
+                       ofibs.bus_station_name   as off_bus_station_name
+                from student_line_seat seat
+                             inner join info_company_line upline on seat.up_company_line_id = upline.company_line_id
+                             inner join info_company_line ofline on seat.off_company_line_id = ofline.company_line_id
+                             inner join info_bus_station upibs on seat.default_up_station_id = upibs.bus_station_id
+                             inner join info_bus_station ofibs on seat.default_off_station_id = ofibs.bus_station_id
+                ) sls on ins.id = sls.student_id
+                     inner join info_people_basic_facts ipbf on ins.basic_id = ipbf.id
+                     inner join (select infog.id,
+                                        infog.mobile_number,
+                                        infog.seq_number,
+                                        infog.login_user_id,
+                                        infog.basic_id,
+                                        infog.relation_student,
+                                        infop.full_name,
+                                        infop.category,
+                                        infop.take_photo,
+                                        infop.id_no
+                                 from info_guardian infog
+                                              join info_people_basic_facts infop on infog.basic_id = infop.id) ig
+                on ins.guardian_id = ig.id
+                        ${ew.customSqlSegment}
+    </select>
+</mapper>

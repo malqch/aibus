@@ -1,0 +1,9 @@
+wntime:
+  officer:
+    upload:
+      filePath: ${wntime.common.dataPath}/officer/file
+      fileUrl: ${server.webUrl}/officer/file
+      imagePath: ${wntime.common.dataPath}/officer/image
+      imageUrl: ${server.webUrl}/officer/image
+      authPhotoPath: ${wntime.common.dataPath}/auth_photo
+      healthCodePath: ${wntime.common.dataPath}/health_code

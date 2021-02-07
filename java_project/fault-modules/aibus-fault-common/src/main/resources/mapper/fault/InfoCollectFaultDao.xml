@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.fault.dao.InfoCollectFaultDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.fault.entity.InfoCollectFaultEntity" id="infoCollectFaultMap">
+        <result property="collectFaultId" column="collect_fault_id"/>
+        <result property="collectFault" column="collect_fault"/>
+        <result property="collectCode" column="collect_code"/>
+        <result property="faultTypeId" column="fault_type_id"/>
+        <result property="faultTargetId" column="fault_target_id"/>
+        <result property="faultLevelId" column="fault_level_id"/>
+        <result property="faultType" column="fault_type"/>
+        <result property="faultDetail" column="fault_detail"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+
+    <select id="queryList" resultType="com.wntime.fault.vo.InfoCollectFaultVo">
+        select collect_fault_id as collect_event_id,
+               collect_fault as collect_event,
+               collect_code,
+               fault_type_id,
+               fault_target_id,
+               fault_level_id,
+               fault_type,
+               fault_detail
+        from info_collect_fault
+        where is_deleted = 0
+          and is_enabled = 1
+    </select>
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.fault.entity.InfoCollectFaultEntity">
+        SELECT
+        a.*,
+        t.fault_type_name,
+        g.fault_target_name,
+        l.fault_level_name,
+        u.fault_suggestion_id,
+        u.suggestion_content,
+        x.user_name create_user_name,
+        y.user_name modified_user_name
+        FROM info_collect_fault a
+        left join info_fault_type t
+            on a.fault_type_id = t.fault_type_id
+            and t.is_deleted = 0 and t.is_enabled = 1
+        left join info_fault_target g
+            on a.fault_target_id = g.fault_target_id
+            and g.is_deleted = 0 and g.is_enabled = 1
+        left join info_fault_suggestion u
+            on g.fault_target_id = u.fault_target_id
+            and u.is_deleted = 0
+        left join info_fault_level l
+            on a.fault_level_id = l.fault_level_id
+            and l.is_deleted = 0 and l.is_enabled = 1
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="collectFault != null and collectFault != ''">
+            and a.collect_fault LIKE concat('%', #{collectFault}, '%')
+        </if>
+        <if test="faultTypeId != null and faultTypeId != 0">
+            and a.fault_type_id = #{faultTypeId}
+        </if>
+        <if test="faultTargetId != null and faultTargetId != 0">
+            and a.fault_target_id = #{faultTargetId}
+        </if>
+        <if test="faultLevelId != null and faultLevelId != 0">
+            and a.fault_level_id = #{faultLevelId}
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+    <select id="getDetailById" resultType="com.wntime.fault.entity.InfoCollectFaultEntity">
+        SELECT
+        a.*,
+        t.fault_type_name,
+        g.fault_target_name,
+        l.fault_level_name,
+        u.fault_suggestion_id,
+        u.suggestion_content,
+        x.user_name create_user_name,
+        y.user_name modified_user_name
+        FROM info_collect_fault a
+        left join info_fault_type t
+            on a.fault_type_id = t.fault_type_id
+            and t.is_deleted = 0 and t.is_enabled = 1
+        left join info_fault_target g
+            on a.fault_target_id = g.fault_target_id
+            and g.is_deleted = 0 and g.is_enabled = 1
+        left join info_fault_suggestion u
+            on g.fault_target_id = u.fault_target_id
+            and u.is_deleted = 0
+        left join info_fault_level l
+            on a.fault_level_id = l.fault_level_id
+            and l.is_deleted = 0 and l.is_enabled = 1
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="id != null and id != 0">
+            and a.collect_fault_id = #{id}
+        </if>
+    </select>
+</mapper>

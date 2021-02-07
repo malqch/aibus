@@ -1,0 +1,113 @@
+{
+    "detail":"表格",
+    "data":
+    {
+        "faultDetail":"100台故障车中驱动电机和制动系统的故障居多",
+        "faultTypestatData":{
+            "textList":["驱动电机", "发送机转速", "制动系统", "电机控制器", "电池组"],
+            "valueList":[140, 59, 75, 82, 96],
+            "total":344
+        },
+        "maintainBuses":[
+            {
+                "busId":1,
+                "vin":"4221324",
+                "createdDate":"2020-08-28",
+                "status":0
+            },
+            {
+                "busId":2,
+                "vin":"82756324",
+                "createdDate":"2020-08-28",
+                "status":1
+            },
+            {
+                "busId":1,
+                "vin":"4221324",
+                "createdDate":"2020-08-28",
+                "status":0
+            },
+            {
+                "busId":2,
+                "vin":"82756324",
+                "createdDate":"2020-08-28",
+                "status":0
+            },
+            {
+                "busId":1,
+                "vin":"4221324",
+                "createdDate":"2020-08-28",
+                "status":0
+            },
+            {
+                "busId":2,
+                "vin":"82756324",
+                "createdDate":"2020-08-28",
+                "status":0
+            }
+        ],
+        "busStatusType":[
+            {
+            	"busStatusId":1,
+            	"busStatusName":"正常"
+            },
+            {
+            	"busStatusId":2,
+            	"busStatusName":"故障"
+            },
+            {
+            	"busStatusId":3,
+            	"busStatusName":"维修"
+            },
+            {
+            	"busStatusId":4,
+            	"busStatusName":"保养"
+            }
+        ],
+        "vinList":[
+            "VIN1",
+            "VIN2"
+        ],
+        "faultBusesData":[
+            {
+            	"busId":12,
+            	"vin":"123123",
+            	"companyName":"长春公交公司",
+            	"companyPerson":"张三",
+            	"companyPhone":"13211111111",
+            	"busStatusId":0,
+            	"busStatusCode":"sas",
+            	"busStatusName":"维修",
+            	"maintenanceDesc":"电机过热"
+            }
+        ],
+        "maintainInfo":{
+            "busId":123,
+            "busStatusId":0,
+            "busStatusCode":"0code",
+            "busStatusName":"维修",
+            "maintenanceId":11,
+            "list" :
+            [
+              {
+                "name": "vinCode",
+                "displayName":"VIN码",
+                "value": "LFPH4ACB411C02009",
+                "canEdit": false
+              },
+              {
+                "name": "plateCode",
+                "displayName":"车牌号",
+                "value": "京A55555",
+                "canEdit": false
+              },
+              {
+                "name": "maintenanceDesc",
+                "displayName":"维修信息",
+                "value": "电机故障",
+                "canEdit": true
+              }
+            ]
+        }
+    }
+}

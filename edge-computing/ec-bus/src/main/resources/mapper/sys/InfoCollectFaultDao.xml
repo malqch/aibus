@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.ec.module.sys.dao.InfoCollectFaultDao">
+
+	<sql id="selectAllColumn">
+       collect_event_id,collect_event,collect_code,fault_type_id,fault_target_id,fault_level_id,fault_type,fault_detail,is_deleted,is_enabled,created_by, created_date,modified_by, modified_date
+	</sql>
+	
+	<sql id="updateColumn">
+		<set>
+			<if test="collectEventId != null "> collect_event_id = #{collectEventId,jdbcType=BIGINT}, </if>
+			<if test="collectEvent != null and collectEvent !='' "> collect_event = #{collectEvent,jdbcType=VARCHAR}, </if>
+			<if test="collectCode != null and collectCode !='' "> collect_code = #{collectCode,jdbcType=VARCHAR}, </if>
+			<if test="faultTypeId != null "> fault_type_id = #{faultTypeId,jdbcType=BIGINT}, </if>
+			<if test="faultTargetId != null "> fault_target_id = #{faultTargetId,jdbcType=BIGINT}, </if>
+			<if test="faultLevelId != null "> fault_level_id = #{faultLevelId,jdbcType=BIGINT}, </if>
+			<if test="faultType != null and faultType !='' "> fault_type = #{faultType,jdbcType=VARCHAR}, </if>
+			<if test="faultDetail != null and faultDetail !='' "> fault_detail = #{faultDetail,jdbcType=VARCHAR}, </if>
+			<if test="isDeleted != null "> is_deleted = #{isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="isEnabled != null "> is_enabled = #{isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="createdBy != null "> created_by = #{createdBy,jdbcType=BIGINT}, </if>
+			<if test="createdDate != null "> created_date = #{createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifiedBy != null "> modified_by = #{modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="modifiedDate != null "> modified_date = #{modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumn">
+		SET
+			collect_event_id = #{collectEventId,jdbcType=BIGINT},
+			collect_event = #{collectEvent,jdbcType=VARCHAR},
+			collect_code = #{collectCode,jdbcType=VARCHAR},
+			fault_type_id = #{faultTypeId,jdbcType=BIGINT},
+			fault_target_id = #{faultTargetId,jdbcType=BIGINT},
+			fault_level_id = #{faultLevelId,jdbcType=BIGINT},
+			fault_type = #{faultType,jdbcType=VARCHAR},
+			fault_detail = #{faultDetail,jdbcType=VARCHAR},
+			is_deleted = #{isDeleted,jdbcType=SMALLINT},
+			is_enabled = #{isEnabled,jdbcType=SMALLINT},
+			created_by = #{createdBy,jdbcType=BIGINT},
+			created_date = #{createdDate,jdbcType=TIMESTAMP},
+			modified_by = #{modifiedBy,jdbcType=BIGINT},
+			modified_date = #{modifiedDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="updateColumnEntity">
+		<set>
+			<if test="entity.collectEventId != null "> collect_event_id = #{entity.collectEventId,jdbcType=BIGINT}, </if>
+			<if test="entity.collectEvent != null and entity.collectEvent !='' "> collect_event = #{entity.collectEvent,jdbcType=VARCHAR}, </if>
+			<if test="entity.collectCode != null and entity.collectCode !='' "> collect_code = #{entity.collectCode,jdbcType=VARCHAR}, </if>
+			<if test="entity.faultTypeId != null "> fault_type_id = #{entity.faultTypeId,jdbcType=BIGINT}, </if>
+			<if test="entity.faultTargetId != null "> fault_target_id = #{entity.faultTargetId,jdbcType=BIGINT}, </if>
+			<if test="entity.faultLevelId != null "> fault_level_id = #{entity.faultLevelId,jdbcType=BIGINT}, </if>
+			<if test="entity.faultType != null and entity.faultType !='' "> fault_type = #{entity.faultType,jdbcType=VARCHAR}, </if>
+			<if test="entity.faultDetail != null and entity.faultDetail !='' "> fault_detail = #{entity.faultDetail,jdbcType=VARCHAR}, </if>
+			<if test="entity.isDeleted != null "> is_deleted = #{entity.isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="entity.isEnabled != null "> is_enabled = #{entity.isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="entity.createdBy != null "> created_by = #{entity.createdBy,jdbcType=BIGINT}, </if>
+			<if test="entity.createdDate != null "> created_date = #{entity.createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="entity.modifiedBy != null "> modified_by = #{entity.modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="entity.modifiedDate != null "> modified_date = #{entity.modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumnEntity">
+		SET
+			collect_event_id = #{entity.collectEventId,jdbcType=BIGINT},
+			collect_event = #{entity.collectEvent,jdbcType=VARCHAR},
+			collect_code = #{entity.collectCode,jdbcType=VARCHAR},
+			fault_type_id = #{entity.faultTypeId,jdbcType=BIGINT},
+			fault_target_id = #{entity.faultTargetId,jdbcType=BIGINT},
+			fault_level_id = #{entity.faultLevelId,jdbcType=BIGINT},
+			fault_type = #{entity.faultType,jdbcType=VARCHAR},
+			fault_detail = #{entity.faultDetail,jdbcType=VARCHAR},
+			is_deleted = #{entity.isDeleted,jdbcType=SMALLINT},
+			is_enabled = #{entity.isEnabled,jdbcType=SMALLINT},
+			created_by = #{entity.createdBy,jdbcType=BIGINT},
+			created_date = #{entity.createdDate,jdbcType=TIMESTAMP},
+			modified_by = #{entity.modifiedBy,jdbcType=BIGINT},
+			modified_date = #{entity.modifiedDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="where">
+		<where>
+			<if test="collectEventId != null "> 
+ 				AND collect_event_id=#{collectEventId,jdbcType=BIGINT}  
+			</if> 
+			<if test="collectEvent != null and collectEvent !='' "> 
+ 				AND collect_event=#{collectEvent,jdbcType=VARCHAR}  
+			</if> 
+			<if test="collectCode != null and collectCode !='' "> 
+ 				AND collect_code=#{collectCode,jdbcType=VARCHAR}  
+			</if> 
+			<if test="faultTypeId != null "> 
+ 				AND fault_type_id=#{faultTypeId,jdbcType=BIGINT}  
+			</if> 
+			<if test="faultTargetId != null "> 
+ 				AND fault_target_id=#{faultTargetId,jdbcType=BIGINT}  
+			</if> 
+			<if test="faultLevelId != null "> 
+ 				AND fault_level_id=#{faultLevelId,jdbcType=BIGINT}  
+			</if> 
+			<if test="faultType != null and faultType !='' "> 
+ 				AND fault_type=#{faultType,jdbcType=VARCHAR}  
+			</if> 
+			<if test="faultDetail != null and faultDetail !='' "> 
+ 				AND fault_detail=#{faultDetail,jdbcType=VARCHAR}  
+			</if> 
+			<if test="isDeleted != null "> 
+ 				AND is_deleted=#{isDeleted,jdbcType=SMALLINT}  
+			</if> 
+			<if test="isEnabled != null "> 
+ 				AND is_enabled=#{isEnabled,jdbcType=SMALLINT}  
+			</if> 
+			<if test="createdBy != null "> 
+ 				AND created_by=#{createdBy,jdbcType=BIGINT}  
+			</if> 
+			<if test="createdDate != null "> 
+ 				AND created_date =  #{createdDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="createdDateStart != null "> 
+ 				AND created_date <![CDATA[ >= ]]> #{createdDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="createdDateEnd != null "> 
+ 				AND created_date <![CDATA[ <= ]]> #{createdDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedBy != null "> 
+ 				AND modified_by=#{modifiedBy,jdbcType=BIGINT}  
+			</if> 
+			<if test="modifiedDate != null "> 
+ 				AND modified_date =  #{modifiedDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedDateStart != null "> 
+ 				AND modified_date <![CDATA[ >= ]]> #{modifiedDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedDateEnd != null "> 
+ 				AND modified_date <![CDATA[ <= ]]> #{modifiedDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+
+		</where>
+	</sql>
+
+	<sql id="whereParam">
+		<where>
+			<if test="param != null">
+				<if test="param.collectEventId != null "> 
+ 					AND collect_event_id=#{param.collectEventId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.collectEvent != null and param.collectEvent !='' "> 
+ 					and collect_event=#{param.collectEvent,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.collectCode != null and param.collectCode !='' "> 
+ 					and collect_code=#{param.collectCode,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.faultTypeId != null "> 
+ 					AND fault_type_id=#{param.faultTypeId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.faultTargetId != null "> 
+ 					AND fault_target_id=#{param.faultTargetId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.faultLevelId != null "> 
+ 					AND fault_level_id=#{param.faultLevelId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.faultType != null and param.faultType !='' "> 
+ 					and fault_type=#{param.faultType,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.faultDetail != null and param.faultDetail !='' "> 
+ 					and fault_detail=#{param.faultDetail,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.isDeleted != null "> 
+ 					AND is_deleted=#{param.isDeleted,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.isEnabled != null "> 
+ 					AND is_enabled=#{param.isEnabled,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.createdBy != null "> 
+ 					AND created_by=#{param.createdBy,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.createdDate != null "> 
+ 					AND created_date = #{param.createdDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.createdDateStart != null "> 
+ 					AND created_date <![CDATA[ >= ]]> #{param.createdDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.createdDateEnd != null "> 
+ 					AND created_date <![CDATA[ <= ]]> #{param.createdDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedBy != null "> 
+ 					AND modified_by=#{param.modifiedBy,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.modifiedDate != null "> 
+ 					AND modified_date = #{param.modifiedDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedDateStart != null "> 
+ 					AND modified_date <![CDATA[ >= ]]> #{param.modifiedDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedDateEnd != null "> 
+ 					AND modified_date <![CDATA[ <= ]]> #{param.modifiedDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insert" parameterType="com.wntime.ec.module.sys.entity.InfoCollectFault">
+		INSERT INTO info_collect_fault
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="collectEventId != null "> 
+ 				collect_event_id,  
+			</if> 
+			<if test="collectEvent != null and collectEvent !='' "> 
+ 				collect_event,  
+			</if> 
+			<if test="collectCode != null and collectCode !='' "> 
+ 				collect_code,  
+			</if> 
+			<if test="faultTypeId != null "> 
+ 				fault_type_id,  
+			</if> 
+			<if test="faultTargetId != null "> 
+ 				fault_target_id,  
+			</if> 
+			<if test="faultLevelId != null "> 
+ 				fault_level_id,  
+			</if> 
+			<if test="faultType != null and faultType !='' "> 
+ 				fault_type,  
+			</if> 
+			<if test="faultDetail != null and faultDetail !='' "> 
+ 				fault_detail,  
+			</if> 
+			<if test="isDeleted != null "> 
+ 				is_deleted,  
+			</if> 
+			<if test="isEnabled != null "> 
+ 				is_enabled,  
+			</if> 
+			<if test="createdBy != null "> 
+ 				created_by,  
+			</if> 
+			<if test="createdDate != null "> 
+ 				created_date,  
+			</if> 
+			<if test="modifiedBy != null "> 
+ 				modified_by,  
+			</if> 
+			<if test="modifiedDate != null "> 
+ 				modified_date,  
+			</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="collectEventId != null "> #{collectEventId,jdbcType=BIGINT}, </if>
+			<if test="collectEvent != null and collectEvent !='' "> #{collectEvent,jdbcType=VARCHAR}, </if>
+			<if test="collectCode != null and collectCode !='' "> #{collectCode,jdbcType=VARCHAR}, </if>
+			<if test="faultTypeId != null "> #{faultTypeId,jdbcType=BIGINT}, </if>
+			<if test="faultTargetId != null "> #{faultTargetId,jdbcType=BIGINT}, </if>
+			<if test="faultLevelId != null "> #{faultLevelId,jdbcType=BIGINT}, </if>
+			<if test="faultType != null and faultType !='' "> #{faultType,jdbcType=VARCHAR}, </if>
+			<if test="faultDetail != null and faultDetail !='' "> #{faultDetail,jdbcType=VARCHAR}, </if>
+			<if test="isDeleted != null "> #{isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="isEnabled != null "> #{isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="createdBy != null "> #{createdBy,jdbcType=BIGINT}, </if>
+			<if test="createdDate != null "> #{createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifiedBy != null "> #{modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="modifiedDate != null "> #{modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</trim>
+	</insert>
+
+	<insert id="insertAllColumn" parameterType="com.wntime.ec.module.sys.entity.InfoCollectFault">
+		INSERT INTO info_collect_fault(
+		collect_event_id,collect_event,collect_code,fault_type_id,fault_target_id,fault_level_id,fault_type,fault_detail,is_deleted,is_enabled,created_by,created_date,modified_by,modified_date
+		) VALUES (
+		#{collectEventId,jdbcType=BIGINT},
+		#{collectEvent,jdbcType=VARCHAR},
+		#{collectCode,jdbcType=VARCHAR},
+		#{faultTypeId,jdbcType=BIGINT},
+		#{faultTargetId,jdbcType=BIGINT},
+		#{faultLevelId,jdbcType=BIGINT},
+		#{faultType,jdbcType=VARCHAR},
+		#{faultDetail,jdbcType=VARCHAR},
+		#{isDeleted,jdbcType=SMALLINT},
+		#{isEnabled,jdbcType=SMALLINT},
+		#{createdBy,jdbcType=BIGINT},
+		#{createdDate,jdbcType=TIMESTAMP},
+		#{modifiedBy,jdbcType=BIGINT},
+		#{modifiedDate,jdbcType=TIMESTAMP}
+
+		)
+	</insert>
+
+	<update id="updateById" parameterType="com.wntime.ec.module.sys.entity.InfoCollectFault">
+        UPDATE info_collect_fault 
+		<include refid="updateColumn" />
+		where collect_event_id = #{collectEventId,jdbcType=BIGINT}
+	</update>
+	<update id="updateAllColumnById" parameterType="com.wntime.ec.module.sys.entity.InfoCollectFault">
+		UPDATE info_collect_fault <include refid="updateAllColumn" />
+		where collect_event_id = #{collectEventId,jdbcType=BIGINT}
+	</update>
+	<update id="update">
+		UPDATE info_collect_fault <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumn">
+		UPDATE info_collect_fault <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateByMap">
+		UPDATE info_collect_fault <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumnByMap">
+		UPDATE info_collect_fault <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<delete id="deleteById" parameterType="java.lang.Long">
+		DELETE FROM info_collect_fault  where collect_event_id = #{collectEventId,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteByIds" parameterType="collection">
+		DELETE FROM info_collect_fault  WHERE id IN
+		<foreach collection="collection" item="ids" open="("
+			separator="," close=")">
+          <![CDATA[#{ids}]]>
+		</foreach>
+	</delete>
+	<delete id="delete" parameterType="com.wntime.ec.module.sys.vo.InfoCollectFaultQryReqVo">
+		DELETE FROM  info_collect_fault
+		<include refid="where" />
+	</delete>
+	<delete id="deleteByMap" parameterType="map">
+		DELETE FROM info_collect_fault
+		<include refid="where" />
+	</delete>
+
+	<select id="selectById" resultType="com.wntime.ec.module.sys.vo.InfoCollectFaultQryRspVo" parameterType="java.lang.Long">
+		SELECT
+		<include refid="selectAllColumn" />
+		FROM  info_collect_fault
+		where collect_event_id = #{collectEventId,jdbcType=BIGINT}
+	</select>
+	
+	<select id="selectOne" resultType="com.wntime.ec.module.sys.vo.InfoCollectFaultQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoCollectFaultQryReqVo">
+        SELECT
+        <include refid="selectAllColumn" />
+        FROM info_collect_fault
+        <include refid="where" />
+    </select>
+	
+	<select id="selectByIds" resultType="com.wntime.ec.module.sys.vo.InfoCollectFaultQryRspVo" parameterType="collection">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_collect_fault
+		WHERE id IN
+		<foreach collection="collection" item="ids" open="(" separator="," close=")">
+			<![CDATA[#{ids}]]>
+		</foreach>
+	</select>
+
+	<select id="selectList" resultType="com.wntime.ec.module.sys.vo.InfoCollectFaultQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoCollectFaultQryReqVo">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_collect_fault
+		<include refid="where" />
+		${orderBy}
+	</select>
+
+	<select id="selectListByMap" resultType="com.wntime.ec.module.sys.vo.InfoCollectFaultQryRspVo" parameterType="map">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_collect_fault
+		<include refid="where" />
+	</select>
+
+    <select id="selectPage" resultType="com.wntime.ec.module.sys.vo.InfoCollectFaultQryRspVo">
+        SELECT <include refid="selectAllColumn" />
+        FROM info_collect_fault
+        <include refid="whereParam" />
+        <if test="param != null">
+        	${param.orderBy}
+        </if>
+    </select>
+	
+</mapper>

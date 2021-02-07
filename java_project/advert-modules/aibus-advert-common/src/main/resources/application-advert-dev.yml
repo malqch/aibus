@@ -1,0 +1,7 @@
+wntime:
+  advert:
+    upload:
+      #广告素材
+      file-path: ${wntime.common.dataPath}/file/advert
+      file-resource-path: /file/advert
+      file-url: ${server.webUrl}${wntime.advert.upload.file-resource-path}

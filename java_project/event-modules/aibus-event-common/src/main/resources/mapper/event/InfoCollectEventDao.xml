@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.event.dao.InfoCollectEventDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.event.entity.InfoCollectEventEntity" id="infoCollectEventMap">
+        <result property="collectEventId" column="collect_event_id"/>
+        <result property="collectEvent" column="collect_event"/>
+        <result property="collectCode" column="collect_code"/>
+        <result property="eventTypeId" column="event_type_id"/>
+        <result property="eventTargetId" column="event_target_id"/>
+        <result property="eventLevelId" column="event_level_id"/>
+        <result property="deviceTypeId" column="device_type_id"/>
+        <result property="eventType" column="event_type"/>
+        <result property="eventDetail" column="event_detail"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+
+    <select id="queryList" resultType="com.wntime.event.vo.InfoCollectEventVo">
+        select collect_event_id,
+               collect_event,
+               collect_code,
+               event_type_id,
+               event_target_id,
+               event_level_id,
+               device_type_id,
+               event_type,
+               event_detail
+        from info_collect_event
+        where is_deleted = 0
+          and is_enabled = 1
+    </select>
+
+    <select id="listDetail" resultType="com.wntime.event.vo.InfoCollectEventDetailVo">
+        select
+        ice.*,
+        iet.event_type_name,iet.event_type_code,
+        iel.event_level_name,iel.event_level_code,
+        i.event_target_name,i.event_target_grope,i.event_target_code,
+        ied.event_description_id,ied.description_content,
+        idt.device_type_name,
+        x.user_name as createdUserName,y.user_name as modifiedUserName
+        from info_collect_event ice
+        left join info_event_type iet on ice.event_type_id = iet.event_type_id and iet.is_deleted = 0 and iet.is_enabled = 1
+        left join info_event_level iel on ice.event_level_id = iel.event_level_id and iel.is_deleted = 0 and iel.is_enabled = 1
+        left join info_event_target i on ice.event_target_id = i.event_target_id and i.is_deleted = 0 and i.is_enabled = 1
+        left join info_event_description ied on ied.event_target_id = i.event_target_id
+        left join info_device_type idt on ice.device_type_id = idt.device_type_id and idt.is_deleted = 0 and idt.is_enabled = 1
+        left join admin_user x on ice.created_by=x.user_id
+        left join admin_user y on ice.modified_by=y.user_id
+        where ice.is_deleted = 0
+        <if test="collectEvent != null and collectEvent != ''">
+            and ice.collect_event LIKE concat('%', #{collectEvent}, '%')
+        </if>
+        <if test="eventTypeId != null ">
+            and ice.event_type_id = #{eventTypeId}
+        </if>
+        <if test="eventLevelId != null ">
+            and ice.event_level_id = #{eventLevelId}
+        </if>
+        <if test="eventTargetId != null ">
+            and ice.event_target_id = #{eventTargetId}
+        </if>
+        <if test="deviceTypeId != null ">
+            and ice.device_type_id = #{deviceTypeId}
+        </if>
+        order by ice.event_type asc,ice.event_detail asc,ice.is_enabled desc,ice.created_date desc
+    </select>
+
+    <select id="getDetailById" resultType="com.wntime.event.vo.InfoCollectEventDetailVo">
+        select
+        ice.*,
+        iet.event_type_name,iet.event_type_code,
+        iel.event_level_name,iel.event_level_code,
+        i.event_target_name,i.event_target_grope,i.event_target_code,
+        ied.event_description_id,ied.description_content,
+        idt.device_type_name,
+        x.user_name as createdUserName,y.user_name as modifiedUserName
+        from info_collect_event ice
+        left join info_event_type iet on ice.event_type_id = iet.event_type_id and iet.is_deleted = 0 and iet.is_enabled = 1
+        left join info_event_level iel on ice.event_level_id = iel.event_level_id and iel.is_deleted = 0 and iel.is_enabled = 1
+        left join info_event_target i on ice.event_target_id = i.event_target_id and i.is_deleted = 0 and i.is_enabled = 1
+        left join info_event_description ied on ied.event_target_id = i.event_target_id
+        left join info_device_type idt on ice.device_type_id = idt.device_type_id and idt.is_deleted = 0 and idt.is_enabled = 1
+        left join admin_user x on ice.created_by=x.user_id
+        left join admin_user y on ice.modified_by=y.user_id
+        where ice.is_deleted = 0
+        and ice.collect_event_id = #{collectEventId}
+    </select>
+</mapper>

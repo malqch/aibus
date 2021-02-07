@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.InfoCompanyLineDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.customer.entity.InfoCompanyLineEntity" id="infoCompanyLineMap">
+        <result property="companyLineId" column="company_line_id"/>
+        <result property="companyId" column="company_id"/>
+        <result property="companyLineName" column="company_line_name"/>
+        <result property="companyLineCode" column="company_line_code"/>
+        <result property="summerStartTime" column="summer_start_time"/>
+        <result property="summerEndTime" column="summer_end_time"/>
+        <result property="summerFirstTime" column="summer_first_time"/>
+        <result property="summerLastTime" column="summer_last_time"/>
+        <result property="winterFirstTime" column="winter_first_time"/>
+        <result property="winterLastTime" column="winter_last_time"/>
+        <result property="direction" column="direction"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="getCompanyLineByCompanyId" resultType="com.wntime.customer.entity.InfoCompanyLineEntity">
+        SELECT
+        ic.company_id ,ic.company_line_id ,ic.company_line_name ,ic.company_line_code ,ic.summer_start_time,ic.summer_end_time,ic.summer_first_time,ic.summer_last_time,
+        ic.is_deleted,ic.is_enabled,ic.winter_first_time,ic.winter_last_time,
+        x.user_name create_user_name,
+        y.user_name modified_user_name
+        FROM
+        info_company_line ic
+        left join admin_user x on ic.created_by=x.user_id
+        left join admin_user y on ic.modified_by=y.user_id
+        where ic.company_id = #{companyId}
+        and ic.is_deleted = 0
+    </select>
+
+    <select id="getCompanyLineCodeByCompanyIdList" resultType="com.wntime.customer.entity.InfoCompanyLineEntity">
+        SELECT
+               ic.company_line_id,
+               ic.company_line_code
+        FROM
+            info_company_line ic
+        where ic.company_id in
+        <foreach item="companyId" collection="companyIdList" open="(" separator="," close=")">
+            #{companyId}
+        </foreach>
+          and ic.is_deleted = 0
+        order by ic.company_line_code
+    </select>
+
+    <select id="getDetailById" resultType="com.wntime.customer.entity.InfoCompanyLineEntity">
+        SELECT
+        ic.company_id ,ic.company_line_id ,ic.company_line_name ,ic.company_line_code ,ic.line_type,i.param_name as lineTypeShow,
+        ic.line_mileage, ic.summer_start_time,ic.summer_end_time,ic.summer_first_time,ic.summer_last_time,
+        ic.is_deleted,ic.is_enabled,ic.winter_first_time,ic.winter_last_time,ic.created_date ,ic.modified_date ,ic.direction,
+        x.user_name create_user_name,
+        y.user_name modified_user_name
+        FROM
+        info_company_line ic
+        left join admin_user x on ic.created_by=x.user_id
+        left join admin_user y on ic.modified_by=y.user_id
+        left join info_config_param i on ic.line_type = i.config_param_id
+        where ic.company_line_id = #{id}
+    </select>
+
+    <select id="deleteLineStation">
+        update info_line_station
+        set is_deleted = 1
+        where company_line_id = #{companyLineId}
+    </select>
+
+    <select id="queryCompanyBusLineInfo" resultType="com.wntime.service.common.vo.BusLineVo">
+        SELECT DISTINCT
+            ic.company_line_id,
+            ic.company_line_code,
+            ic.company_line_name,
+            ic.company_id
+        FROM
+            info_company_line ic
+            INNER JOIN plan_bus_service pb ON ic.company_line_id = pb.company_line_id
+            and pb.is_deleted = 0 and pb.is_enabled = 1
+                 INNER JOIN info_bus b ON b.bus_id = pb.bus_id
+            and b.is_deleted = 0 and b.is_enabled = 1
+        WHERE ic.is_deleted = 0
+          and ic.is_enabled = 1
+            <if test="busCompanyId != null and busCompanyId != 0">
+                and ic.company_id = #{busCompanyId}
+            </if>
+    </select>
+
+    <select id="queryBusLineInfo" resultType="com.wntime.service.common.vo.BusLineVo">
+        SELECT ic.company_line_id,
+               ic.company_line_code,
+               ic.company_line_name,
+               ic.company_id,
+               ibc.company_name,
+               ia.area_id,
+               ia.area_name,
+               CASE
+                   WHEN now() &gt; ic.summer_start_time
+                       AND now() &lt; ic.summer_end_time THEN
+                       concat(
+                               ic.summer_first_time,
+                               '#',
+                               ic.summer_last_time)
+                   ELSE concat(
+                           ic.winter_first_time,
+                           '#',
+                           ic.winter_last_time)
+                   END AS service_time
+        FROM plan_bus_service pb
+                 INNER JOIN info_company_line ic ON pb.company_line_id = ic.company_line_id
+                 INNER JOIN info_bus_company ibc ON ic.company_id = ibc.company_id
+                 INNER JOIN info_area ia ON ia.area_id = ibc.area_id
+        WHERE pb.bus_id = #{busId}
+          AND now() BETWEEN pb.begin_date
+            AND pb.end_date
+          AND pb.is_deleted = 0
+          AND pb.is_enabled = 1
+          AND ic.is_deleted = 0
+          AND ic.is_enabled = 1
+          AND ibc.is_deleted = 0
+          AND ibc.is_enabled = 1
+        limit 1
+    </select>
+    <select id="queryBusLineInfoByCompanyLineId" resultType="com.wntime.service.common.vo.BusLineVo">
+        SELECT ic.company_line_id,
+               ic.company_line_code,
+               ic.company_line_name,
+               ic.company_id,
+               ibc.company_name,
+               ia.area_id,
+               ia.area_name,
+               CASE
+                   WHEN now() &gt; ic.summer_start_time
+                       AND now() &lt; ic.summer_end_time THEN
+                       concat(ic.summer_first_time, '#', ic.summer_last_time)
+                   ELSE concat(ic.winter_first_time, '#', ic.winter_last_time)
+                   END AS service_time
+        FROM info_company_line ic
+                 INNER JOIN info_bus_company ibc ON ic.company_id = ibc.company_id
+                 INNER JOIN info_area ia ON ia.area_id = ibc.area_id
+        WHERE ic.company_line_id = #{companyLineId}
+          AND ic.is_deleted = 0
+          AND ic.is_enabled = 1
+          AND ibc.is_deleted = 0
+          AND ibc.is_enabled = 1
+    </select>
+    <select id="queryBusCompanyLineStations" resultType="com.wntime.modules.gemfire.vo.LineStationInfoVo">
+        SELECT
+            pb.bus_id,
+            ic.company_line_id,
+            ic.company_line_code,
+            ic.company_line_name,
+            ic.company_id,
+            ibs.bus_station_id,
+            ibs.bus_station_name,
+            ibs.bus_station_longitude,
+            ibs.bus_station_latitude,
+            ibs.bus_station_deviation,
+            ils.station_order
+        FROM
+            plan_bus_service pb
+                INNER JOIN info_company_line ic ON pb.company_line_id = ic.company_line_id
+                INNER JOIN info_line_station ils ON ils.company_line_id = pb.company_line_id
+                INNER JOIN info_bus_station ibs ON ibs.bus_station_id = ils.bus_station_id
+        WHERE
+            pb.bus_id = #{busId}
+          AND now() BETWEEN pb.begin_date
+            AND pb.end_date
+          AND pb.is_deleted = 0
+          AND pb.is_enabled = 1
+          AND ic.is_deleted = 0
+          AND ic.is_enabled = 1
+          AND ils.is_deleted = 0
+          AND ils.is_enabled = 1
+          AND ibs.is_deleted = 0
+          AND ibs.is_enabled = 1
+        ORDER BY ils.station_order
+    </select>
+
+    <select id="queryPageListByCompanyId" parameterType="map"
+            resultType="com.wntime.customer.entity.InfoCompanyLineEntity">
+        SELECT
+        a.*,
+        c.company_name,
+        i.param_name as lineTypeShow,
+        i2.param_name as directionName,
+        x.user_name create_user_name,
+        y.user_name modified_user_name
+        FROM info_company_line a
+        left join info_bus_company c
+        on a.company_id = c.company_id
+        and c.is_deleted = 0 and c.is_enabled = 1
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        left join info_config_param i on a.line_type = i.config_param_id
+        left join info_config_param i2 on a.direction = i2.param_code and i2.param_group = 'line_direction'
+        where a.is_deleted = 0
+        <if test="companyId != null and companyId != 0">
+            and a.company_id = #{companyId}
+        </if>
+
+        <if test="companyLineName != null and companyLineName != ''">
+            and a.company_line_name LIKE concat('%', #{companyLineName}, '%')
+        </if>
+
+        <if test="areaOrgIds != null and areaOrgIds.size() > 0">
+            and a.school_id in
+            <foreach collection="areaOrgIds" item="company" separator="," open="(" close=")">
+                #{company}
+            </foreach>
+        </if>
+        ORDER BY a.company_id,a.is_enabled,a.created_date desc
+    </select>
+
+    <select id="getDetailInfoById" parameterType="map" resultType="com.wntime.customer.entity.InfoCompanyLineEntity">
+        SELECT
+        a.*,
+        i.param_name as lineTypeShow,
+        i2.param_name as directionName,
+        c.company_name,
+        x.user_name create_user_name,
+        y.user_name modified_user_name
+        FROM info_company_line a
+        left join info_bus_company c
+        on a.company_id = c.company_id
+        and c.is_deleted = 0 and c.is_enabled = 1
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        left join info_config_param i on a.line_type = i.config_param_id
+        left join info_config_param i2 on a.direction = i2.param_code and i2.param_group = 'line_direction'
+        where a.is_deleted = 0
+        <if test="id != null and id != 0">
+            and a.company_line_id = #{id}
+        </if>
+    </select>
+    <select id="queryCompanyLineStations" resultType="com.wntime.service.common.vo.BusStationVo">
+        SELECT ibs.bus_station_id,
+               ibs.bus_station_code as bus_station_name
+        FROM info_line_station ils
+                 INNER JOIN info_bus_station ibs ON ils.bus_station_id = ibs.bus_station_id
+            AND ils.company_line_id = #{companyLineId}
+            AND ibs.is_enabled = 1
+            AND ibs.is_deleted = 0
+            AND ils.is_enabled = 1
+            AND ils.is_deleted = 0
+        ORDER BY ils.station_order
+    </select>
+    <select id="queryCompanyLineOverview" resultType="com.wntime.service.common.vo.CompanyLineStationVo">
+        SELECT icl.company_id,
+               icl.company_line_id,
+               icl.company_line_code,
+               icl.company_line_name,
+               ils.bus_station_id,
+               ibs.bus_station_code as bus_station_name,
+               ibs.bus_station_latitude,
+               ibs.bus_station_longitude,
+               ils.station_order
+        FROM
+             (SELECT *
+              from (SELECT "row_number"() over (partition by company_line_code) rowid, *
+                    from info_company_line
+                    where company_id = #{busCompanyId} and is_enabled = 1 and is_deleted = 0 ) t
+              where t.rowid = 1)
+             icl
+                 INNER JOIN info_line_station ils ON ils.company_line_id = icl.company_line_id
+            AND icl.company_id = #{busCompanyId}
+            AND ils.station_order IN (
+                                      1,
+                                      (SELECT MAX(station_order)
+                                       FROM info_line_station
+                                       WHERE company_line_id = ils.company_line_id
+                                         AND is_enabled = 1
+                                         AND is_deleted = 0))
+            AND icl.is_deleted = 0
+            AND icl.is_enabled = 1
+            AND ils.is_deleted = 0
+            AND ils.is_enabled = 1
+                 INNER JOIN info_bus_station ibs ON ibs.bus_station_id = ils.bus_station_id
+            AND ibs.is_deleted = 0
+            AND ibs.is_enabled = 1
+    </select>
+
+    <select id="queryCompanyLineNames" resultType="com.wntime.service.common.vo.CompanyLineNameVo">
+        SELECT DISTINCT
+            company_line_code as name,
+            company_line_code AS value
+        FROM
+            info_company_line
+        WHERE
+            company_id = #{busCompanyId}
+          AND is_deleted = 0
+          AND is_enabled =1
+    </select>
+    <select id="queryCompanyLineByName" resultType="com.wntime.service.common.vo.BusLineVo">
+        SELECT
+            company_line_id,
+            company_line_name,
+            company_id,
+            company_line_code
+        FROM
+            info_company_line
+        WHERE
+            company_line_code = #{companyLineName}
+          AND is_deleted = 0
+          AND is_enabled = 1
+          AND company_id = #{busCompanyId}
+    </select>
+
+    <select id="queryCompanyLineBusId" resultType="Long">
+        SELECT pbs.bus_id
+        FROM plan_bus_service pbs
+                 INNER JOIN info_company_line icl ON pbs.company_line_id = icl.company_line_id
+                 INNER JOIN info_bus ib on ib.bus_id = pbs.bus_id
+                 INNER JOIN info_config_param icp on icp.config_param_id = ib.bus_status
+            AND icl.company_id = #{companyId}
+            AND pbs.begin_date &lt;= now()
+            AND pbs.end_date &gt;= now()
+            AND icp.param_code = 'normal'
+            AND pbs.is_deleted = 0
+            AND pbs.is_enabled = 1
+            AND icl.is_deleted = 0
+            AND icl.is_enabled = 1
+            AND ib.is_deleted = 0
+            AND ib.is_enabled = 1
+            AND icp.is_deleted = 0
+            AND icp.is_enabled = 1
+        LIMIT 1
+    </select>
+</mapper>

@@ -1,0 +1,27 @@
+{
+    "detail":"获取地区",
+    "data":{
+        "provinceList":[
+            {"name":"河北","id":"hebei"},
+            {"name":"河南","id":"henan"},
+            {"name":"山东","id":"shangdong"}
+        ],
+        "provinceName":{"name":"河北","id":"hebei"},
+        "cityName":{"name":"石家庄","id":"shijiazhuang"},
+        "cityList":[
+            {"name":"石家庄","id":"shijiazhuang"},
+            {"name":"保定","id":"baoding"},
+            {"name":"邯郸","id":"handan"}
+        ],
+        "companyName":{"name":"石家庄公交公司","id":"company1"},
+        "companyList":[
+            {"companyName":"石家庄公交公司1","companyId":"company1"},
+            {"companyName":"石家庄公交公司2","companyId":"company2"}
+        ],
+        "stationName":{"stationName":"丰台科技园","stationId":"station1"},
+        "stationList":[
+            {"stationName":"丰台科技园","stationId":"station1"},
+            {"stationName":"郭公庄","stationId":"station2"}
+        ]
+    }
+}

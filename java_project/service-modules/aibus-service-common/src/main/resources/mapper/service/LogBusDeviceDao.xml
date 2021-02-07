@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.service.dao.LogBusDeviceDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.service.entity.LogBusDeviceEntity" id="logBusDeviceMap">
+        <result property="logDeviceId" column="log_device_id"/>
+        <result property="busDeviceId" column="bus_device_id"/>
+        <result property="deviceDesc" column="device_desc"/>
+        <result property="deviceStatus" column="device_status"/>
+        <result property="createdDate" column="created_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.service.entity.LogBusDeviceEntity">
+        SELECT
+        a.log_device_id,
+        a.bus_device_id,
+        a.device_desc,
+        a.device_status,
+        a.created_date,
+        ibd.device_name,
+        ib.vin_code,
+        obd.plate_code,
+        obd.bus_code
+        FROM log_bus_device a
+        left join info_bus_device ibd on a.bus_device_id = ibd.bus_device_id
+        left join info_bus ib on ib.bus_id = ibd.bus_id
+        left join order_bus_delivery obd on ib.bus_id = obd.bus_id
+        where
+            ib.is_deleted = 0
+            and
+            ibd.is_deleted = 0
+            and
+            obd.is_deleted = 0
+        <if test="deviceName != null and deviceName != ''">
+           and ibd.device_name LIKE concat('%', #{deviceName}, '%')
+        </if>
+        <if test="vinCode != null and vinCode != ''">
+            and ib.vin_code = #{vinCode}
+        </if>
+        <if test="busCode != null and busCode != ''">
+            and obd.bus_code = #{busCode}
+        </if>
+        <if test="plateCode != null and plateCode != ''">
+            and obd.plate_code = #{plateCode}
+        </if>
+        order by a.created_date desc
+    </select>
+
+
+</mapper>

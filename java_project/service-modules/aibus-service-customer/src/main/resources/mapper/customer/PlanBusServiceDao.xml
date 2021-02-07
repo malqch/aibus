@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.PlanBusServiceDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.customer.entity.PlanBusServiceEntity" id="planBusServiceMap">
+        <result property="planServiceId" column="plan_service_id"/>
+        <result property="busId" column="bus_id"/>
+        <result property="companyLineId" column="company_line_id"/>
+        <result property="beginDate" column="begin_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+        <result property="driverId" column="driver_id"/>
+        <result property="safetyOfficerId" column="safety_officer_id"/>
+    </resultMap>
+
+    <select id="listDetail" resultType="com.wntime.customer.vo.PlanBusServiceVo">
+        select pbs.*,ib.vin_code,ibt.bus_type_id,ibt.bus_type_name,ibs.bus_status_name,
+        x.user_name created_user_name,
+        y.user_name modified_user_name,
+        ib.plate_code,
+        ib.bus_code
+        from
+        plan_bus_service pbs
+        left join info_bus ib on pbs.bus_id = ib.bus_id and ib.is_enabled = 1 and ib.is_deleted = 0
+        left join info_bus_type ibt on ib.bus_type_id = ibt.bus_type_id and ibt.is_enabled = 1 and ibt.is_deleted = 0
+        left join
+        (
+        select config_param_id as bus_status_id,param_code as bus_status_code,param_name as bus_status_name
+        from info_config_param where is_enabled = 1 and is_deleted = 0 and param_group = 'bus_status'
+        ) ibs on ib.bus_status = ibs.bus_status_id
+        left join admin_user x on pbs.created_by=x.user_id
+        left join admin_user y on pbs.modified_by=y.user_id
+        where pbs.is_deleted = 0
+        <if test="companyLineId != null ">
+            and pbs.company_line_id = #{companyLineId}
+        </if>
+    </select>
+
+    <sql id="selectByDate">
+          (
+              begin_date <![CDATA[ <= ]]> #{beginDate}
+              and end_date <![CDATA[ >= ]]> #{beginDate}
+            )
+            or
+            (
+                begin_date <![CDATA[ >= ]]> #{beginDate}
+                and begin_date <![CDATA[ <= ]]> #{endDate}
+            )
+
+    </sql>
+
+    <select id="isBusPlannedInTimeRange" resultType="boolean">
+        select COALESCE(count(*) <![CDATA[ > ]]> 0,false) from
+            plan_bus_service
+        where
+            is_enabled = 1 and is_deleted = 0
+        and
+            bus_id = #{busId}
+        and
+        (
+            <include refid="selectByDate"/>
+        )
+    </select>
+
+    <select id="isBusPlannedInTimeRangeExceptPlanId" resultType="boolean">
+        select COALESCE(count(*) <![CDATA[ > ]]> 0,false) from
+            plan_bus_service
+        where
+            is_enabled = 1 and is_deleted = 0
+          and
+              bus_id = #{busId}
+          and
+              plan_service_id != #{planServiceId}
+          and
+            (
+                <include refid="selectByDate"/>
+            )
+    </select>
+
+    <select id="listPlanInTimeRangeByBus" resultType="com.wntime.customer.vo.PlanBusServiceVo">
+        select pbs.*,ib.vin_code from
+            plan_bus_service pbs
+        left join info_bus ib on pbs.bus_id = ib.bus_id and ib.is_enabled = 1 and ib.is_deleted = 0
+        left join info_company_line l on pbs.company_line_id = l.company_line_id
+            and l.is_enabled = 1 and l.is_deleted = 0
+        where pbs.is_enabled = 1 and pbs.is_deleted = 0
+          and pbs.bus_id = #{busId}
+          and (<include refid="selectByDate"/>)
+          and l.company_line_id != #{companyLineId}
+          and l.direction = #{direction}
+    </select>
+
+    <select id="listBusNotPlannedInTimeRange" resultType="com.wntime.customer.vo.PlanBusVo">
+        select * from info_bus
+        where
+        is_deleted = 0 and is_enabled = 1
+        and school_id = #{schoolId}
+        and bus_id not in (
+            select DISTINCT p.bus_id from
+            plan_bus_service p
+            left join info_company_line l on p.company_line_id = l.company_line_id
+                and l.is_enabled = 1 and l.is_deleted = 0
+            where p.is_enabled = 1 and p.is_deleted = 0
+            and (<include refid="selectByDate"/>)
+            and l.company_line_id != #{companyLineId}
+            and l.direction = #{direction}
+        )
+    </select>
+
+    <select id="getDetailById" resultType="com.wntime.customer.entity.PlanBusServiceEntity">
+        select * from
+        plan_bus_service pbs
+        left join
+        info_bus ib on pbs.bus_id = ib.bus_id and ib.is_deleted = 0 and ib.is_enabled = 1
+        where pbs.is_deleted = 0
+        and pbs.plan_service_id = #{id}
+
+    </select>
+
+    <select id="queryBusIdByCompanyLineId" resultType="long">
+        select pbs.bus_id
+        from plan_bus_service pbs
+                 INNER JOIN info_bus ib on ib.bus_id = pbs.bus_id
+                 INNER JOIN info_config_param icp on icp.config_param_id = ib.bus_status
+        and pbs.company_line_id = #{companyLineId}
+          and pbs.is_enabled = 1
+          and pbs.is_deleted = 0
+          AND pbs.begin_date &lt;= now()
+          AND pbs.end_date &gt;= now()
+            AND icp.param_code = 'normal'
+            AND ib.is_deleted = 0
+            AND ib.is_enabled = 1
+            AND icp.is_deleted = 0
+            AND icp.is_enabled = 1
+    </select>
+    <select id="queryList" resultType="com.wntime.service.common.vo.BusLinePlanServiceVo">
+        SELECT plan_service_id,
+               bus_id,
+               company_line_id,
+               begin_date,
+               end_date
+        FROM plan_bus_service
+        WHERE is_deleted = 0
+          AND is_enabled = 1
+        <if test="busId != null ">
+            and bus_id = #{busId}
+        </if>
+    </select>
+</mapper>

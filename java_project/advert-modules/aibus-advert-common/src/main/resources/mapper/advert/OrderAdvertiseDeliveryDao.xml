@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.advert.dao.OrderAdvertiseDeliveryDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.advert.entity.OrderAdvertiseDeliveryEntity" id="orderAdvertiseDeliveryMap">
+        <result property="advertiseDeliveryId" column="advertise_delivery_id"/>
+        <result property="advertiseDeliveryType" column="advertise_delivery_type"/>
+        <result property="deliveryBegin" column="delivery_begin"/>
+        <result property="deliveryEnd" column="delivery_end"/>
+        <result property="checkStatus" column="check_status"/>
+        <result property="checkSuggest" column="check_suggest"/>
+        <result property="isInterrupt" column="is_interrupt"/>
+        <result property="interruptNotice" column="interrupt_notice"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+        <result property="advertiseNo" column="advertise_no"/>
+    </resultMap>
+
+    <select id="list" resultType="com.wntime.advert.vo.AdvertiseCardVo">
+        select oada.*,oadb.device_name
+        from (
+                 select oad.*,
+                        icp.param_name as check_status_name,
+                        icp.param_code as check_status_code
+                    from
+                      order_advertise_delivery oad
+                        left join info_config_param icp
+                        on oad.check_status = icp.param_value and icp.param_group = 'check_status' and icp.is_deleted = 0 and icp.is_enabled = 1
+                 where
+                    oad.check_status in
+                    <foreach collection="statusList" item="checkStatusId" separator="," open="(" close=")">
+                        #{checkStatusId}
+                    </foreach>
+                    <if test="userId != null">
+                        and oad.created_by = #{userId}
+                    </if>
+                    <if test="advertiseNo != null">
+                        and oad.advertise_no like concat('%', #{advertiseNo}, '%')
+                    </if>
+                    <choose>
+                        <when test='tabGroup == "advertiseDeliveryTab" '>
+                           and oad.is_interrupt = 0
+                        </when >
+                        <when test='tabGroup == "advertiseInterruptTab" '>
+                            and oad.is_interrupt = 1
+                        </when >
+                        <otherwise>
+                        </otherwise>
+                    </choose>
+        ) oada
+            left join (
+                 select
+                        oad.advertise_delivery_id,string_agg(DISTINCT iap.position_group,',') as device_name
+                    from
+                        order_advertise_delivery oad
+                            left join order_advertise_attach oaa on oaa.advertise_delivery_id = oad.advertise_delivery_id
+                            left join info_advertise_position iap on oaa.advertise_position_id = iap.advertise_position_id
+                    group by oad.advertise_delivery_id
+            ) oadb
+        on oada.advertise_delivery_id = oadb.advertise_delivery_id
+        order by oada.is_interrupt desc,oada.modified_date desc,oada.created_date desc
+    </select>
+
+    <select id="getVoById" resultType="com.wntime.advert.vo.AdvertiseInfoVo">
+        select oad.*,icp.param_name as advertise_delivery_type_name,icp.param_code as advertise_delivery_type_code
+        from
+            order_advertise_delivery oad
+        left join info_config_param icp on oad.advertise_delivery_type = icp.config_param_id and icp.is_deleted = 0 and icp.is_enabled = 1
+        where advertise_delivery_id = #{advertiseId}
+    </select>
+
+    <select id="getBaseDeviceName" resultType="string">
+        select
+            string_agg(DISTINCT iap.position_group,',') as device_name
+        from
+             info_advertise_position iap
+    </select>
+</mapper>

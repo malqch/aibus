@@ -1,0 +1,96 @@
+application:
+  version: 1.0.1
+server:
+  port: 7001
+  tomcat:
+    uri-encoding: UTF-8
+    min-spare-threads: 10           #请求处理线程初始化数量
+    max-threads: 100                #请求处理线程最大数，即同时处理的任务个数，默认值为200
+    accept-count: 100               #当tomcat请求处理线程数达到最大时，接受排队的请求个数，默认值为100
+    max-connections: 10000          #最大连接数量
+  connection-timeout: 30000ms       #本条连接等多久没数据就关掉。默认60000ms
+
+spring:
+  # 环境 dev|test|prod
+  profiles:
+    active: dev
+
+  application:
+    name: ec
+
+  # jackson时间格式化
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+
+  servlet:
+    multipart:
+      max-file-size: 2048MB
+      max-request-size: 2048MB
+      enabled: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+  freemarker:
+    checkTemplateLocation: false
+
+# Mybatis 配置
+mybatis:
+  type-aliases-package: com.wntime.ec.module.*.entity
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    call-setters-on-nulls: true
+    jdbc-type-for-null: "null"
+#    log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+#以下为自定义配置
+token:
+  #token过期时间 单位：分钟
+  expire-time: 300
+
+ehcache:
+  cache-ec: cache-ec    #缓存名称
+
+proxy:
+  servlet-url: /live
+  target-url: http://127.0.0.1/live
+
+speed:
+  max: 50
+
+#远程服务调用
+remote:
+  alleyes:    #百目服务
+    vin_url: ${remote.alleyes.protocal}://${remote.alleyes.ip}:${remote.alleyes.port}/v1/alleyes/status/vin   #
+    device_url: ${remote.alleyes.protocal}://${remote.alleyes.ip}:${remote.alleyes.port}/v1/alleyes/status/device         #
+    car_url: ${remote.alleyes.protocal}://${remote.alleyes.ip}:${remote.alleyes.port}/v1/alleyes/status/car         #
+    live_url: ${remote.alleyes.protocal}://${remote.alleyes.ip}:${remote.alleyes.port}/v1/alleyes/video/live         #
+    video_cut_url: ${remote.alleyes.protocal}://${remote.alleyes.ip}:${remote.alleyes.port}/v1/alleyes/video/cut         #
+    broadcast_url: ${remote.alleyes.protocal}://${remote.alleyes.ip}:${remote.alleyes.port}/v1/alleyes/broadcast         #
+    feat_add_url: ${remote.alleyes.protocal}://${remote.alleyes.ip}:${remote.alleyes.port}/v1/alleyes/feat/add         # 识别照片下发新增
+    feat_del_url: ${remote.alleyes.protocal}://${remote.alleyes.ip}:${remote.alleyes.port}/v1/alleyes/feat/del         # 识别照片下发删除
+    feat_list_url: ${remote.alleyes.protocal}://${remote.alleyes.ip}:${remote.alleyes.port}/v1/alleyes/feat/list         # 识别照片下发查询
+    status_station_url: ${remote.alleyes.protocal}://${remote.alleyes.ip}:${remote.alleyes.port}/v1/alleyes/status/station #车辆到站离站通知
+  server:     #后端服务
+    update_control_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/app/getUpdateList   #查询是否有更新
+    update_data_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/app/getParam    #更新基础数据
+    update_personne_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/app/getPersonnelList    #更新人员信息数据
+    get_businfo_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/app/getBusInfo    #获取车辆基础信息
+    device_upload_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/app/device/upload    #设备上传
+    event_upload_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/event/report    #事件上传
+    device_status_upload_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/device/status/update    #设备状态上传
+    fault_upload_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/fault/report    #故障上报
+    bus_status_upload_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/bus/status/report    #公交车状态上传
+    ssh_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/app/video/tunnel/check
+    advertise_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/app/advertise      #广告
+    ad_playlog_url: ${remote.server.protocal}://${remote.server.ip}:${remote.server.port}/aibus/app/report/advertise/log      #广告播放日志
+  dsm:    #DSM系统
+    login_url: ${remote.dsm.protocal}://${remote.dsm.ip}:${remote.dsm.port}/login/loginMobile.do    #dsm系统登录接口
+    alarm_url: ${remote.dsm.protocal}://${remote.dsm.ip}:${remote.dsm.port}/dsm/list.do    #dsm司机违规接口
+    file_url: ${remote.dsm.protocal}://${remote.dsm.ip}:${remote.dsm.port}/file/download.do    #dsm文件接口
+    vehicle_status_url: ${remote.dsm.protocal}://${remote.dsm.ip}:${remote.dsm.port}/vehicle/status.do    #dsm 车辆状态
+  baidu:
+    geoconv_url: http://api.map.baidu.com/geoconv/v1/?ak=n1geIe7AUlmOtjmxU5lpe8WlrFFl4i0H

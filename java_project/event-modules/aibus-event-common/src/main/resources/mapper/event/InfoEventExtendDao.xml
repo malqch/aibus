@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.event.dao.InfoEventExtendDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.event.entity.InfoEventExtendEntity" id="infoEventExtendMap">
+        <result property="eventExtendId" column="event_extend_id"/>
+        <result property="collectEventId" column="collect_event_id"/>
+        <result property="eventTargetId" column="event_target_id"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryList" resultType="com.wntime.event.vo.InfoEventExtendVo">
+        select event_extend_id,
+               collect_event_id,
+               event_target_id
+        from info_event_extend
+        where is_deleted = 0
+          and is_enabled = 1
+    </select>
+
+    <select id="listDetail" resultType="com.wntime.event.vo.InfoEventExtendDetailVo">
+        select
+            iee.*,
+            iet.event_target_name,iet.event_target_grope,iet.event_target_code,
+            x.user_name as createdUserName,y.user_name as modifiedUserName
+        from
+            info_event_extend iee
+                left join info_event_target iet on iee.event_target_id=iet.event_target_id and iet.is_deleted = 0 and iet.is_enabled = 1
+                left join admin_user x on iee.created_by=x.user_id
+                left join admin_user y on iee.modified_by=y.user_id
+        where iee.is_deleted = 0
+        <if test="collectEventId != null">
+            and iee.collect_event_id =  #{collectEventId}
+        </if>
+    </select>
+</mapper>

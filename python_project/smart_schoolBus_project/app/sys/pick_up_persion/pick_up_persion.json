@@ -1,0 +1,33 @@
+{
+  "required": [
+    "full_name",
+    "mobile_number",
+    "relation_student"
+  ],
+  "properties": {
+    "full_name": {
+      "$id": "#/properties/full_name",
+      "type": "string",
+      "title": "The Full_name Schema",
+      "examples": [
+        "user1"
+      ]
+    },
+    "mobile_number": {
+      "$id": "#/properties/mobile_number",
+      "type": "string",
+      "title": "The Mobile_number Schema",
+      "examples": [
+        "18734562786"
+      ]
+    },
+    "relation_student": {
+      "$id": "#/properties/relation_student",
+      "type": "string",
+      "title": "The Relation_student Schema",
+      "examples": [
+        "父女"
+      ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wntime.ec.module.schedule.dao.InitDao">
+
+    <select id="selectInitedTable" resultType="com.wntime.ec.module.schedule.vo.InitedTable">
+        SELECT * FROM INFORMATION_SCHEMA.TABLES
+        where TABLE_SCHEMA = 'PUBLIC'
+    </select>
+
+    <select id="selectInitedTableNames" resultType="string">
+        SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
+        where TABLE_SCHEMA = 'PUBLIC'
+    </select>
+</mapper>

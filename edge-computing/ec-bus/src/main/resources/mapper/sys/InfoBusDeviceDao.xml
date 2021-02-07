@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.ec.module.sys.dao.InfoBusDeviceDao">
+
+	<sql id="selectAllColumn">
+       device_code,device_desc_code,bus_device_id,device_type_id,bus_id,device_name,device_status,is_deleted,is_enabled,created_by, created_date,modified_by, modified_date
+	</sql>
+	
+	<sql id="updateColumn">
+		<set>
+			<if test="deviceCode != null and deviceCode !='' "> device_code = #{deviceCode,jdbcType=VARCHAR}, </if>
+			<if test="deviceDescCode != null and deviceDescCode !='' "> device_desc_code = #{deviceDescCode,jdbcType=VARCHAR}, </if>
+			<if test="busDeviceId != null "> bus_device_id = #{busDeviceId,jdbcType=BIGINT}, </if>
+			<if test="deviceTypeId != null "> device_type_id = #{deviceTypeId,jdbcType=BIGINT}, </if>
+			<if test="busId != null "> bus_id = #{busId,jdbcType=BIGINT}, </if>
+			<if test="deviceName != null and deviceName !='' "> device_name = #{deviceName,jdbcType=VARCHAR}, </if>
+			<if test="deviceStatus != null "> device_status = #{deviceStatus,jdbcType=SMALLINT}, </if>
+			<if test="isDeleted != null "> is_deleted = #{isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="isEnabled != null "> is_enabled = #{isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="createdBy != null "> created_by = #{createdBy,jdbcType=BIGINT}, </if>
+			<if test="createdDate != null "> created_date = #{createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifiedBy != null "> modified_by = #{modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="modifiedDate != null "> modified_date = #{modifiedDate,jdbcType=TIMESTAMP}, </if>
+		</set>
+	</sql>
+
+	<sql id="updateAllColumn">
+		SET
+			device_code = #{deviceCode,jdbcType=VARCHAR},
+			device_desc_code = #{deviceDescCode,jdbcType=VARCHAR},
+			bus_device_id = #{busDeviceId,jdbcType=BIGINT},
+			device_type_id = #{deviceTypeId,jdbcType=BIGINT},
+			bus_id = #{busId,jdbcType=BIGINT},
+			device_name = #{deviceName,jdbcType=VARCHAR},
+			device_status = #{deviceStatus,jdbcType=SMALLINT},
+			is_deleted = #{isDeleted,jdbcType=SMALLINT},
+			is_enabled = #{isEnabled,jdbcType=SMALLINT},
+			created_by = #{createdBy,jdbcType=BIGINT},
+			created_date = #{createdDate,jdbcType=TIMESTAMP},
+			modified_by = #{modifiedBy,jdbcType=BIGINT},
+			modified_date = #{modifiedDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="updateColumnEntity">
+		<set>
+			<if test="entity.deviceCode != null and entity.deviceCode !='' "> device_code = #{entity.deviceCode,jdbcType=VARCHAR}, </if>
+			<if test="entity.deviceDescCode != null and entity.deviceDescCode !='' "> device_desc_code = #{entity.deviceDescCode,jdbcType=VARCHAR}, </if>
+			<if test="entity.busDeviceId != null "> bus_device_id = #{entity.busDeviceId,jdbcType=BIGINT}, </if>
+			<if test="entity.deviceTypeId != null "> device_type_id = #{entity.deviceTypeId,jdbcType=BIGINT}, </if>
+			<if test="entity.busId != null "> bus_id = #{entity.busId,jdbcType=BIGINT}, </if>
+			<if test="entity.deviceName != null and entity.deviceName !='' "> device_name = #{entity.deviceName,jdbcType=VARCHAR}, </if>
+			<if test="entity.deviceStatus != null "> device_status = #{entity.deviceStatus,jdbcType=SMALLINT}, </if>
+			<if test="entity.isDeleted != null "> is_deleted = #{entity.isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="entity.isEnabled != null "> is_enabled = #{entity.isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="entity.createdBy != null "> created_by = #{entity.createdBy,jdbcType=BIGINT}, </if>
+			<if test="entity.createdDate != null "> created_date = #{entity.createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="entity.modifiedBy != null "> modified_by = #{entity.modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="entity.modifiedDate != null "> modified_date = #{entity.modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumnEntity">
+		SET
+			device_code = #{entity.deviceCode,jdbcType=VARCHAR},
+			device_desc_code = #{entity.deviceDescCode,jdbcType=VARCHAR},
+			bus_device_id = #{entity.busDeviceId,jdbcType=BIGINT},
+			device_type_id = #{entity.deviceTypeId,jdbcType=BIGINT},
+			bus_id = #{entity.busId,jdbcType=BIGINT},
+			device_name = #{entity.deviceName,jdbcType=VARCHAR},
+			device_status = #{entity.deviceStatus,jdbcType=SMALLINT},
+			is_deleted = #{entity.isDeleted,jdbcType=SMALLINT},
+			is_enabled = #{entity.isEnabled,jdbcType=SMALLINT},
+			created_by = #{entity.createdBy,jdbcType=BIGINT},
+			created_date = #{entity.createdDate,jdbcType=TIMESTAMP},
+			modified_by = #{entity.modifiedBy,jdbcType=BIGINT},
+			modified_date = #{entity.modifiedDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="where">
+		<where>
+			<if test="deviceCode != null and deviceCode !='' "> 
+ 				AND device_code=#{deviceCode,jdbcType=VARCHAR}  
+			</if> 
+			<if test="deviceDescCode != null and deviceDescCode !='' "> 
+ 				AND device_desc_code=#{deviceDescCode,jdbcType=VARCHAR}  
+			</if> 
+			<if test="busDeviceId != null "> 
+ 				AND bus_device_id=#{busDeviceId,jdbcType=BIGINT}  
+			</if> 
+			<if test="deviceTypeId != null "> 
+ 				AND device_type_id=#{deviceTypeId,jdbcType=BIGINT}  
+			</if> 
+			<if test="busId != null "> 
+ 				AND bus_id=#{busId,jdbcType=BIGINT}  
+			</if> 
+			<if test="deviceName != null and deviceName !='' "> 
+ 				AND device_name=#{deviceName,jdbcType=VARCHAR}  
+			</if> 
+			<if test="deviceStatus != null "> 
+ 				AND device_status=#{deviceStatus,jdbcType=SMALLINT}  
+			</if> 
+			<if test="isDeleted != null "> 
+ 				AND is_deleted=#{isDeleted,jdbcType=SMALLINT}  
+			</if> 
+			<if test="isEnabled != null "> 
+ 				AND is_enabled=#{isEnabled,jdbcType=SMALLINT}  
+			</if> 
+			<if test="createdBy != null "> 
+ 				AND created_by=#{createdBy,jdbcType=BIGINT}  
+			</if> 
+			<if test="createdDate != null "> 
+ 				AND created_date =  #{createdDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="createdDateStart != null "> 
+ 				AND created_date <![CDATA[ >= ]]> #{createdDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="createdDateEnd != null "> 
+ 				AND created_date <![CDATA[ <= ]]> #{createdDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedBy != null "> 
+ 				AND modified_by=#{modifiedBy,jdbcType=BIGINT}  
+			</if> 
+			<if test="modifiedDate != null "> 
+ 				AND modified_date =  #{modifiedDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedDateStart != null "> 
+ 				AND modified_date <![CDATA[ >= ]]> #{modifiedDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedDateEnd != null "> 
+ 				AND modified_date <![CDATA[ <= ]]> #{modifiedDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+
+		</where>
+	</sql>
+
+	<sql id="whereParam">
+		<where>
+			<if test="param != null">
+				<if test="param.deviceCode != null and param.deviceCode !='' "> 
+ 					and device_code=#{param.deviceCode,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.deviceDescCode != null and param.deviceDescCode !='' "> 
+ 					and device_desc_code=#{param.deviceDescCode,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.busDeviceId != null "> 
+ 					AND bus_device_id=#{param.busDeviceId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.deviceTypeId != null "> 
+ 					AND device_type_id=#{param.deviceTypeId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.busId != null "> 
+ 					AND bus_id=#{param.busId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.deviceName != null and param.deviceName !='' "> 
+ 					and device_name=#{param.deviceName,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.deviceStatus != null "> 
+ 					AND device_status=#{param.deviceStatus,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.isDeleted != null "> 
+ 					AND is_deleted=#{param.isDeleted,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.isEnabled != null "> 
+ 					AND is_enabled=#{param.isEnabled,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.createdBy != null "> 
+ 					AND created_by=#{param.createdBy,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.createdDate != null "> 
+ 					AND created_date = #{param.createdDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.createdDateStart != null "> 
+ 					AND created_date <![CDATA[ >= ]]> #{param.createdDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.createdDateEnd != null "> 
+ 					AND created_date <![CDATA[ <= ]]> #{param.createdDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedBy != null "> 
+ 					AND modified_by=#{param.modifiedBy,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.modifiedDate != null "> 
+ 					AND modified_date = #{param.modifiedDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedDateStart != null "> 
+ 					AND modified_date <![CDATA[ >= ]]> #{param.modifiedDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedDateEnd != null "> 
+ 					AND modified_date <![CDATA[ <= ]]> #{param.modifiedDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insert" parameterType="com.wntime.ec.module.sys.entity.InfoBusDevice">
+		INSERT INTO info_bus_device
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="deviceCode != null and deviceCode !='' "> 
+ 				device_code,  
+			</if> 
+			<if test="deviceDescCode != null and deviceDescCode !='' "> 
+ 				device_desc_code,  
+			</if> 
+			<if test="busDeviceId != null "> 
+ 				bus_device_id,  
+			</if> 
+			<if test="deviceTypeId != null "> 
+ 				device_type_id,  
+			</if> 
+			<if test="busId != null "> 
+ 				bus_id,  
+			</if> 
+			<if test="deviceName != null and deviceName !='' "> 
+ 				device_name,  
+			</if> 
+			<if test="deviceStatus != null "> 
+ 				device_status,  
+			</if> 
+			<if test="isDeleted != null "> 
+ 				is_deleted,  
+			</if> 
+			<if test="isEnabled != null "> 
+ 				is_enabled,  
+			</if> 
+			<if test="createdBy != null "> 
+ 				created_by,  
+			</if> 
+			<if test="createdDate != null "> 
+ 				created_date,  
+			</if> 
+			<if test="modifiedBy != null "> 
+ 				modified_by,  
+			</if> 
+			<if test="modifiedDate != null "> 
+ 				modified_date,  
+			</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="deviceCode != null and deviceCode !='' "> #{deviceCode,jdbcType=VARCHAR}, </if>
+			<if test="deviceDescCode != null and deviceDescCode !='' "> #{deviceDescCode,jdbcType=VARCHAR}, </if>
+			<if test="busDeviceId != null "> #{busDeviceId,jdbcType=BIGINT}, </if>
+			<if test="deviceTypeId != null "> #{deviceTypeId,jdbcType=BIGINT}, </if>
+			<if test="busId != null "> #{busId,jdbcType=BIGINT}, </if>
+			<if test="deviceName != null and deviceName !='' "> #{deviceName,jdbcType=VARCHAR}, </if>
+			<if test="deviceStatus != null "> #{deviceStatus,jdbcType=SMALLINT}, </if>
+			<if test="isDeleted != null "> #{isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="isEnabled != null "> #{isEnabled,jdbcType=SMALLINT}, </if>
+			<if test="createdBy != null "> #{createdBy,jdbcType=BIGINT}, </if>
+			<if test="createdDate != null "> #{createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifiedBy != null "> #{modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="modifiedDate != null "> #{modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</trim>
+	</insert>
+
+	<insert id="insertAllColumn" parameterType="com.wntime.ec.module.sys.entity.InfoBusDevice">
+		INSERT INTO info_bus_device(
+		device_code,device_desc_code,bus_device_id,device_type_id,bus_id,device_name,device_status,is_deleted,is_enabled,created_by,created_date,modified_by,modified_date
+		) VALUES (
+		#{deviceCode,jdbcType=VARCHAR},
+		#{deviceDescCode,jdbcType=VARCHAR},
+		#{busDeviceId,jdbcType=BIGINT},
+		#{deviceTypeId,jdbcType=BIGINT},
+		#{busId,jdbcType=BIGINT},
+		#{deviceName,jdbcType=VARCHAR},
+		#{deviceStatus,jdbcType=SMALLINT},
+		#{isDeleted,jdbcType=SMALLINT},
+		#{isEnabled,jdbcType=SMALLINT},
+		#{createdBy,jdbcType=BIGINT},
+		#{createdDate,jdbcType=TIMESTAMP},
+		#{modifiedBy,jdbcType=BIGINT},
+		#{modifiedDate,jdbcType=TIMESTAMP}
+
+		)
+	</insert>
+
+	<update id="updateById" parameterType="com.wntime.ec.module.sys.entity.InfoBusDevice">
+        UPDATE info_bus_device 
+		<include refid="updateColumn" />
+		where device_code = #{deviceCode,jdbcType=VARCHAR}
+	</update>
+	<update id="updateAllColumnById" parameterType="com.wntime.ec.module.sys.entity.InfoBusDevice">
+		UPDATE info_bus_device <include refid="updateAllColumn" />
+		where device_code = #{deviceCode,jdbcType=VARCHAR}
+	</update>
+	<update id="update">
+		UPDATE info_bus_device <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumn">
+		UPDATE info_bus_device <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateByMap">
+		UPDATE info_bus_device <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumnByMap">
+		UPDATE info_bus_device <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<delete id="deleteById" parameterType="java.lang.String">
+		DELETE FROM info_bus_device  where device_code = #{deviceCode,jdbcType=VARCHAR}
+	</delete>
+	<delete id="deleteByIds" parameterType="collection">
+		DELETE FROM info_bus_device  WHERE device_code IN
+		<foreach collection="collection" item="ids" open="("
+			separator="," close=")">
+          <![CDATA[#{ids}]]>
+		</foreach>
+	</delete>
+	<delete id="deleteNeedlessByIds" parameterType="list">
+		DELETE FROM info_bus_device  WHERE device_code NOT IN
+		<foreach collection="list" item="ids" open="("
+				 separator="," close=")">
+			<![CDATA[#{ids}]]>
+		</foreach>
+	</delete>
+	<delete id="delete" parameterType="com.wntime.ec.module.sys.vo.InfoBusDeviceQryReqVo">
+		DELETE FROM  info_bus_device
+		<include refid="where" />
+	</delete>
+	<delete id="deleteByMap" parameterType="map">
+		DELETE FROM info_bus_device
+		<include refid="where" />
+	</delete>
+
+	<select id="selectById" resultType="com.wntime.ec.module.sys.vo.InfoBusDeviceQryRspVo" parameterType="java.lang.String">
+		SELECT
+		<include refid="selectAllColumn" />
+		FROM  info_bus_device
+		where device_code = #{deviceCode,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="selectOne" resultType="com.wntime.ec.module.sys.vo.InfoBusDeviceQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoBusDeviceQryReqVo">
+        SELECT
+        <include refid="selectAllColumn" />
+        FROM info_bus_device
+        <include refid="where" />
+    </select>
+	
+	<select id="selectByIds" resultType="com.wntime.ec.module.sys.vo.InfoBusDeviceQryRspVo" parameterType="collection">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_bus_device
+		WHERE id IN
+		<foreach collection="collection" item="ids" open="(" separator="," close=")">
+			<![CDATA[#{ids}]]>
+		</foreach>
+	</select>
+
+	<select id="selectList" resultType="com.wntime.ec.module.sys.vo.InfoBusDeviceQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoBusDeviceQryReqVo">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_bus_device
+		<include refid="where" />
+		${orderBy}
+	</select>
+
+	<select id="selectListByMap" resultType="com.wntime.ec.module.sys.vo.InfoBusDeviceQryRspVo" parameterType="map">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_bus_device
+		<include refid="where" />
+	</select>
+
+    <select id="selectPage" resultType="com.wntime.ec.module.sys.vo.InfoBusDeviceQryRspVo">
+        SELECT <include refid="selectAllColumn" />
+        FROM info_bus_device
+        <include refid="whereParam" />
+        <if test="param != null">
+        	${param.orderBy}
+        </if>
+    </select>
+	
+</mapper>

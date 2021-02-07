@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.OrderBusDeliveryDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.customer.entity.OrderBusDeliveryEntity" id="orderBusDeliveryMap">
+        <result property="busDeliveryId" column="bus_delivery_id"/>
+        <result property="busId" column="bus_id"/>
+        <result property="companyDeliveryId" column="company_delivery_id"/>
+        <result property="orderDeliveryDate" column="order_delivery_date"/>
+        <result property="orderDeliveryDesc" column="order_delivery_desc"/>
+        <result property="orderOutDate" column="order_out_date"/>
+        <result property="orderOutDesc" column="order_out_desc"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.customer.vo.OrderBusDeliveryVo">
+        SELECT
+        a.bus_delivery_id,
+        a.bus_id,
+        a.plate_code,
+        a.bus_code,
+        a.company_delivery_id,
+        a.order_delivery_date,
+        a.order_delivery_desc,
+        a.order_out_date,
+        a.order_out_desc,
+        a.is_deleted,
+        a.created_date,
+        a.modified_date,
+        ib.vin_code ,
+        obc.order_code ,
+        ibt.bus_type_name,
+        ibc.company_name
+        FROM order_bus_delivery a
+        left join info_bus ib on a.bus_id = ib.bus_id
+        left join order_company_delivery ocd on a.company_delivery_id = ocd.company_delivery_id
+        left join order_bus_company obc on ocd.order_id = obc.order_id
+        left join info_bus_company ibc on obc.company_id = ibc.company_id
+        left join info_bus_type ibt on ocd.bus_type_id = ibt.bus_type_id
+        where a.is_deleted = 0
+        <if test="vinCode != null and vinCode != ''">
+            and ib.vin_code LIKE concat('%', #{vinCode}, '%')
+        </if>
+        <if test="plateCode != null and plateCode != ''">
+            and a.plate_code LIKE concat('%', #{plateCode}, '%')
+        </if>
+        <if test="companyIdList != null and companyIdList.size() > 0">
+            and ibc.company_id in
+            <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                #{companyId}
+            </foreach>
+        </if>
+        ORDER BY a.created_date desc
+    </select>
+
+    <select id="getDetailById" parameterType="map" resultType="com.wntime.customer.vo.OrderBusDeliveryVo">
+        SELECT
+        a.bus_delivery_id,
+        a.bus_id,
+        a.plate_code,
+        a.bus_code,
+        a.company_delivery_id,
+        a.order_delivery_date,
+        a.order_delivery_desc,
+        a.order_out_date,
+        a.order_out_desc,
+        a.is_deleted,
+        a.created_date,
+        a.modified_date,
+        ib.vin_code ,
+        obc.order_id ,
+        obc.order_code ,
+        ibt.bus_type_name,
+        ibc.company_name,
+        ocd.order_delivery_num
+        FROM order_bus_delivery a
+        left join info_bus ib on a.bus_id = ib.bus_id
+        left join order_company_delivery ocd on a.company_delivery_id = ocd.company_delivery_id
+        left join order_bus_company obc on ocd.order_id = obc.order_id
+        left join info_bus_company ibc on obc.company_id = ibc.company_id
+        left join info_bus_type ibt on ocd.bus_type_id = ibt.bus_type_id
+        where a.bus_delivery_id = #{id}
+    </select>
+
+</mapper>

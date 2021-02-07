@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.ec.module.sys.dao.InfoBusStationDao">
+
+	<sql id="selectAllColumn">
+       bus_station_id,bus_station_name,bus_station_code,bus_station_longitude,bus_station_latitude,bus_station_deviation
+	</sql>
+	
+	<sql id="updateColumn">
+		<set>
+			<if test="busStationId != null "> bus_station_id = #{busStationId,jdbcType=BIGINT}, </if>
+			<if test="busStationName != null and busStationName !='' "> bus_station_name = #{busStationName,jdbcType=VARCHAR}, </if>
+			<if test="busStationCode != null and busStationCode !='' "> bus_station_code = #{busStationCode,jdbcType=VARCHAR}, </if>
+			<if test="busStationLongitude != null "> bus_station_longitude = #{busStationLongitude,jdbcType=DECIMAL}, </if>
+			<if test="busStationLatitude != null "> bus_station_latitude = #{busStationLatitude,jdbcType=DECIMAL}, </if>
+			<if test="busStationDeviation != null "> bus_station_deviation = #{busStationDeviation,jdbcType=INTEGER}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumn">
+		SET
+			bus_station_id = #{busStationId,jdbcType=BIGINT},
+			bus_station_name = #{busStationName,jdbcType=VARCHAR},
+			bus_station_code = #{busStationCode,jdbcType=VARCHAR},
+			bus_station_longitude = #{busStationLongitude,jdbcType=DECIMAL},
+			bus_station_latitude = #{busStationLatitude,jdbcType=DECIMAL},
+			bus_station_deviation = #{busStationDeviation,jdbcType=INTEGER}
+
+	</sql>
+
+	<sql id="updateColumnEntity">
+		<set>
+			<if test="entity.busStationId != null "> bus_station_id = #{entity.busStationId,jdbcType=BIGINT}, </if>
+			<if test="entity.busStationName != null and entity.busStationName !='' "> bus_station_name = #{entity.busStationName,jdbcType=VARCHAR}, </if>
+			<if test="entity.busStationCode != null and entity.busStationCode !='' "> bus_station_code = #{entity.busStationCode,jdbcType=VARCHAR}, </if>
+			<if test="entity.busStationLongitude != null "> bus_station_longitude = #{entity.busStationLongitude,jdbcType=DECIMAL}, </if>
+			<if test="entity.busStationLatitude != null "> bus_station_latitude = #{entity.busStationLatitude,jdbcType=DECIMAL}, </if>
+			<if test="entity.busStationDeviation != null "> bus_station_deviation = #{entity.busStationDeviation,jdbcType=INTEGER}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumnEntity">
+		SET
+			bus_station_id = #{entity.busStationId,jdbcType=BIGINT},
+			bus_station_name = #{entity.busStationName,jdbcType=VARCHAR},
+			bus_station_code = #{entity.busStationCode,jdbcType=VARCHAR},
+			bus_station_longitude = #{entity.busStationLongitude,jdbcType=DECIMAL},
+			bus_station_latitude = #{entity.busStationLatitude,jdbcType=DECIMAL},
+			bus_station_deviation = #{entity.busStationDeviation,jdbcType=INTEGER}
+
+	</sql>
+
+	<sql id="where">
+		<where>
+			<if test="busStationId != null "> 
+ 				AND bus_station_id=#{busStationId,jdbcType=BIGINT}  
+			</if> 
+			<if test="busStationName != null and busStationName !='' "> 
+ 				AND bus_station_name=#{busStationName,jdbcType=VARCHAR}  
+			</if> 
+			<if test="busStationCode != null and busStationCode !='' "> 
+ 				AND bus_station_code=#{busStationCode,jdbcType=VARCHAR}  
+			</if> 
+			<if test="busStationLongitude != null "> 
+ 				AND bus_station_longitude=#{busStationLongitude,jdbcType=DECIMAL}  
+			</if> 
+			<if test="busStationLatitude != null "> 
+ 				AND bus_station_latitude=#{busStationLatitude,jdbcType=DECIMAL}  
+			</if> 
+			<if test="busStationDeviation != null "> 
+ 				AND bus_station_deviation=#{busStationDeviation,jdbcType=INTEGER}  
+			</if> 
+
+		</where>
+	</sql>
+
+	<sql id="whereParam">
+		<where>
+			<if test="param != null">
+				<if test="param.busStationId != null "> 
+ 					AND bus_station_id=#{param.busStationId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.busStationName != null and param.busStationName !='' "> 
+ 					and bus_station_name=#{param.busStationName,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.busStationCode != null and param.busStationCode !='' "> 
+ 					and bus_station_code=#{param.busStationCode,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.busStationLongitude != null "> 
+ 					AND bus_station_longitude=#{param.busStationLongitude,jdbcType=DECIMAL}  
+				</if> 
+				<if test="param.busStationLatitude != null "> 
+ 					AND bus_station_latitude=#{param.busStationLatitude,jdbcType=DECIMAL}  
+				</if> 
+				<if test="param.busStationDeviation != null "> 
+ 					AND bus_station_deviation=#{param.busStationDeviation,jdbcType=INTEGER}  
+				</if> 
+
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insert" parameterType="com.wntime.ec.module.sys.entity.InfoBusStation">
+		INSERT INTO info_bus_station
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="busStationId != null "> 
+ 				bus_station_id,  
+			</if> 
+			<if test="busStationName != null and busStationName !='' "> 
+ 				bus_station_name,  
+			</if> 
+			<if test="busStationCode != null and busStationCode !='' "> 
+ 				bus_station_code,  
+			</if> 
+			<if test="busStationLongitude != null "> 
+ 				bus_station_longitude,  
+			</if> 
+			<if test="busStationLatitude != null "> 
+ 				bus_station_latitude,  
+			</if> 
+			<if test="busStationDeviation != null "> 
+ 				bus_station_deviation,  
+			</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="busStationId != null "> #{busStationId,jdbcType=BIGINT}, </if>
+			<if test="busStationName != null and busStationName !='' "> #{busStationName,jdbcType=VARCHAR}, </if>
+			<if test="busStationCode != null and busStationCode !='' "> #{busStationCode,jdbcType=VARCHAR}, </if>
+			<if test="busStationLongitude != null "> #{busStationLongitude,jdbcType=DECIMAL}, </if>
+			<if test="busStationLatitude != null "> #{busStationLatitude,jdbcType=DECIMAL}, </if>
+			<if test="busStationDeviation != null "> #{busStationDeviation,jdbcType=INTEGER}, </if>
+
+		</trim>
+	</insert>
+
+	<insert id="insertAllColumn" parameterType="com.wntime.ec.module.sys.entity.InfoBusStation">
+		INSERT INTO info_bus_station(
+		bus_station_id,bus_station_name,bus_station_code,bus_station_longitude,bus_station_latitude,bus_station_deviation
+		) VALUES (
+		#{busStationId,jdbcType=BIGINT},
+		#{busStationName,jdbcType=VARCHAR},
+		#{busStationCode,jdbcType=VARCHAR},
+		#{busStationLongitude,jdbcType=DECIMAL},
+		#{busStationLatitude,jdbcType=DECIMAL},
+		#{busStationDeviation,jdbcType=INTEGER}
+
+		)
+	</insert>
+
+	<update id="updateById" parameterType="com.wntime.ec.module.sys.entity.InfoBusStation">
+        UPDATE info_bus_station 
+		<include refid="updateColumn" />
+		where bus_station_id = #{busStationId,jdbcType=BIGINT}
+	</update>
+	<update id="updateAllColumnById" parameterType="com.wntime.ec.module.sys.entity.InfoBusStation">
+		UPDATE info_bus_station <include refid="updateAllColumn" />
+		where bus_station_id = #{busStationId,jdbcType=BIGINT}
+	</update>
+	<update id="update">
+		UPDATE info_bus_station <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumn">
+		UPDATE info_bus_station <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateByMap">
+		UPDATE info_bus_station <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumnByMap">
+		UPDATE info_bus_station <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<delete id="deleteById" parameterType="java.lang.Long">
+		DELETE FROM info_bus_station  where bus_station_id = #{busStationId,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteByIds" parameterType="collection">
+		DELETE FROM info_bus_station  WHERE id IN
+		<foreach collection="collection" item="ids" open="("
+			separator="," close=")">
+          <![CDATA[#{ids}]]>
+		</foreach>
+	</delete>
+	<delete id="delete" parameterType="com.wntime.ec.module.sys.vo.InfoBusStationQryReqVo">
+		DELETE FROM  info_bus_station
+		<include refid="where" />
+	</delete>
+	<delete id="deleteByMap" parameterType="map">
+		DELETE FROM info_bus_station
+		<include refid="where" />
+	</delete>
+
+	<select id="selectById" resultType="com.wntime.ec.module.sys.vo.InfoBusStationQryRspVo" parameterType="java.lang.Long">
+		SELECT
+		<include refid="selectAllColumn" />
+		FROM  info_bus_station
+		where bus_station_id = #{busStationId,jdbcType=BIGINT}
+	</select>
+	
+	<select id="selectOne" resultType="com.wntime.ec.module.sys.vo.InfoBusStationQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoBusStationQryReqVo">
+        SELECT
+        <include refid="selectAllColumn" />
+        FROM info_bus_station
+        <include refid="where" />
+    </select>
+	
+	<select id="selectByIds" resultType="com.wntime.ec.module.sys.vo.InfoBusStationQryRspVo" parameterType="collection">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_bus_station
+		WHERE id IN
+		<foreach collection="collection" item="ids" open="(" separator="," close=")">
+			<![CDATA[#{ids}]]>
+		</foreach>
+	</select>
+
+	<select id="selectList" resultType="com.wntime.ec.module.sys.vo.InfoBusStationQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoBusStationQryReqVo">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_bus_station
+		<include refid="where" />
+		${orderBy}
+	</select>
+
+	<select id="selectListByMap" resultType="com.wntime.ec.module.sys.vo.InfoBusStationQryRspVo" parameterType="map">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_bus_station
+		<include refid="where" />
+	</select>
+
+    <select id="selectPage" resultType="com.wntime.ec.module.sys.vo.InfoBusStationQryRspVo">
+        SELECT <include refid="selectAllColumn" />
+        FROM info_bus_station
+        <include refid="whereParam" />
+        <if test="param != null">
+        	${param.orderBy}
+        </if>
+    </select>
+	
+</mapper>

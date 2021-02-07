@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.fault.dao.InfoFaultExtendDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.fault.entity.InfoFaultExtendEntity" id="infoFaultExtendMap">
+        <result property="faultExtendId" column="fault_extend_id"/>
+        <result property="collectFaultId" column="collect_fault_id"/>
+        <result property="faultTargetId" column="fault_target_id"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+
+    <select id="queryList" resultType="com.wntime.fault.vo.InfoFaultExtendVo">
+        select fault_extend_id,
+               collect_fault_id as collectEventId,
+               fault_target_id
+        from info_fault_extend
+        where is_deleted = 0
+          and is_enabled = 1
+    </select>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.fault.entity.InfoFaultExtendEntity">
+        SELECT
+        a.*,
+        g.fault_target_name,
+        x.user_name create_user_name,
+        y.user_name modified_user_name
+        FROM info_fault_extend a
+        left join info_fault_target g
+        on a.fault_target_id = g.fault_target_id
+        and g.is_deleted = 0 and g.is_enabled = 1
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="collectFaultId != null and collectFaultId != 0">
+            and a.collect_fault_id = #{collectFaultId}
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+</mapper>

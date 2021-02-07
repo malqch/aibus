@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.officer.dao.PeopleBasicFactsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.modules.officer.entity.PeopleBasicFactsEntity" id="peopleBasicFactsMap">
+        <result property="id" column="id"/>
+        <result property="idNo" column="id_no"/>
+        <result property="fullName" column="full_name"/>
+        <result property="sex" column="sex"/>
+        <result property="age" column="age"/>
+        <result property="category" column="category"/>
+        <result property="takePhoto" column="take_photo"/>
+        <result property="residentialAddress" column="residential_address"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createDt" column="create_dt"/>
+        <result property="modifyUserId" column="modify_user_id"/>
+        <result property="modifyDt" column="modify_dt"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="sublibType" column="sublib_type"/>
+        <result property="name" column="name"/>
+        <result property="img" column="img"/>
+        <result property="uniqueIdentity" column="unique_identity"/>
+    </resultMap>
+
+    <select id="getAllPersonnelByTimestamp" resultMap="peopleBasicFactsMap">
+        select 1 as sublib_type, pbf.full_name as name, pbf.id_no, pbf.take_photo as img,s.is_deleted,pbf.id as unique_identity
+        from info_student s
+        join info_people_basic_facts pbf on pbf.id = s.basic_id
+        join (
+            select distinct ls.student_id,pbs.bus_id
+            from student_line_seat ls
+            join info_company_line cl on (ls.up_company_line_id = cl.company_line_id or ls.off_company_line_id = cl.company_line_id)
+            join plan_bus_service pbs on pbs.company_line_id = cl.company_line_id
+            where cl.is_deleted = 0 and cl.is_enabled = 1 and pbs.is_deleted = 0 and pbs.is_enabled = 1
+        ) bs on bs.student_id = s.id
+        where (s.create_dt >= #{date}
+        or s.modify_dt >= #{date}
+        or pbf.create_dt >= #{date}
+        or pbf.modify_dt >= #{date})
+        and bs.bus_id = #{busId}
+
+
+        union all
+
+        select 3 as sublib_type, pbf1.full_name as name, pbf1.id_no, pbf.take_photo as img,g.is_deleted,pbf.id as unique_identity
+        from info_guardian g
+        join info_people_basic_facts pbf on pbf.id = g.basic_id
+        join info_student s on g.student_id = s.id
+        join info_people_basic_facts pbf1 on pbf1.id = s.basic_id
+        join (
+            select distinct ls.student_id,pbs.bus_id
+            from student_line_seat ls
+            join info_company_line cl on (ls.up_company_line_id = cl.company_line_id or ls.off_company_line_id = cl.company_line_id)
+            join plan_bus_service pbs on pbs.company_line_id = cl.company_line_id
+            where cl.is_deleted = 0 and cl.is_enabled = 1 and pbs.is_deleted = 0 and pbs.is_enabled = 1
+        ) bs on bs.student_id = g.student_id
+        where (g.create_dt >= #{date}
+        or g.modify_dt >= #{date}
+        or pbf.create_dt >= #{date}
+        or pbf.modify_dt >= #{date})
+        and bs.bus_id = #{busId}
+
+        union all
+
+        select 3 as sublib_type, pbf1.full_name as name, pbf1.id_no, pbf.take_photo as img,a.is_deleted,pbf.id as unique_identity
+        from info_authorize a
+        join info_people_basic_facts pbf on pbf.id = a.basic_id
+        join info_student s on a.student_id = s.id
+        join info_people_basic_facts pbf1 on pbf1.id = s.basic_id
+        join (
+            select distinct ls.student_id,pbs.bus_id
+            from student_line_seat ls
+            join info_company_line cl on (ls.up_company_line_id = cl.company_line_id or ls.off_company_line_id = cl.company_line_id)
+            join plan_bus_service pbs on pbs.company_line_id = cl.company_line_id
+            where cl.is_deleted = 0 and cl.is_enabled = 1 and pbs.is_deleted = 0 and pbs.is_enabled = 1
+        ) bs on bs.student_id = a.student_id
+        where (a.create_dt >= #{date}
+        or a.modify_dt >= #{date}
+        or pbf.create_dt >= #{date}
+        or pbf.modify_dt >= #{date})
+        and bs.bus_id = #{busId}
+
+        union all
+
+        select 2 as sublib_type, pbf.full_name as name, pbf.id_no, pbf.take_photo as img,d.is_deleted,pbf.id as unique_identity
+        from info_driver d
+        join info_people_basic_facts pbf on pbf.id = d.basic_id
+        where d.create_dt >= #{date}
+        or d.modify_dt >= #{date}
+        or pbf.create_dt >= #{date}
+        or pbf.modify_dt >= #{date}
+
+        union all
+
+        select 4 as sublib_type, pbf.full_name as name, pbf.id_no, pbf.take_photo as img,so.is_deleted,pbf.id as unique_identity
+        from info_safety_officer so
+        join info_people_basic_facts pbf on pbf.id = so.basic_id
+        where so.create_dt >= #{date}
+        or so.modify_dt >= #{date}
+        or pbf.create_dt >= #{date}
+        or pbf.modify_dt >= #{date}
+    </select>
+
+</mapper>

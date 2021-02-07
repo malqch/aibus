@@ -1,0 +1,6 @@
+wntime:
+  service:
+    upload:
+      #公交车型图片
+      filePath: ${wntime.common.dataPath}/service/image/busType
+      companySnapshotFilePath: ${wntime.common.dataPath}/service/image/companySnapshot

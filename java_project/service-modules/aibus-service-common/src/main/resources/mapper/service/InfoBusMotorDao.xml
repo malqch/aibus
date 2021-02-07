@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.service.dao.InfoBusMotorDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.service.entity.InfoBusMotorEntity" id="infoBusMotorMap">
+        <result property="busMotorId" column="bus_motor_id"/>
+        <result property="busId" column="bus_id"/>
+        <result property="motorTypeId" column="motor_type_id"/>
+        <result property="busMotorCode" column="bus_motor_code"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.service.entity.InfoBusMotorEntity">
+        SELECT
+        a.bus_motor_id,
+        a.bus_id,
+        a.motor_type_id,
+        a.bus_motor_code,
+        a.is_deleted,
+        a.is_enabled,
+        a.created_by,
+        a.created_date,
+        a.modified_by,
+        a.modified_date,
+        imt.motor_type_name,
+        ib.vin_code ,
+        ibt.bus_type_name ,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_bus_motor a
+        left join info_motor_type imt on a.motor_type_id = imt.motor_type_id
+        left join info_bus ib on a.bus_id = ib.bus_id
+        left join info_bus_type ibt on ib.bus_type_id = ibt.bus_type_id
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="busMotorCode != null and busMotorCode != ''">
+            and a.bus_motor_code LIKE concat('%', #{busMotorCode}, '%')
+        </if>
+        <if test="vinCode != null and vinCode != ''">
+            and ib.vin_code LIKE concat('%', #{vinCode}, '%')
+        </if>
+
+        <if test="busId != null and busId != 0">
+            and ib.bus_id = #{busId}
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+
+</mapper>

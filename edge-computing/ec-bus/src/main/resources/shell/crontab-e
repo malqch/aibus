@@ -1,0 +1,5 @@
+* * * * * /bin/bash /data/ha/scripts/http_check.sh
+* * * * * /bin/bash /data/ha/scripts/update.sh
+* * * * * /bin/bash /data/ec/scripts/http_check.sh
+* * * * * /bin/bash /data/ec/scripts/update.sh
+* * * * * ntpdate ntp.aliyun.com

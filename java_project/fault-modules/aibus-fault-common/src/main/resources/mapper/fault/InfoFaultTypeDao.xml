@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.fault.dao.InfoFaultTypeDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.fault.entity.InfoFaultTypeEntity" id="infoFaultTypeMap">
+        <result property="faultTypeId" column="fault_type_id"/>
+        <result property="faultTypeName" column="fault_type_name"/>
+        <result property="faultTypeCode" column="fault_type_code"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.fault.entity.InfoFaultTypeEntity">
+        SELECT
+        a.*,
+        x.user_name create_user_name,
+        y.user_name modified_user_name
+        FROM info_fault_type a
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="faultTypeName != null and faultTypeName != ''">
+            and a.fault_type_name LIKE concat('%', #{faultTypeName}, '%')
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+    <select id="countBusGroupByFaultType" resultType="java.util.LinkedHashMap">
+        select ift.fault_type_id,ift.fault_type_name,COALESCE(count(lfd.fault_detail_id),0) fault_type_count
+        from
+        info_fault_type
+         ift LEFT JOIN
+        log_fault_detail lfd
+         ON ift.fault_type_id = lfd.fault_type_id and lfd.is_enabled = 1
+        and  lfd.bus_id in
+        (
+        <include refid="com.wntime.common.CommonMapper.selectBusIdByCompany"/>
+        )
+         where ift.is_deleted = 0 and ift.is_enabled = 1
+         group by ift.fault_type_id,ift.fault_type_name
+    </select>
+
+    <select id="getCountFaultTypeByBusIds" resultType="com.wntime.fault.vo.FaultTypeStatVo">
+        select t.fault_type_id as faultTypeId,t.fault_type_name as faultTypeName,coalesce(count(1),0) as faultTypeCount
+            from info_fault_type t
+            left join log_fault_detail l
+                on l.fault_type_id = t.fault_type_id
+                and t.is_deleted = 0 and t.is_enabled = 1
+            left join log_bus_drive d
+                on l.bus_drive_id = d.bus_drive_id
+                and d.is_enabled = 1
+        where l.is_enabled = 1
+            <if test="busIdList != null and busIdList.size() > 0">
+                and l.bus_id in
+                <foreach collection="busIdList" item="busId" separator="," open="(" close=")">
+                    #{busId}
+                </foreach>
+            </if>
+            <if test="busMile != null and busMile != 0">
+                and d.bus_total_mile <![CDATA[<=]]> #{busMile}
+            </if>
+            <if test="searchDate != null">
+                and l.created_date <![CDATA[<=]]> #{searchDate}
+            </if>
+        group by t.fault_type_id
+        order by faultTypeCount asc
+    </select>
+
+    <select id="getCountFaultByBusType" resultType="com.wntime.service.common.vo.TypeCountVo">
+        select t.fault_type_id as id,t.fault_type_name as name,coalesce(count(1),0) as value
+            from info_fault_type t
+            left join log_fault_detail l
+            on l.fault_type_id = t.fault_type_id
+            and t.is_deleted = 0 and t.is_enabled = 1
+            left join info_bus b
+            on l.bus_id = b.bus_id
+            and b.is_deleted = 0 and b.is_enabled = 1
+        where l.is_enabled = 1
+            <if test="busIdList != null and busIdList.size() > 0">
+                and l.bus_id in
+                <foreach collection="busIdList" item="busId" separator="," open="(" close=")">
+                    #{busId}
+                </foreach>
+            </if>
+            <if test="busTypeId != null">
+                and b.bus_type_id = #{busTypeId}
+            </if>
+            <if test="searchDate != null">
+                and l.created_date <![CDATA[<=]]> #{searchDate}
+            </if>
+        group by t.fault_type_id
+        order by value desc
+    </select>
+
+    <select id="getFaultStatByCompanyBusType" resultType="com.wntime.fault.vo.FaultCompanyBusStatVo">
+        select e.bus_type_id, e.bus_type_name,c.company_id,c.company_name,coalesce(count(*),0) as statCount
+            from log_fault_detail l
+            left join info_bus b
+            on l.bus_id = b.bus_id
+            and b.is_deleted = 0 and b.is_enabled = 1
+            left join info_bus_type e
+            on b.bus_type_id = e.bus_type_id
+            and e.is_deleted = 0 and e.is_enabled = 1
+            left join order_bus_delivery d
+                on b.bus_id = d.bus_id
+                and d.is_deleted = 0
+            left join order_company_delivery o
+                on d.company_delivery_id = o.company_delivery_id
+                and o.is_deleted = 0
+            left join order_bus_company oc
+                on o.order_id = oc.order_id
+                and oc.is_deleted = 0
+            left join info_bus_company c
+            on oc.company_id = c.company_id
+            and c.is_deleted = 0 and c.is_enabled = 1
+        where l.is_enabled = 1
+            <if test="companyIdList != null and companyIdList.size() > 0">
+            and c.company_id in
+            <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                #{companyId}
+            </foreach>
+            </if>
+            <if test="searchDate != null">
+                and l.created_date <![CDATA[<=]]> #{searchDate}
+            </if>
+        group by e.bus_type_id,c.company_id
+        order by e.bus_type_id,c.company_id
+    </select>
+
+    <select id="queryList" resultType="com.wntime.fault.vo.InfoFaultTypeVo">
+        select fault_type_id,
+               fault_type_name,
+               fault_type_code
+        from info_fault_type
+        where is_deleted = 0
+          and is_enabled = 1
+    </select>
+    <update id="updateBatch">
+        update info_fault_type
+        <set>
+            <if test="userId != null and userId != 0">
+                modified_by = #{userId},
+            </if>
+            is_deleted = 1
+        </set>
+        <where>
+            <if test="ids != null and ids.size() > 0">
+                and fault_type_id in
+                <foreach collection="ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </update>
+</mapper>

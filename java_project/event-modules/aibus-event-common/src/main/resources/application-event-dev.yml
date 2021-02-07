@@ -1,0 +1,11 @@
+wntime:
+  event:
+    upload:
+      filePath: ${wntime.common.dataPath}/event/file
+      fileUrl: ${server.webUrl}/eventFile
+  thread:
+    pool:
+      corePoolSize: 30
+      maxPoolSize: 1000
+      keepAliveSeconds: 60
+      queueCapacity: 40960

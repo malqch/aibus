@@ -1,0 +1,21 @@
+package com.wntime.ec.module.sys.vo;
+
+import com.wntime.ec.module.sys.entity.InfoLineStation;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import java.util.Date;
+
+@ApiModel(description = "线路车站表查询参数" )
+@Data
+public class InfoLineStationQryReqVo extends InfoLineStation {
+     
+
+
+	/**
+	 * 排序
+	 */
+	@ApiModelProperty(hidden = true, name="orderBy",value="排序",required=false)
+//	private String orderBy = " order by id desc ";
+	private String orderBy = "";
+}

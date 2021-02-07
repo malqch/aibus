@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.ItineraryReceiptDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.customer.entity.ItineraryReceiptEntity" id="itineraryReceiptMap">
+        <result property="itineraryId" column="itinerary_id"/>
+        <result property="planServiceId" column="plan_service_id"/>
+        <result property="itineraryDate" column="itinerary_date"/>
+        <result property="itineraryStatus" column="itinerary_status"/>
+        <result property="isBackup" column="is_backup"/>
+        <result property="reportStatus" column="report_status"/>
+        <result property="reportWay" column="report_way"/>
+        <result property="predictDepartTime" column="predict_depart_time"/>
+        <result property="busId" column="bus_id"/>
+        <result property="busStatus" column="bus_status"/>
+        <result property="driverId" column="driver_id"/>
+        <result property="driverFullName" column="driver_full_name"/>
+        <result property="driverPosition" column="driver_position"/>
+        <result property="driverBodyTemperature" column="driver_body_temperature"/>
+        <result property="driverWearMask" column="driver_wear_mask"/>
+        <result property="driverHandDisinfection" column="driver_hand_disinfection"/>
+        <result property="drivingViolationTotal" column="driving_violation_total"/>
+        <result property="safetyOfficerId" column="safety_officer_id"/>
+        <result property="safetyOfficerFullName" column="safety_officer_full_name"/>
+        <result property="safetyOfficerPosition" column="safety_officer_position"/>
+        <result property="safetyOfficerBodyTemperature" column="safety_officer_body_temperature"/>
+        <result property="safetyOfficerWearMask" column="safety_officer_wear_mask"/>
+        <result property="safetyOfficerHandDisinfectio" column="safety_officer_hand_disinfectio"/>
+        <result property="busDisinfection" column="bus_disinfection"/>
+        <result property="noAuthorizeWarn" column="no_authorize_warn"/>
+        <result property="itineraryStartTime" column="itinerary_start_time"/>
+        <result property="itineraryEndTime" column="itinerary_end_time"/>
+        <result property="itineraryDirection" column="itinerary_direction"/>
+        <result property="takeTotal" column="take_total"/>
+        <result property="loadTotal" column="load_total"/>
+        <result property="nonTotal" column="non_total"/>
+        <result property="leaveTotal" column="leave_total"/>
+        <result property="offBusTotal" column="off_bus_total"/>
+        <result property="bodyTemperatureAbnormalTotal" column="body_temperature_abnormal_total"/>
+        <result property="notWearMaskTotal" column="not_wear_mask_total"/>
+        <result property="notHandDisinfectionTotal" column="not_hand_disinfection_total"/>
+        <result property="studentViolationTotal" column="student_violation_total"/>
+        <result property="studentViolationCount" column="student_violation_count"/>
+        <result property="maxSpeed" column="max_speed"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createDt" column="create_dt"/>
+        <result property="modifyUserId" column="modify_user_id"/>
+        <result property="modifyDt" column="modify_dt"/>
+        <result property="expectedArrivalTime" column="expected_arrival_time"/>
+        <result property="companyLineId" column="company_line_id"/>
+        <result property="busStationId" column="bus_station_id"/>
+        <result property="stationOrder" column="station_order"/>
+    </resultMap>
+
+    <select id="getItineraryPlan" resultMap="itineraryReceiptMap">
+        select pbs.plan_service_id,pbs.bus_id,pbs.driver_id,pbs.safety_officer_id
+            ,bt.people_number as take_total,ls.expected_arrival_time
+        from plan_bus_service pbs
+        join info_company_line cl on pbs.company_line_id = cl.company_line_id
+        join info_line_station ls on ls.company_line_id = cl.company_line_id
+            and ls.station_order = 1 and ls.is_deleted = 0
+        join info_bus b on b.bus_id = pbs.bus_id
+        join info_bus_type bt on bt.bus_type_id = b.bus_type_id
+        where pbs.is_deleted = 0 and cl.is_enabled = 1
+        and cl.is_deleted = 0 and cl.is_enabled = 1
+        and cl.direction = #{direction}
+        <if test="busId != null and busId != 0">
+            and pbs.bus_id = #{busId}
+        </if>
+        and pbs.plan_service_id not in(
+            select ir.plan_service_id from itinerary_receipt ir
+            where ir.itinerary_date = #{itineraryDate} and ir.itinerary_direction = #{direction}
+        )
+    </select>
+
+    <select id="getItineraryByCon" resultMap="itineraryReceiptMap">
+        select ir.bus_id,pbs.company_line_id,ir.itinerary_id,ir.itinerary_date,ir.itinerary_direction
+        ,ir.itinerary_status
+        from itinerary_receipt ir
+        join plan_bus_service pbs on pbs.plan_service_id = ir.plan_service_id
+        where pbs.is_deleted = 0 and pbs.is_enabled = 1
+        <if test="busId != null and busId != 0">
+            and ir.bus_id = #{busId}
+        </if>
+        and ir.itinerary_status in
+        <foreach collection="itineraryStatus" item="status" separator="," open="(" close=")">
+            #{status}
+        </foreach>
+        order by ir.predict_depart_time desc
+    </select>
+
+    <select id="getStationByItinerary" resultMap="itineraryReceiptMap">
+        select ls.bus_station_id,ls.station_order from itinerary_receipt ir
+        join plan_bus_service pbs on pbs.plan_service_id = ir.plan_service_id and pbs.is_deleted = 0
+        join info_line_station ls on ls.company_line_id = pbs.company_line_id and ls.is_deleted = 0
+        where ir.itinerary_id = #{itineraryId}
+        order by ls.station_order desc
+    </select>
+
+
+    <select id="getNextStationGPS" resultType="com.wntime.customer.entity.ItineraryReceiptEntity">
+        select x.itinerary_id
+            , x.bus_station_id as first_station_id, x.bus_station_longitude as first_station_longitude,x.bus_station_latitude as first_station_latitude
+            ,y.bus_station_id, y.bus_station_longitude,y.bus_station_latitude
+        from(
+            select a.itinerary_id,s.bus_station_id,s.bus_station_name,s.bus_station_longitude,s.bus_station_latitude
+            from info_bus_station s
+            join(
+                select ir.itinerary_id, ls.bus_station_id from itinerary_receipt ir
+                join plan_bus_service pbs on ir.plan_service_id = pbs.plan_service_id and pbs.is_deleted = 0
+                join info_line_station ls on ls.company_line_id = pbs.company_line_id and ls.is_deleted = 0 and ls.station_order = 1
+                where ir.itinerary_id = #{itineraryId}
+            ) a on s.bus_station_id = a.bus_station_id
+        ) x
+        left join(
+            select bs.itinerary_id,s.bus_station_id,s.bus_station_name,s.bus_station_longitude,s.bus_station_latitude
+            from log_bus_service bs
+            join info_bus_station s on bs.next_station_id = s.bus_station_id
+            where s.is_deleted = 0 and bs.itinerary_id = #{itineraryId}
+        ) y on x.itinerary_id = y.itinerary_id
+    </select>
+
+    <select id="statReceiptData" resultType="com.wntime.customer.entity.ItineraryReceiptEntity">
+        select ir.itinerary_id,a.driving_violation_total,b.no_authorize_warn,c.load_total
+        ,d.leave_total,e.off_bus_total,f.body_temperature_abnormal_total,g.not_wear_mask_total
+        ,h.not_hand_disinfection_total,i.student_violation_total,j.student_violation_count
+        ,l.student_count
+        from itinerary_receipt ir
+        left join(
+            -- 行车违纪次数
+            select ld.itinerary_id,count(*) as driving_violation_total
+            from log_event_detail ld
+            join info_collect_event ce on ld.collect_event_id = ce.collect_event_id and ce.is_deleted = 0
+            join info_event_type et on et.event_type_id = ce.event_type_id and et.is_deleted = 0
+            where et.event_type_code in('driving_offences','driving_alarm')
+            <if test="itineraryId != null and itineraryId != 0">
+                and ld.itinerary_id = #{itineraryId}
+            </if>
+            group by ld.itinerary_id
+        ) a on a.itinerary_id = ir.itinerary_id
+        left join(
+            -- 未授权告警
+            select ld.itinerary_id,count(*) as no_authorize_warn
+            from log_event_detail ld
+            join info_collect_event ce on ld.collect_event_id = ce.collect_event_id and ce.is_deleted = 0
+            where ce.event_type = 2 and ce.event_detail = 2
+            <if test="itineraryId != null and itineraryId != 0">
+                and ld.itinerary_id = #{itineraryId}
+            </if>
+            group by ld.itinerary_id
+        )b on b.itinerary_id = ir.itinerary_id
+        left join(
+            -- 实载学生人数
+            select x.itinerary_id,count(*) as load_total from(
+                select distinct ld.itinerary_id,ietc1.collect_attach_char
+                from log_event_detail ld
+                join (
+                    --身份证号
+                    select a.* from log_event_attach a
+                    join info_event_target b on a.event_target_id = b.event_target_id
+                    where b.event_target_code = 'id_no'
+                ) ietc1 on ietc1.event_detail_id = ld.event_detail_id
+                join info_people_basic_facts pbf on pbf.id_no = ietc1.collect_attach_char
+                join info_student s on s.basic_id = pbf.id and s.is_deleted = '0'
+                join info_collect_event ce on ld.collect_event_id = ce.collect_event_id and ce.is_deleted = 0
+                where ce.event_type = 2 and ce.event_detail = 1
+                <if test="itineraryId != null and itineraryId != 0">
+                    and ld.itinerary_id = #{itineraryId}
+                </if>
+            ) x group by x.itinerary_id
+        )c on c.itinerary_id = ir.itinerary_id
+        left join(
+            --请假人数
+            select ir.itinerary_id,count(*) as leave_total
+            from student_leave sl
+            join student_line_seat sls on sls.student_id = sl.student_id
+            join info_company_line cl on (cl.company_line_id = sls.up_company_line_id
+                                              or cl.company_line_id = sls.off_company_line_id)
+                                    and cl.is_deleted = 0
+            join plan_bus_service pbs on pbs.company_line_id = cl.company_line_id
+            join itinerary_receipt ir on ir.plan_service_id = pbs.plan_service_id
+                                             and ir.itinerary_direction = sl.time_frame
+                                             and ir.itinerary_date = to_char(sl.leave_date,'yyyyMMdd')
+            <if test="itineraryId != null and itineraryId != 0">
+                where ir.itinerary_id = #{itineraryId}
+            </if>
+            group by ir.itinerary_id
+        )d on d.itinerary_id = ir.itinerary_id
+        left join(
+            /**
+              已下车学生人数
+              （下车人数现在的识别逻辑是：在车辆停车时，车内前摄像头进行人员识别，
+                只要学生站立起来，就认为是下车，此逻辑不严谨，
+                还有司机、安全员的下车是否也会识别，如果不识别，那这里的下车人数和实载人数不一致）
+             */
+            select x.itinerary_id,count(*) as off_bus_total from(
+                select distinct ld.itinerary_id,ietc1.collect_attach_char
+                from log_event_detail ld
+                join (
+                    --身份证号
+                    select a.* from log_event_attach a
+                    join info_event_target b on a.event_target_id = b.event_target_id
+                    where b.event_target_code = 'id_no'
+                ) ietc1 on ietc1.event_detail_id = ld.event_detail_id
+                join info_people_basic_facts pbf on pbf.id_no = ietc1.collect_attach_char
+                join info_student s on s.basic_id = pbf.id and s.is_deleted = '0'
+                join info_collect_event ce on ld.collect_event_id = ce.collect_event_id and ce.is_deleted = 0
+                where ce.event_type = 2 and ce.event_detail = 4
+                <if test="itineraryId != null and itineraryId != 0">
+                    and ld.itinerary_id = #{itineraryId}
+                </if>
+            ) x group by x.itinerary_id
+        )e on e.itinerary_id = ir.itinerary_id
+        left join(
+            -- 体温异常人数
+            select x.itinerary_id,count(*) as body_temperature_abnormal_total from(
+                select distinct ld.itinerary_id,ietc1.collect_attach_value
+                from log_event_detail ld
+                join (
+                    select a.* from log_event_attach a
+                    join info_event_target b on a.event_target_id = b.event_target_id
+                    where b.event_target_code = 'id_no'
+                ) ietc1 on ietc1.event_detail_id = ld.event_detail_id
+                join (
+                    --体温
+                    select a.* from log_event_attach a
+                    join info_event_target b on a.event_target_id = b.event_target_id
+                    where b.event_target_code = 'temperature'
+                ) ietc2 on ietc2.event_detail_id = ld.event_detail_id
+                join info_collect_event ce on ld.collect_event_id = ce.collect_event_id and ce.is_deleted = 0
+                where ce.event_type = 2 and ce.event_detail = 1
+                <if test="itineraryId != null and itineraryId != 0">
+                    and ld.itinerary_id = #{itineraryId}
+                </if>
+                and ietc2.collect_attach_value >= 37.5
+            ) x group by x.itinerary_id
+        )f on f.itinerary_id = ir.itinerary_id
+        left join(
+            -- 未带口罩人数
+            select x.itinerary_id,count(*) as not_wear_mask_total from(
+                select distinct ld.itinerary_id,ietc1.collect_attach_char
+                from log_event_detail ld
+                join (
+                    select a.* from log_event_attach a
+                    join info_event_target b on a.event_target_id = b.event_target_id
+                    where b.event_target_code = 'id_no'
+                ) ietc1 on ietc1.event_detail_id = ld.event_detail_id
+                join (
+                    --是否佩戴口罩
+                    select a.* from log_event_attach a
+                    join info_event_target b on a.event_target_id = b.event_target_id
+                    where b.event_target_code = 'is_face_mask'
+                ) ietc2 on ietc2.event_detail_id = ld.event_detail_id
+                join info_collect_event ce on ld.collect_event_id = ce.collect_event_id and ce.is_deleted = 0
+                where ce.event_type = 2 and ce.event_detail = 1
+                <if test="itineraryId != null and itineraryId != 0">
+                    and ld.itinerary_id = #{itineraryId}
+                </if>
+                and ietc2.collect_attach_char = '0'
+            ) x group by x.itinerary_id
+        )g on g.itinerary_id = ir.itinerary_id
+        left join(
+            -- 未手部消毒人数
+            select x.itinerary_id,count(*) as not_hand_disinfection_total from(
+                select distinct ld.itinerary_id,ietc1.collect_attach_char
+                from log_event_detail ld
+                join (
+                    select a.* from log_event_attach a
+                    join info_event_target b on a.event_target_id = b.event_target_id
+                    where b.event_target_code = 'id_no'
+                ) ietc1 on ietc1.event_detail_id = ld.event_detail_id
+                join (
+                    --是否手部消毒
+                    select a.* from log_event_attach a
+                    join info_event_target b on a.event_target_id = b.event_target_id
+                    where b.event_target_code = 'is_hand_disinfect'
+                ) ietc2 on ietc2.event_detail_id = ld.event_detail_id
+                join info_collect_event ce on ld.collect_event_id = ce.collect_event_id and ce.is_deleted = 0
+                where ce.event_type = 2 and ce.event_detail = 1
+                <if test="itineraryId != null and itineraryId != 0">
+                    and ld.itinerary_id = #{itineraryId}
+                </if>
+                and ietc2.collect_attach_char = '0'
+            ) x group by x.itinerary_id
+        )h on h.itinerary_id = ir.itinerary_id
+        left join(
+            -- 违纪人数
+            select x.itinerary_id,count(*) as student_violation_total from(
+                select distinct ld.itinerary_id,ietc1.collect_attach_char
+                from log_event_detail ld
+                join (
+                    --身份证号
+                    select a.* from log_event_attach a
+                    join info_event_target b on a.event_target_id = b.event_target_id
+                    where b.event_target_code = 'id_no'
+                ) ietc1 on ietc1.event_detail_id = ld.event_detail_id
+                join info_collect_event ce on ld.collect_event_id = ce.collect_event_id and ce.is_deleted = 0
+                join info_event_type et on et.event_type_id = ce.event_type_id and et.is_deleted = 0
+                where et.event_type_code in('student_disciplinary')
+                <if test="itineraryId != null and itineraryId != 0">
+                    and ld.itinerary_id = #{itineraryId}
+                </if>
+            ) x group by x.itinerary_id
+        )i on i.itinerary_id = ir.itinerary_id
+        left join(
+            -- 学生违纪次数
+            select ld.itinerary_id,count(*) as student_violation_count
+            from log_event_detail ld
+            join info_collect_event ce on ld.collect_event_id = ce.collect_event_id and ce.is_deleted = 0
+            join info_event_type et on et.event_type_id = ce.event_type_id and et.is_deleted = 0
+            where et.event_type_code in('student_disciplinary')
+            <if test="itineraryId != null and itineraryId != 0">
+                and ld.itinerary_id = #{itineraryId}
+            </if>
+            group by ld.itinerary_id
+        ) j on j.itinerary_id = ir.itinerary_id
+        left join(
+            select d.itinerary_id,max(bus_speed) as max_speed from log_bus_drive d
+            <if test="itineraryId != null and itineraryId != 0">
+                where d.itinerary_id = #{itineraryId}
+            </if>
+            group by d.itinerary_id
+        )k on k.itinerary_id = ir.itinerary_id
+        left join (
+            select irl.itinerary_id, count(sls.student_id) as student_count
+            from student_line_seat sls
+            join info_company_line cl on (cl.company_line_id = sls.up_company_line_id or cl.company_line_id = sls.off_company_line_id)
+            join plan_bus_service pbs on pbs.company_line_id = cl.company_line_id and pbs.is_deleted = 0
+            join itinerary_receipt irl on irl.plan_service_id = pbs.plan_service_id
+            where irl.itinerary_id = #{itineraryId}
+            group by irl.itinerary_id
+        )l on l.itinerary_id = ir.itinerary_id
+        <choose>
+            <when test="itineraryId != null and itineraryId != 0">
+                where ir.itinerary_id = #{itineraryId}
+            </when>
+            <otherwise>
+                where ir.itinerary_status = '2' and ir.itinerary_end_time is not null
+            </otherwise>
+        </choose>
+
+    </select>
+</mapper>

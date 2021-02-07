@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.officer.dao.DriverDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.modules.officer.entity.DriverEntity" id="driverMap">
+        <result property="id" column="id"/>
+        <result property="basicId" column="basic_id"/>
+        <result property="isPrimary" column="is_primary"/>
+        <result property="drivingLicenseNo" column="driving_license_no"/>
+        <result property="firstIssueDate" column="first_issue_date"/>
+        <result property="drivingLicenseClass" column="driving_license_class"/>
+        <result property="mobileNumber" column="mobile_number"/>
+        <result property="driversLicensePhoto" column="drivers_license_photo"/>
+        <result property="validPeriodStart" column="valid_period_start"/>
+        <result property="validPeriodEnd" column="valid_period_end"/>
+        <result property="noCriminalRecordPhoto" column="no_criminal_record_photo"/>
+        <result property="loginUserId" column="login_user_id"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createDt" column="create_dt"/>
+        <result property="modifyUserId" column="modify_user_id"/>
+        <result property="modifyDt" column="modify_dt"/>
+        <result property="driverName" column="full_name"/>
+    </resultMap>
+
+    <select id="getPrimaryDriverList" resultMap="driverMap">
+        select d.*,pbf.full_name from info_driver d
+        join info_people_basic_facts pbf on pbf.id = d.basic_id
+        where d.is_deleted = '0' and d.is_primary = '1'
+    </select>
+
+    <select id="getDriverByIdNo" resultMap="driverMap">
+        select d.*,pbf.full_name from info_driver d
+        join info_people_basic_facts pbf on pbf.id = d.basic_id
+        where d.is_deleted = '0' and pbf.id_no = #{idNo}
+    </select>
+</mapper>

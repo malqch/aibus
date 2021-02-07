@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.service.dao.InfoConfigParamDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.service.entity.InfoConfigParamEntity" id="infoConfigParamMap">
+        <result property="configParamId" column="config_param_id"/>
+        <result property="paramName" column="param_name"/>
+        <result property="paramCode" column="param_code"/>
+        <result property="paramGroup" column="param_group"/>
+        <result property="paramValue" column="param_value"/>
+        <result property="paramChar" column="param_char"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.service.entity.InfoConfigParamEntity">
+        SELECT a.config_param_id, a.param_name, a.param_code, a.param_group, a.param_value, a.param_char, a.is_enabled, a.created_date, a.modified_date,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_config_param  a
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="paramName != null and paramName != ''">
+            and a.param_name LIKE concat('%', #{paramName}, '%')
+        </if>
+        <if test="paramGroup != null and paramGroup != ''">
+            and a.param_group LIKE concat('%', #{paramGroup}, '%')
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+    <select id="getFaultTypeKnowledge"  resultType="com.wntime.service.entity.InfoConfigParamEntity">
+        select * from info_config_param where is_deleted = 0 and is_enabled = 1
+            and param_group = 'backend_knowledge' and param_code = 'fault_knowledge'
+    </select>
+
+    <select id="getConfigBusMilesList"  resultType="com.wntime.service.entity.InfoConfigParamEntity">
+        select * from info_config_param where is_deleted = 0 and is_enabled = 1
+            and param_group = 'faultBusMileConfig'
+            order by param_value asc
+    </select>
+
+    <select id="queryConfigParamByGroupCode" resultType="com.wntime.service.common.vo.ConfigParamVo">
+        select config_param_id,
+               param_name,
+               param_code,
+               param_group,
+               param_value,
+               param_char
+        from info_config_param
+        where param_group = #{group}
+          and param_code = #{code}
+          and is_deleted = 0
+          and is_enabled = 1
+    </select>
+    <select id="queryConfigParamByGroupValue" resultType="com.wntime.service.common.vo.ConfigParamVo">
+        select config_param_id,
+               param_name,
+               param_code,
+               param_group,
+               param_value,
+               param_char
+        from info_config_param
+        where param_group = #{group}
+          and param_value = #{value}
+          and is_deleted = 0
+          and is_enabled = 1
+    </select>
+    <select id="queryParamsByGroup" resultType="com.wntime.service.common.vo.ConfigParamVo">
+        select config_param_id,
+               param_name,
+               param_code,
+               param_group,
+               param_value,
+               param_char
+        from info_config_param
+        where param_group = #{group}
+          and is_deleted = 0
+          and is_enabled = 1
+        order by param_value desc
+    </select>
+</mapper>

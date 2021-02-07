@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.advert.dao.OrderAdvertiseAttachDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.advert.entity.OrderAdvertiseAttachEntity" id="orderAdvertiseAttachMap">
+        <result property="advertiseAttachId" column="advertise_attach_id"/>
+        <result property="advertiseDeliveryId" column="advertise_delivery_id"/>
+        <result property="advertisePositionId" column="advertise_position_id"/>
+        <result property="showTimes" column="show_times"/>
+        <result property="attachType" column="attach_type"/>
+        <result property="attachLink" column="attach_link"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+
+</mapper>

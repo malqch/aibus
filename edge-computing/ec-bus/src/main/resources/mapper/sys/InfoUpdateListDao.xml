@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wntime.ec.module.sys.dao.InfoUpdateListDao">
+
+	<sql id="selectAllColumn">
+       update_list_id,update_type,update_desc,original_file_name,update_url,is_published, publish_date,is_deleted,created_by, created_date,modified_by, modified_date
+	</sql>
+	
+	<sql id="updateColumn">
+		<set>
+			<if test="updateListId != null "> update_list_id = #{updateListId,jdbcType=BIGINT}, </if>
+			<if test="updateType != null and updateType !='' "> update_type = #{updateType,jdbcType=VARCHAR}, </if>
+			<if test="updateDesc != null and updateDesc !='' "> update_desc = #{updateDesc,jdbcType=VARCHAR}, </if>
+			<if test="originalFileName != null and originalFileName !='' "> original_file_name = #{originalFileName,jdbcType=VARCHAR}, </if>
+			<if test="updateUrl != null and updateUrl !='' "> update_url = #{updateUrl,jdbcType=LONGVARCHAR}, </if>
+			<if test="isPublished != null "> is_published = #{isPublished,jdbcType=SMALLINT}, </if>
+			<if test="publishDate != null "> publish_date = #{publishDate,jdbcType=TIMESTAMP}, </if>
+			<if test="isDeleted != null "> is_deleted = #{isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="createdBy != null "> created_by = #{createdBy,jdbcType=BIGINT}, </if>
+			<if test="createdDate != null "> created_date = #{createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifiedBy != null "> modified_by = #{modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="modifiedDate != null "> modified_date = #{modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumn">
+		SET
+			update_list_id = #{updateListId,jdbcType=BIGINT},
+			update_type = #{updateType,jdbcType=VARCHAR},
+			update_desc = #{updateDesc,jdbcType=VARCHAR},
+			original_file_name = #{originalFileName,jdbcType=VARCHAR},
+			update_url = #{updateUrl,jdbcType=LONGVARCHAR},
+			is_published = #{isPublished,jdbcType=SMALLINT},
+			publish_date = #{publishDate,jdbcType=TIMESTAMP},
+			is_deleted = #{isDeleted,jdbcType=SMALLINT},
+			created_by = #{createdBy,jdbcType=BIGINT},
+			created_date = #{createdDate,jdbcType=TIMESTAMP},
+			modified_by = #{modifiedBy,jdbcType=BIGINT},
+			modified_date = #{modifiedDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="updateColumnEntity">
+		<set>
+			<if test="entity.updateListId != null "> update_list_id = #{entity.updateListId,jdbcType=BIGINT}, </if>
+			<if test="entity.updateType != null and entity.updateType !='' "> update_type = #{entity.updateType,jdbcType=VARCHAR}, </if>
+			<if test="entity.updateDesc != null and entity.updateDesc !='' "> update_desc = #{entity.updateDesc,jdbcType=VARCHAR}, </if>
+			<if test="entity.originalFileName != null and entity.originalFileName !='' "> original_file_name = #{entity.originalFileName,jdbcType=VARCHAR}, </if>
+			<if test="entity.updateUrl != null and entity.updateUrl !='' "> update_url = #{entity.updateUrl,jdbcType=LONGVARCHAR}, </if>
+			<if test="entity.isPublished != null "> is_published = #{entity.isPublished,jdbcType=SMALLINT}, </if>
+			<if test="entity.publishDate != null "> publish_date = #{entity.publishDate,jdbcType=TIMESTAMP}, </if>
+			<if test="entity.isDeleted != null "> is_deleted = #{entity.isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="entity.createdBy != null "> created_by = #{entity.createdBy,jdbcType=BIGINT}, </if>
+			<if test="entity.createdDate != null "> created_date = #{entity.createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="entity.modifiedBy != null "> modified_by = #{entity.modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="entity.modifiedDate != null "> modified_date = #{entity.modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</set>
+	</sql>
+
+	<sql id="updateAllColumnEntity">
+		SET
+			update_list_id = #{entity.updateListId,jdbcType=BIGINT},
+			update_type = #{entity.updateType,jdbcType=VARCHAR},
+			update_desc = #{entity.updateDesc,jdbcType=VARCHAR},
+			original_file_name = #{entity.originalFileName,jdbcType=VARCHAR},
+			update_url = #{entity.updateUrl,jdbcType=LONGVARCHAR},
+			is_published = #{entity.isPublished,jdbcType=SMALLINT},
+			publish_date = #{entity.publishDate,jdbcType=TIMESTAMP},
+			is_deleted = #{entity.isDeleted,jdbcType=SMALLINT},
+			created_by = #{entity.createdBy,jdbcType=BIGINT},
+			created_date = #{entity.createdDate,jdbcType=TIMESTAMP},
+			modified_by = #{entity.modifiedBy,jdbcType=BIGINT},
+			modified_date = #{entity.modifiedDate,jdbcType=TIMESTAMP}
+
+	</sql>
+
+	<sql id="where">
+		<where>
+			<if test="updateListId != null "> 
+ 				AND update_list_id=#{updateListId,jdbcType=BIGINT}  
+			</if> 
+			<if test="updateType != null and updateType !='' "> 
+ 				AND update_type=#{updateType,jdbcType=VARCHAR}  
+			</if> 
+			<if test="updateDesc != null and updateDesc !='' "> 
+ 				AND update_desc=#{updateDesc,jdbcType=VARCHAR}  
+			</if> 
+			<if test="originalFileName != null and originalFileName !='' "> 
+ 				AND original_file_name=#{originalFileName,jdbcType=VARCHAR}  
+			</if> 
+			<if test="updateUrl != null and updateUrl !='' "> 
+ 				AND update_url=#{updateUrl,jdbcType=LONGVARCHAR}  
+			</if> 
+			<if test="isPublished != null "> 
+ 				AND is_published=#{isPublished,jdbcType=SMALLINT}  
+			</if> 
+			<if test="publishDate != null "> 
+ 				AND publish_date =  #{publishDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="publishDateStart != null "> 
+ 				AND publish_date <![CDATA[ >= ]]> #{publishDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="publishDateEnd != null "> 
+ 				AND publish_date <![CDATA[ <= ]]> #{publishDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="isDeleted != null "> 
+ 				AND is_deleted=#{isDeleted,jdbcType=SMALLINT}  
+			</if> 
+			<if test="createdBy != null "> 
+ 				AND created_by=#{createdBy,jdbcType=BIGINT}  
+			</if> 
+			<if test="createdDate != null "> 
+ 				AND created_date =  #{createdDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="createdDateStart != null "> 
+ 				AND created_date <![CDATA[ >= ]]> #{createdDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="createdDateEnd != null "> 
+ 				AND created_date <![CDATA[ <= ]]> #{createdDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedBy != null "> 
+ 				AND modified_by=#{modifiedBy,jdbcType=BIGINT}  
+			</if> 
+			<if test="modifiedDate != null "> 
+ 				AND modified_date =  #{modifiedDate,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedDateStart != null "> 
+ 				AND modified_date <![CDATA[ >= ]]> #{modifiedDateStart,jdbcType=TIMESTAMP}  
+			</if>  
+			<if test="modifiedDateEnd != null "> 
+ 				AND modified_date <![CDATA[ <= ]]> #{modifiedDateEnd,jdbcType=TIMESTAMP}  
+			</if>  
+
+		</where>
+	</sql>
+
+	<sql id="whereParam">
+		<where>
+			<if test="param != null">
+				<if test="param.updateListId != null "> 
+ 					AND update_list_id=#{param.updateListId,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.updateType != null and param.updateType !='' "> 
+ 					and update_type=#{param.updateType,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.updateDesc != null and param.updateDesc !='' "> 
+ 					and update_desc=#{param.updateDesc,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.originalFileName != null and param.originalFileName !='' "> 
+ 					and original_file_name=#{param.originalFileName,jdbcType=VARCHAR}  
+				</if> 
+				<if test="param.updateUrl != null and param.updateUrl !='' "> 
+ 					and update_url=#{param.updateUrl,jdbcType=LONGVARCHAR}  
+				</if> 
+				<if test="param.isPublished != null "> 
+ 					AND is_published=#{param.isPublished,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.publishDate != null "> 
+ 					AND publish_date = #{param.publishDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.publishDateStart != null "> 
+ 					AND publish_date <![CDATA[ >= ]]> #{param.publishDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.publishDateEnd != null "> 
+ 					AND publish_date <![CDATA[ <= ]]> #{param.publishDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.isDeleted != null "> 
+ 					AND is_deleted=#{param.isDeleted,jdbcType=SMALLINT}  
+				</if> 
+				<if test="param.createdBy != null "> 
+ 					AND created_by=#{param.createdBy,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.createdDate != null "> 
+ 					AND created_date = #{param.createdDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.createdDateStart != null "> 
+ 					AND created_date <![CDATA[ >= ]]> #{param.createdDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.createdDateEnd != null "> 
+ 					AND created_date <![CDATA[ <= ]]> #{param.createdDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedBy != null "> 
+ 					AND modified_by=#{param.modifiedBy,jdbcType=BIGINT}  
+				</if> 
+				<if test="param.modifiedDate != null "> 
+ 					AND modified_date = #{param.modifiedDate,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedDateStart != null "> 
+ 					AND modified_date <![CDATA[ >= ]]> #{param.modifiedDateStart,jdbcType=TIMESTAMP}  
+				</if>  
+				<if test="param.modifiedDateEnd != null "> 
+ 					AND modified_date <![CDATA[ <= ]]> #{param.modifiedDateEnd,jdbcType=TIMESTAMP}  
+				</if>  
+
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insert" parameterType="com.wntime.ec.module.sys.entity.InfoUpdateList">
+		INSERT INTO info_update_list
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="updateListId != null "> 
+ 				update_list_id,  
+			</if> 
+			<if test="updateType != null and updateType !='' "> 
+ 				update_type,  
+			</if> 
+			<if test="updateDesc != null and updateDesc !='' "> 
+ 				update_desc,  
+			</if> 
+			<if test="originalFileName != null and originalFileName !='' "> 
+ 				original_file_name,  
+			</if> 
+			<if test="updateUrl != null and updateUrl !='' "> 
+ 				update_url,  
+			</if> 
+			<if test="isPublished != null "> 
+ 				is_published,  
+			</if> 
+			<if test="publishDate != null "> 
+ 				publish_date,  
+			</if> 
+			<if test="isDeleted != null "> 
+ 				is_deleted,  
+			</if> 
+			<if test="createdBy != null "> 
+ 				created_by,  
+			</if> 
+			<if test="createdDate != null "> 
+ 				created_date,  
+			</if> 
+			<if test="modifiedBy != null "> 
+ 				modified_by,  
+			</if> 
+			<if test="modifiedDate != null "> 
+ 				modified_date,  
+			</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="updateListId != null "> #{updateListId,jdbcType=BIGINT}, </if>
+			<if test="updateType != null and updateType !='' "> #{updateType,jdbcType=VARCHAR}, </if>
+			<if test="updateDesc != null and updateDesc !='' "> #{updateDesc,jdbcType=VARCHAR}, </if>
+			<if test="originalFileName != null and originalFileName !='' "> #{originalFileName,jdbcType=VARCHAR}, </if>
+			<if test="updateUrl != null and updateUrl !='' "> #{updateUrl,jdbcType=LONGVARCHAR}, </if>
+			<if test="isPublished != null "> #{isPublished,jdbcType=SMALLINT}, </if>
+			<if test="publishDate != null "> #{publishDate,jdbcType=TIMESTAMP}, </if>
+			<if test="isDeleted != null "> #{isDeleted,jdbcType=SMALLINT}, </if>
+			<if test="createdBy != null "> #{createdBy,jdbcType=BIGINT}, </if>
+			<if test="createdDate != null "> #{createdDate,jdbcType=TIMESTAMP}, </if>
+			<if test="modifiedBy != null "> #{modifiedBy,jdbcType=BIGINT}, </if>
+			<if test="modifiedDate != null "> #{modifiedDate,jdbcType=TIMESTAMP}, </if>
+
+		</trim>
+	</insert>
+
+	<insert id="insertAllColumn" parameterType="com.wntime.ec.module.sys.entity.InfoUpdateList">
+		INSERT INTO info_update_list(
+		update_list_id,update_type,update_desc,original_file_name,update_url,is_published,publish_date,is_deleted,created_by,created_date,modified_by,modified_date
+		) VALUES (
+		#{updateListId,jdbcType=BIGINT},
+		#{updateType,jdbcType=VARCHAR},
+		#{updateDesc,jdbcType=VARCHAR},
+		#{originalFileName,jdbcType=VARCHAR},
+		#{updateUrl,jdbcType=LONGVARCHAR},
+		#{isPublished,jdbcType=SMALLINT},
+		#{publishDate,jdbcType=TIMESTAMP},
+		#{isDeleted,jdbcType=SMALLINT},
+		#{createdBy,jdbcType=BIGINT},
+		#{createdDate,jdbcType=TIMESTAMP},
+		#{modifiedBy,jdbcType=BIGINT},
+		#{modifiedDate,jdbcType=TIMESTAMP}
+
+		)
+	</insert>
+
+	<update id="updateById" parameterType="com.wntime.ec.module.sys.entity.InfoUpdateList">
+        UPDATE info_update_list 
+		<include refid="updateColumn" />
+		where update_list_id = #{updateListId,jdbcType=BIGINT}
+	</update>
+	<update id="updateAllColumnById" parameterType="com.wntime.ec.module.sys.entity.InfoUpdateList">
+		UPDATE info_update_list <include refid="updateAllColumn" />
+		where update_list_id = #{updateListId,jdbcType=BIGINT}
+	</update>
+	<update id="update">
+		UPDATE info_update_list <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumn">
+		UPDATE info_update_list <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateByMap">
+		UPDATE info_update_list <include refid="updateColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<update id="updateAllColumnByMap">
+		UPDATE info_update_list <include refid="updateAllColumnEntity" />
+		<include refid="whereParam" />
+	</update>
+
+	<delete id="deleteById" parameterType="java.lang.Long">
+		DELETE FROM info_update_list  where update_list_id = #{updateListId,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteByIds" parameterType="collection">
+		DELETE FROM info_update_list  WHERE id IN
+		<foreach collection="collection" item="ids" open="("
+			separator="," close=")">
+          <![CDATA[#{ids}]]>
+		</foreach>
+	</delete>
+	<delete id="delete" parameterType="com.wntime.ec.module.sys.vo.InfoUpdateListQryReqVo">
+		DELETE FROM  info_update_list
+		<include refid="where" />
+	</delete>
+	<delete id="deleteByMap" parameterType="map">
+		DELETE FROM info_update_list
+		<include refid="where" />
+	</delete>
+
+	<select id="selectById" resultType="com.wntime.ec.module.sys.vo.InfoUpdateListQryRspVo" parameterType="java.lang.Long">
+		SELECT
+		<include refid="selectAllColumn" />
+		FROM  info_update_list
+		where update_list_id = #{updateListId,jdbcType=BIGINT}
+	</select>
+	
+	<select id="selectOne" resultType="com.wntime.ec.module.sys.vo.InfoUpdateListQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoUpdateListQryReqVo">
+        SELECT
+        <include refid="selectAllColumn" />
+        FROM info_update_list
+        <include refid="where" />
+    </select>
+	
+	<select id="selectByIds" resultType="com.wntime.ec.module.sys.vo.InfoUpdateListQryRspVo" parameterType="collection">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_update_list
+		WHERE id IN
+		<foreach collection="collection" item="ids" open="(" separator="," close=")">
+			<![CDATA[#{ids}]]>
+		</foreach>
+	</select>
+
+	<select id="selectList" resultType="com.wntime.ec.module.sys.vo.InfoUpdateListQryRspVo" parameterType="com.wntime.ec.module.sys.vo.InfoUpdateListQryReqVo">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_update_list
+		<include refid="where" />
+		${orderBy}
+	</select>
+
+	<select id="selectListByMap" resultType="com.wntime.ec.module.sys.vo.InfoUpdateListQryRspVo" parameterType="map">
+		SELECT <include refid="selectAllColumn" />
+		FROM info_update_list
+		<include refid="where" />
+	</select>
+
+    <select id="selectPage" resultType="com.wntime.ec.module.sys.vo.InfoUpdateListQryRspVo">
+        SELECT <include refid="selectAllColumn" />
+        FROM info_update_list
+        <include refid="whereParam" />
+        <if test="param != null">
+        	${param.orderBy}
+        </if>
+    </select>
+	
+</mapper>

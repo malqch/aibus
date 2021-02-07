@@ -1,0 +1,190 @@
+spring:
+  h2:
+    console:
+      enabled: true #开启web console功能
+      settings:
+        web-allow-others: true
+        trace: false
+  datasource:
+    schema: classpath:db/h2/schema.sql #每次启动程序，程序都会运行schema.sql文件，对数据库的数据操作
+    data: classpath:db/h2/data.sql     #每次启动程序，程序都会运行data.sql文件，对数据库的数据操作
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: org.h2.Driver
+      url: jdbc:h2:file:./h2/ec;MODE=MySQL;CACHE_SIZE=40960;QUERY_CACHE_SIZE=30720;QUERY_TIMEOUT=10000;MAX_QUERY_TIMEOUT=10000;DEFAULT_LOCK_TIMEOUT=60000;LOCK_TIMEOUT=60000;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=3;
+      username: ec
+      password: Ec_178
+      initial-size: 4
+      min-idle: 4
+      max-active: 12
+      max-wait: 60000             #获取连接时最大等待时间，单位毫秒。
+      pool-prepared-statements: true    #是否缓存preparedStatement，也就是PSCache。
+      max-pool-prepared-statement-per-connection-size: 20
+      time-between-eviction-runs-millis: 60000        #配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      min-evictable-idle-time-millis: 300000          #连接保持空闲而不被驱逐的最小时间(一个连接在池中最小生存的时间),单位毫秒
+      #max-evictable-idle-time-millis: 900000
+#      remove-abandoned: true               #是否自动回收超时连接
+#      remove-abandoned-timeout: 60        #超时时间(以秒数为单位),连接池为了防止程序从池里取得连接后忘记归还的情况, 而提供了一些参数来设置一个租期, 使用这个可以在一定程度上防止连接泄漏
+#      log-abandoned: true
+      keep-alive: true
+      validation-query: SELECT 1
+      test-on-borrow: false         #是否在获得连接后检测其可用性
+      test-on-return: false         #是否在连接放回连接池后检测其可用性
+      test-while-idle: true        #是否在连接空闲一段时间后检测其可用性
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: druid
+        login-password: Druid_ec
+        allow:
+      filter:
+        stat:
+          enabled: true
+          db-type: h2
+          log-slow-sql: true
+          slow-sql-millis: 50
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+    hikari:
+      jdbc-url:
+
+  resources:
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:D:/data/ec/
+
+  boot:
+    admin:
+      client:
+        url: http://127.0.0.1:7101
+
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+#actuator的配置
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+local:
+  img:
+    employee: /data/ec/img/face
+  updata:
+    ec: /data/ec/updata
+  cache:
+    updata: /data/ec/cache
+    evidence:
+      size: 30                  #单位 MB
+      dir: /data/ec/evidence
+    advertise: /data/ec/advertise
+  shell:
+    sshScript: /data/ec/scripts/sshconnect.sh
+
+ehcache:
+  cache-path: ehcache   #缓存持久化目录，当前工程下
+
+#远程服务IP、端口
+remote:
+  alleyes:
+    protocal: http
+    ip: 192.168.1.102
+    port: 9008
+  server:
+    protocal: http
+    ip: 127.0.0.1
+    port: 5100
+  dsm:
+    protocal: http
+    ip: 123.127.10.151
+    port: 8080
+    username: guotai
+    passwd: 123456
+
+bus:
+  vin: aaa
+  dsm:
+    carid: "018519291009"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#spring:
+#  配置数据源 - postgresql
+#  datasource:
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    druid:
+#      driver-class-name: org.postgresql.Driver
+#      url: jdbc:postgresql://10.10.10.150:5432/gfm
+#      username: postgres
+#      password: wntime
+#      initial-size: 10
+#      max-active: 100
+#      min-idle: 10
+#      max-wait: 60000
+#      pool-prepared-statements: true
+#      max-pool-prepared-statement-per-connection-size: 20
+#      time-between-eviction-runs-millis: 60000
+#      min-evictable-idle-time-millis: 300000
+#      #Oracle需要打开注释
+#      #validation-query: SELECT 1 FROM DUAL
+#      test-while-idle: true
+#      test-on-borrow: false
+#      test-on-return: false
+#      stat-view-servlet:
+#        enabled: true
+#        url-pattern: /druid/*
+#        #login-username: admin
+#        #login-password: admin
+#      filter:
+#        stat:
+#          log-slow-sql: true
+#          slow-sql-millis: 1000
+#          merge-sql: false
+#        wall:
+#          config:
+#            multi-statement-allow: true
+#    hikari:
+#      jdbc-url:
+
+
+
+

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <modules>
+        <module>aibus-common</module>
+        <module>aibus-endpoint</module>
+        <module>../test-modules/aibus-test</module>
+        <module>../manage-modules/aibus-manage-interface</module>
+        <module>../manage-modules/aibus-manage-admin</module>
+        <module>../event-modules/aibus-event-common</module>
+        <module>../event-modules/aibus-event-interface</module>
+        <module>../fault-modules/aibus-fault-common</module>
+        <module>../fault-modules/aibus-fault-interface</module>
+        <module>../maintain-modules/aibus-maintain-common</module>
+        <module>../maintain-modules/aibus-maintain-interface</module>
+        <module>../monitor-modules/aibus-monitor-common</module>
+        <module>../monitor-modules/aibus-monitor-interface</module>
+        <module>../service-modules/aibus-service-customer</module>
+        <module>../service-modules/aibus-service-interface</module>
+        <module>../service-modules/aibus-service-common</module>
+        <module>../officer-modules/aibus-officer-common</module>
+        <module>../officer-modules/aibus-officer-interface</module>
+        <module>../gemfire-modules/aibus-gemfire-common</module>
+    </modules>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.7.RELEASE</version>
+    </parent>
+
+    <groupId>com.wntime</groupId>
+    <artifactId>AIoTBusMS</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>AIoTBusMS</name>
+    <!-- FIXME change it to the project's website -->
+    <url>http://www.example.com</url>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>aliyun</id>
+            <name>aliyun</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+        </repository>
+        <repository>
+            <id>maven-repo</id>
+            <name>maven-repo</name>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+    </repositories>
+</project>

@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.service.dao.InfoBusDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.service.common.entity.InfoBusEntity" id="infoBusMap">
+        <result property="busId" column="bus_id"/>
+        <result property="factoryId" column="factory_id"/>
+        <result property="busTypeId" column="bus_type_id"/>
+        <result property="companyId" column="company_id"/>
+        <result property="schoolId" column="school_id"/>
+        <result property="plateCode" column="plate_code"/>
+        <result property="vinCode" column="vin_code"/>
+        <result property="busCode" column="bus_code"/>
+        <result property="registrationDate" column="registration_date"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+        <result property="busStatus" column="bus_status"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.service.common.entity.InfoBusEntity">
+        SELECT
+            a.bus_id,
+            a.bus_type_id,
+            a.vin_code,
+            a.is_deleted,
+            a.is_enabled,
+            a.created_by,
+            a.created_date,
+            a.modified_by,
+            a.modified_date,
+            a.bus_status,
+            a.run_status,
+            a.plate_code,
+            a.bus_code,
+            a.registration_date,
+            ibt.bus_type_name ,
+            icp.param_name as bus_status_desc,
+            x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_bus a
+        left join info_bus_type ibt on a.bus_type_id = ibt.bus_type_id
+        left join info_config_param icp on a.bus_status = icp.config_param_id
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="vinCode != null and vinCode != ''">
+            and a.vin_code LIKE concat('%', #{vinCode}, '%')
+        </if>
+        <if test="plateCode != null and plateCode != ''">
+            and a.plate_code LIKE concat('%', #{plateCode}, '%')
+        </if>
+        <if test="schoolIdList != null and schoolIdList.size() > 0">
+            and a.school_id in
+            <foreach collection="schoolIdList" item="schoolId" separator="," open="(" close=")">
+                #{schoolId}
+            </foreach>
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+    <select id="getDetailInfoById" parameterType="map" resultType="com.wntime.service.common.entity.InfoBusEntity">
+        SELECT
+        a.bus_id,
+        a.factory_id,
+        a.bus_type_id,
+        a.plate_code,
+        a.bus_code,
+        a.vin_code,
+        a.registration_date,
+        a.is_deleted,
+        a.is_enabled,
+        a.created_by,
+        a.created_date,
+        a.modified_by,
+        a.modified_date,
+        a.bus_status,
+        a.run_status,
+        a.company_id,
+--         ibf.factory_name,
+        ibt.bus_type_name ,
+        icp.param_name as bus_status_desc,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_bus a
+--         left join info_bus_factory ibf on a.factory_id = ibf.factory_id
+        left join info_bus_type ibt on a.bus_type_id = ibt.bus_type_id
+        left join info_config_param icp on a.bus_status = icp.config_param_id
+--         left join order_bus_delivery obd on a.bus_id = obd.bus_id and obd.is_deleted = 0
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="busId != null and busId != 0">
+            and a.bus_id = #{busId}
+        </if>
+    </select>
+
+    <select id="getAllBusByQueryAreaId" resultType="com.wntime.service.common.entity.InfoBusEntity">
+        select b.* from info_bus b
+        left join plan_bus_service s
+        on b.bus_id = s.bus_id
+        and s.is_deleted = 0 and s.is_enabled = 1
+        left join info_company_line i
+        on s.company_line_id = i.company_line_id
+        and i.is_deleted = 0 and i.is_enabled = 1
+        left join info_bus_company c
+        on i.company_id = c.company_id
+        and c.is_deleted = 0 and c.is_enabled = 1
+        left join order_bus_delivery o
+        on b.bus_id = o.bus_id
+        and o.is_deleted = 0
+        where b.is_deleted = 0 and b.is_enabled = 1
+        <if test="companyId != null and companyId != 0">
+            and i.company_id = #{companyId}
+        </if>
+        <if test="vinCode != null and vinCode != ''">
+            and b.vin_code like concat('%', #{vinCode}, '%')
+        </if>
+        <if test="plateCode != null and plateCode != ''">
+            and o.plate_code like concat('%', #{plateCode}, '%')
+        </if>
+        <if test="busCode != null and busCode != ''">
+            and o.bus_code like concat('%', #{busCode}, '%')
+        </if>
+    </select>
+
+    <select id="getAllBusByAreaIdListAndCompanyId" resultType="com.wntime.service.common.entity.InfoBusEntity">
+        select b.* from info_bus b
+        left join plan_bus_service s
+        on b.bus_id = s.bus_id
+        and s.is_deleted = 0 and s.is_enabled = 1
+        left join info_company_line i
+        on s.company_line_id = i.company_line_id
+        and i.is_deleted = 0 and i.is_enabled = 1
+        left join info_bus_company c
+        on i.company_id = c.company_id
+        and c.is_deleted = 0 and c.is_enabled = 1
+        where b.is_deleted = 0 and b.is_enabled = 1
+        <if test="areaIdList != null and areaIdList.size() > 0">
+            and c.area_id in
+            <foreach collection="areaIdList" item="areaId" separator="," open="(" close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="companyIdList != null and companyIdList.size() > 0">
+            and i.company_id in
+            <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                #{companyId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getAllBusByAreaId" resultType="com.wntime.service.common.entity.InfoBusEntity">
+        select b.* from info_bus b
+        left join plan_bus_service s
+            on b.bus_id = s.bus_id
+            and s.is_deleted = 0 and s.is_enabled = 1
+        left join info_company_line i
+            on s.company_line_id = i.company_line_id
+            and i.is_deleted = 0 and i.is_enabled = 1
+        left join info_bus_company c
+            on i.company_id = c.company_id
+            and c.is_deleted = 0 and c.is_enabled = 1
+        where b.is_deleted = 0 and b.is_enabled = 1
+            <if test="areaId != null and areaId != 0">
+                and c.area_id = #{areaId}
+            </if>
+            <if test="companyIdList != null and companyIdList.size() > 0">
+                and i.company_id in
+                <foreach collection="companyIdList" item="companyId" separator="," open="(" close=")">
+                    #{companyId}
+                </foreach>
+            </if>
+    </select>
+
+    <select id="getBusListByCompanyId" resultType="com.wntime.service.common.entity.InfoBusEntity">
+        select DISTINCT ib.* from
+        info_bus ib
+        LEFT JOIN
+        plan_bus_service pbs ON pbs.bus_id = ib.bus_id and pbs.is_deleted = 0 and pbs.is_enabled = 1
+        LEFT JOIN
+        info_company_line icl ON icl.company_line_id = pbs.company_line_id and icl.is_deleted = 0 and icl.is_enabled = 1
+        LEFT JOIN
+        info_bus_company ibc ON ibc.company_id = icl.company_id and ibc.is_deleted = 0 and ibc.is_enabled = 1
+
+        WHERE ib.is_deleted = 0 and ib.is_enabled = 1
+        <if test="companyId != null">
+            and ibc.company_id=#{companyId}
+        </if>
+    </select>
+
+    <select id="getVinListByFaultTypeIdAndCompanyId" resultType="string">
+
+        select ib.vin_code from info_bus ib
+        where ib.is_deleted = 0 and ib.is_enabled = 1
+        and bus_id in
+            (
+            <include refid="com.wntime.common.CommonMapper.selectBusIdByCompany"/>
+            )
+        <if test="faultTypeId != null">
+        left join
+        log_fault_detail lfd on ib.bus_id = lfd.bus_id and lfd.is_enabled = 1
+        where
+         fault_type_id = #{faultTypeId}
+        </if>
+    </select>
+    <select id="queryBusInfoByVinOrPlateCode" resultType="com.wntime.service.common.vo.BusInfoVo">
+        SELECT
+        *
+        FROM
+        (
+        SELECT ROW_NUMBER
+        () OVER ( PARTITION BY b.company_line_name ) rowid,*
+        FROM
+        (
+        SELECT
+        b.bus_id,
+        b.vin_code,
+        ic.company_line_code as company_line_name,
+        ib.company_name,
+        ia.area_name
+        FROM
+        info_bus b
+        INNER JOIN plan_bus_service pb ON b.bus_id = pb.bus_id
+        INNER JOIN info_company_line ic ON ic.company_line_id = pb.company_line_id
+        INNER JOIN info_bus_company ib ON ib.company_id = ic.company_id
+        INNER JOIN info_area ia ON ia.area_id = ib.area_id
+        INNER JOIN info_config_param icp on icp.config_param_id=b.bus_status
+        <where>
+            b.factory_id=#{factoryId}
+            and b.run_status = 1
+            <if test="keyWord!=null and keyWord!=''">
+                <bind name="keyWordLike" value="'%'+keyWord+'%'"/>
+                and
+                (
+                b.vin_code like #{keyWordLike} or
+                b.plate_code like #{keyWordLike}
+                )
+            </if>
+            and b.is_deleted=0 and b.is_enabled=1
+            and pb.is_deleted=0 and pb.is_enabled=1
+            and ic.is_deleted=0 and ic.is_enabled=1
+            and ib.is_deleted=0 and ib.is_enabled=1
+            and ia.is_deleted=0 and ia.is_enabled=1
+            and icp.is_deleted=0 and icp.is_enabled=1
+            and icp.param_code='normal'
+        </where>
+        ) b
+        ) T
+        WHERE
+        T.rowid = 1
+        LIMIT #{size}
+    </select>
+
+    <select id="getVinListByBusStatusAndCompanyId" resultType="string">
+
+        select vin_code from info_bus
+        where is_deleted = 0 and is_enabled = 1
+        <if test="busStatus != null">
+            and bus_status = #{busStatus}
+        </if>
+        <if test="companyId != null">
+        and bus_id in
+        (
+        <include refid="com.wntime.common.CommonMapper.selectBusIdByCompany"/>
+        )
+        </if>
+
+    </select>
+    <select id="getVinListByCompanyId" resultType="string">
+        select DISTINCT b.vin_code
+        from info_bus b
+        left join order_bus_delivery d
+        on b.bus_id = d.bus_id
+        and d.is_deleted = 0
+        left join order_company_delivery o
+        on d.company_delivery_id = o.company_delivery_id
+        and o.is_deleted = 0
+        left join order_bus_company c
+        on o.order_id = c.order_id
+        and c.is_deleted = 0
+        where b.is_deleted = 0 and b.is_enabled = 1
+        <if test="companyId != null">
+            and c.company_id = #{companyId}
+        </if>
+    </select>
+
+    <select id="getPlateCodeListByCompanyId" resultType="string">
+        select DISTINCT d.plate_code
+        from info_bus b
+        left join order_bus_delivery d
+        on b.bus_id = d.bus_id
+        and d.is_deleted = 0
+        left join order_company_delivery o
+        on d.company_delivery_id = o.company_delivery_id
+        and o.is_deleted = 0
+        left join order_bus_company c
+        on o.order_id = c.order_id
+        and c.is_deleted = 0
+        where b.is_deleted = 0 and b.is_enabled = 1
+        and d.plate_code is not null
+        <if test="companyId != null">
+            and c.company_id = #{companyId}
+        </if>
+    </select>
+    <select id="getVinNoDeliveryList" resultType="com.wntime.service.common.entity.InfoBusEntity">
+        select b.* from info_bus b
+        where  b.is_deleted = 0 and b.is_enabled = 1
+        and b.bus_id
+        not in (select d.bus_id from order_bus_delivery d where d.is_deleted = 0 )
+    </select>
+
+
+    <select id="getBusEventStatByAreaId" resultType="com.wntime.service.common.vo.StatisticsResultVo">
+        select  tt.event_type_name as type,
+                (tt.event_type_name || '（次数）') as name,
+                COALESCE(typeT.value,0) as value
+        from info_event_type tt
+        left join
+        (
+            select
+            t.event_type_id,
+            COALESCE(count(e.event_detail_id),0)  as value
+            from log_event_detail e
+                left join info_bus_device d
+                on d.bus_device_id = e.bus_device_id
+                and e.is_enabled = 1
+            left join info_bus i
+                on i.bus_id = d.bus_id
+                and d.is_deleted = 0 and d.is_enabled = 1
+            left join info_event_type t
+                on e.event_type_id = t.event_type_id
+                and t.is_deleted = 0 and t.is_enabled = 1
+            where t.event_type_name in ('可燃物','重点人员','交通违章','卡片冒用')
+                <if test="busIdList != null and busIdList.size() > 0">
+                    and i.bus_id in
+                    <foreach collection="busIdList" item="busId" separator="," open="(" close=")">
+                        #{busId}
+                    </foreach>
+                </if>
+            group by t.event_type_id
+        ) typeT
+        on typeT.event_type_id = tt.event_type_id
+        where tt.event_type_name in ('可燃物','重点人员','交通违章','卡片冒用')
+            and tt.is_deleted = 0 and tt.is_enabled = 1
+    </select>
+
+    <select id="countByBusStatusAndCompanyId" resultType="java.util.LinkedHashMap">
+        select icp.config_param_id as bus_status_id,icp.param_name as bus_status_name,icp.param_code as bus_status_code,
+               icp.param_group,COALESCE(count(ib.bus_id),0) bus_status_count
+        from
+         (
+        select * from info_config_param
+        where is_deleted = 0 and is_enabled = 1
+        and param_group = 'bus_status'
+        ) icp
+        left join
+        info_bus ib on icp.config_param_id = ib.bus_status and ib.is_deleted = 0 and ib.is_enabled = 1
+        and ib.bus_id in
+        (
+        <include refid="com.wntime.common.CommonMapper.selectBusIdByCompany"/>
+        )
+        group by icp.config_param_id,icp.param_name,icp.param_code,icp.param_group
+    </select>
+
+    <select id="countByRunStatusAndCompanyId" resultType="java.util.LinkedHashMap">
+        select CAST(icp.param_value as int8) as run_status_id,icp.param_name as run_status_name,icp.param_code as run_status_code,
+               icp.param_group,COALESCE(count(ibb.bus_id),0) run_status_count
+        from
+            (
+                select * from info_config_param
+                where is_deleted = 0 and is_enabled = 1
+                  and param_group = 'car_status'
+            ) icp
+
+                left join
+            (
+                select ib.* from info_bus ib
+                left join info_config_param bs
+                on ib.bus_status = bs.config_param_id and bs.is_deleted = 0 and bs.is_enabled = 1
+                where ib.is_deleted = 0 and ib.is_enabled = 1 and
+                    bs.param_group = 'bus_status' and bs.param_code = 'normal'
+                    and ib.bus_id in
+                    (
+                        <include refid="com.wntime.common.CommonMapper.selectBusIdByCompany"/>
+                    )
+            ) ibb
+            on icp.param_value = ibb.run_status
+
+        group by icp.config_param_id,icp.param_name,icp.param_group,icp.param_code,icp.param_value
+    </select>
+
+    <select id="getBusCountByCompanyId" resultType="long">
+        select count(*) from info_bus
+        where bus_id
+        in
+        (
+        <include refid="com.wntime.common.CommonMapper.selectBusIdByCompany"/>
+        )
+    </select>
+
+    <select id="getBusStatusList" resultType="com.wntime.service.common.vo.BusStatusVO">
+         select config_param_id as bus_status_id,param_code as bus_status_code,param_name as bus_status_name
+         from info_config_param where is_enabled = 1 and is_deleted = 0 and param_group = 'bus_status'
+    </select>
+
+    <select id="getBusStatusByCode" resultType="com.wntime.service.common.vo.BusStatusVO">
+         select config_param_id as bus_status_id,param_code as bus_status_code,param_name as bus_status_name
+         from info_config_param where is_enabled = 1 and is_deleted = 0 and param_group = 'bus_status'
+         and param_code = #{busStatusCode}
+    </select>
+    <select id="getBusStatusById" resultType="com.wntime.service.common.vo.BusStatusVO">
+         select config_param_id as bus_status_id,param_code as bus_status_code,param_name as bus_status_name
+         from info_config_param where is_enabled = 1 and is_deleted = 0 and param_group = 'bus_status'
+         and config_param_id = #{busStatusId}
+    </select>
+    <update id="changeBusStatus">
+        update info_bus set bus_status = #{busStatusId} where bus_id = #{busId}
+    </update>
+
+    <select id="getMaintainBusListAndCompanyIdAndVin" resultType="com.wntime.service.vo.AfterSalesMaintainBusInfoVO">
+        select ib.bus_id,obd.plate_code,obd.bus_code,ib.vin_code,ib.factory_id,
+        ib.bus_type_id,ibt.bus_type_name,
+        ib.bus_status as bus_status_id,icp.param_code as bus_status_code,icp.param_name as bus_status_name,
+        icl.company_line_code as company_line_name,
+        ibc.company_id,ibc.company_name,ibc.company_address,ibc.company_person,ibc.company_phone,ibc.company_email,
+        bm.maintenance_id,bm.maintenance_desc,bm.created_date as maintenance_time
+
+        from info_bus ib
+        left join info_bus_type ibt
+        on ibt.bus_type_id = ib.bus_type_id and ibt.is_deleted = 0 and ibt.is_enabled = 1
+        left join info_config_param icp
+        on ib.bus_status = icp.config_param_id and icp.is_deleted = 0 and icp.is_enabled = 1
+        left join
+        (
+            select distinct pbs.bus_id, icl.company_line_code
+            from plan_bus_service pbs
+            left join info_company_line icl
+            on pbs.company_line_id = icl.company_line_id
+            and pbs.is_deleted =0 and pbs.is_enabled = 1
+            and icl.is_deleted = 0 and icl.is_enabled = 1
+            where now() between pbs.begin_date and pbs.end_date
+            and icl.company_line_code NOTNULL
+        ) icl
+        on icl.bus_id = ib.bus_id
+        left join order_bus_delivery obd
+        on obd.bus_id = ib.bus_id and obd.is_deleted =0
+        left join order_company_delivery ocd
+        on ocd.company_delivery_id = obd.company_delivery_id and ocd.is_deleted = 0
+        left join order_bus_company obc
+        on obc.order_id = ocd.order_id and obc.is_deleted = 0
+        left join info_bus_company ibc
+        on ibc.company_id = obc.company_id and ibc.is_deleted = 0 and ibc.is_enabled = 1
+
+        left join
+        (
+        SELECT llbm.*
+        FROM
+        (
+        SELECT lbm.maintenance_id,
+        lbm.created_date,
+        lbm.bus_id,
+        lbm.maintenance_desc,
+        ROW_NUMBER() OVER(PARTITION BY lbm.bus_id ORDER BY lbm.created_date DESC) AS ranks
+        FROM log_bus_maintenance lbm
+        ) llbm
+        WHERE llbm.ranks = 1
+        ) bm
+        on bm.bus_id = ib.bus_id
+        where
+        ib.is_deleted = 0 and ib.is_enabled = 1
+        <if test="vin != null and vin != ''">
+            and ib.vin_code = #{vin}
+        </if>
+        <if test="companyId != null">
+            and ibc.company_id = #{companyId}
+        </if>
+        <if test="busStatusId != null">
+            and ib.bus_status = #{busStatusId}
+        </if>
+    </select>
+
+    <select id="getBusListByStatusAndCompanyIdAndVin" resultType="com.wntime.service.vo.AfterSalesBusInfoVO">
+        select ib.bus_id,obd.plate_code,obd.bus_code,ib.vin_code,ib.factory_id,
+        ib.bus_type_id,ibt.bus_type_name,
+        ib.bus_status as bus_status_id,icp.param_code as bus_status_code,icp.param_name as bus_status_name,
+        icl.company_line_id,icl.company_line_name,
+        ibc.company_id,ibc.company_name,ibc.company_address,ibc.company_person,ibc.company_phone,ibc.company_email
+
+        from info_bus ib
+        left join info_bus_type ibt
+        on ibt.bus_type_id = ib.bus_type_id and ibt.is_deleted = 0 and ibt.is_enabled = 1
+        left join info_config_param icp
+        on ib.bus_status = icp.config_param_id and icp.is_deleted = 0 and icp.is_enabled = 1
+        left join (select * from plan_bus_service where now() between begin_date and end_date) pbs
+        on pbs.bus_id = ib.bus_id and pbs.is_deleted =0 and pbs.is_enabled = 1
+        left join info_company_line icl
+        on pbs.company_line_id = icl.company_line_id and icl.is_deleted = 0 and icl.is_enabled = 1
+        left join order_bus_delivery obd
+        on obd.bus_id = ib.bus_id and obd.is_deleted =0
+        left join order_company_delivery ocd
+        on ocd.company_delivery_id = obd.company_delivery_id and ocd.is_deleted = 0
+        left join order_bus_company obc
+        on obc.order_id = ocd.order_id and obc.is_deleted = 0
+        left join info_bus_company ibc
+        on ibc.company_id = obc.company_id and ibc.is_deleted = 0 and ibc.is_enabled = 1
+
+        where
+        ib.is_deleted = 0 and ib.is_enabled = 1
+        <if test="vin != null and vin != ''">
+           and ib.vin_code = #{vin}
+        </if>
+        <if test="busStatusId != null">
+           and ib.bus_status = #{busStatusId}
+        </if>
+        <if test="companyId != null">
+            and ibc.company_id = #{companyId}
+        </if>
+
+    </select>
+
+    <select id="queryBusByVin" resultType="com.wntime.service.vo.BusVo">
+        SELECT
+            ib.bus_id,
+            ib.factory_id,
+            ib.bus_type_id,
+            ib.plate_code,
+            ib.vin_code,
+            ib.bus_status
+        FROM
+            info_bus ib
+        WHERE
+            ib.vin_code = #{vinCode}
+          AND ib.is_deleted = 0
+          AND ib.is_enabled = 1
+    </select>
+    <select id="queryBusLoadCount" resultType="int">
+        SELECT ibt.people_number
+        FROM info_bus ib
+                 INNER JOIN info_bus_type ibt ON ib.bus_type_id = ibt.bus_type_id
+            AND ib.bus_id = #{busId}
+            AND ib.is_deleted = 0
+            AND ib.is_enabled = 1
+            AND ibt.is_deleted = 0
+            AND ibt.is_enabled = 1
+    </select>
+
+    <update id="updateCarStatus">
+        update info_bus set run_status = #{carStatus},modified_date = now() where bus_id = #{busId}
+    </update>
+    <select id="queryCompanyBusStatus" resultType="com.wntime.service.vo.BusStatusCountVo">
+        SELECT COUNT
+                   (ib.bus_id) as statusCount,
+               icp.param_code as busStatus
+        FROM info_bus ib
+                 INNER JOIN info_config_param icp ON ib.bus_status = icp.config_param_id
+            AND ib.is_deleted = 0
+            AND ib.is_enabled = 1
+            AND icp.is_deleted = 0
+            AND icp.is_enabled = 1
+                 INNER JOIN (
+            SELECT obc.company_id,
+                   obd.bus_id
+            FROM order_bus_company obc
+                     INNER JOIN order_company_delivery ocd ON obc.order_id = ocd.order_id
+                AND obc.is_deleted = 0
+                AND ocd.is_deleted = 0
+                     INNER JOIN order_bus_delivery obd ON obd.company_delivery_id = ocd.company_delivery_id
+                AND obd.is_deleted = 0
+        ) company_delivery ON ib.bus_id = company_delivery.bus_id
+        WHERE company_delivery.company_id = #{companyId}
+        GROUP BY param_code
+    </select>
+
+    <select id="queryBusStatusAndCompanyId" resultType="com.wntime.service.vo.BusStatusCodeVo">
+        SELECT obc.company_id,
+               icp.param_code,
+               obd.bus_id,
+               ib.run_status
+        FROM order_bus_company obc
+                 INNER JOIN order_company_delivery ocd ON obc.order_id = ocd.order_id
+            AND obc.is_deleted = 0
+            AND ocd.is_deleted = 0
+                 INNER JOIN order_bus_delivery obd ON obd.company_delivery_id = ocd.company_delivery_id
+            AND obd.is_deleted = 0
+            AND obd.bus_id = #{busId}
+                 INNER JOIN info_bus ib ON ib.bus_id = obd.bus_id
+            AND ib.is_deleted = 0
+            AND ib.is_enabled = 1
+                 INNER JOIN info_config_param icp ON icp.config_param_id = ib.bus_status
+    </select>
+    <select id="queryBusIdsByBusTypeId" resultType="long">
+        SELECT
+            ib.bus_id
+        FROM
+            info_bus ib
+        WHERE
+            ib.bus_type_id = #{busTypeId}
+          AND ib.is_deleted = 0
+          AND ib.is_enabled =1
+    </select>
+
+    <select id="isBusPlanned" resultType="boolean">
+        SELECT
+            count(*) > 0
+        FROM
+            plan_bus_service pbs
+        WHERE
+            pbs.is_deleted = 0
+            AND pbs.bus_id = #{busId}
+    </select>
+    <select id="queryBusInfo" resultType="com.wntime.service.vo.BusVo">
+        SELECT ib.bus_id,
+               ib.factory_id,
+               ib.bus_type_id,
+               obd.plate_code,
+               ib.vin_code,
+               ib.bus_status
+        FROM info_bus ib
+                 INNER JOIN order_bus_delivery obd ON ib.bus_id = obd.bus_id
+            AND ib.bus_id = #{busId}
+            AND ib.is_deleted = 0
+            AND ib.is_enabled = 1
+            AND obd.is_deleted = 0
+    </select>
+</mapper>

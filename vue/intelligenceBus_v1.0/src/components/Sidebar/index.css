@@ -1,0 +1,66 @@
+/**
+ * @Author: songwenxin
+ * @Filename: index.css
+ * @ProjectName: gfm-manage
+ * @Mail: songwenxin666@sina.com
+ * @Date: 2019-09-28 23:57
+ */
+.el-aside .el-submenu__title{
+    color:#A7B0C7 !important;
+    height:42px;
+    line-height:42px;
+    padding: 0 42px 0px  20px !important;
+}
+.el-aside .el-menu-item{
+    color:#A7B0C7 !important;
+    height:42px;
+    line-height:42px;
+}
+.el-aside .el-menu-item i{
+    color:#A7B0C7 !important;
+}
+.el-aside .el-submenu__title i{
+    color:#A7B0C7 !important;
+}
+.el-aside .el-menu-item:focus, .el-aside .el-menu-item:hover{
+    background-color:#273968 !important;
+
+    color:#A7B0C7 !important;
+}
+.el-aside .el-menu{
+    background-color:#12203E !important;
+    border:none !important;
+}
+.el-aside .el-submenu .el-menu-item{
+    background-color:#1E2E54 !important;
+    box-sizing: border-box !important;
+    border-left:2px solid #119cff;
+    /*border-right:1px solid #131B31;*/
+
+}
+
+ul li{
+    border:none;
+}
+.el-menu-item-group__title{
+    display: none;
+}
+.el-aside .el-submenu__title:hover{
+    background-color: #1E2E54 !important;
+    color:#119cff !important;
+}
+.el-aside .el-submenu__title .fa:hover{
+    color:#119cff !important;
+}
+.el-aside .el-menu-item .fa{
+    font-size: 18px;
+    margin-right:5px;
+
+}
+.el-aside .el-menu-item-group > ul > .el-menu-item > .fa{
+    font-size:18px;
+}
+.el-aside .el-submenu__title i{
+    font-size: 18px;
+    margin-right: 5px;
+}

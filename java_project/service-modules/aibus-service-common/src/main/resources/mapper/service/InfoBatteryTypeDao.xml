@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.service.dao.InfoBatteryTypeDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.service.entity.InfoBatteryTypeEntity" id="infoBatteryTypeMap">
+        <result property="batteryTypeId" column="battery_type_id"/>
+        <result property="deviceTypeId" column="device_type_id"/>
+        <result property="batteryTypeName" column="battery_type_name"/>
+        <result property="batteryTypeVoltage" column="battery_type_voltage"/>
+        <result property="batteryTypeEnergy" column="battery_type_energy"/>
+        <result property="batteryTypeCurrent" column="battery_type_current"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.service.entity.InfoBatteryTypeEntity">
+        SELECT
+        a.battery_type_id,
+        a.device_type_id,
+        a.battery_type_name,
+        a.battery_type_voltage,
+        a.battery_type_energy,
+        a.battery_type_current,
+        a.is_deleted,
+        a.is_enabled,
+        a.created_by,
+        a.created_date,
+        a.modified_by,
+        a.modified_date,
+        idt.device_type_name,
+        x.user_name create_user_name,y.user_name modified_user_name
+        FROM info_battery_type a
+        left join info_device_type idt on a.device_type_id  = idt.device_type_id
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="batteryTypeName != null and batteryTypeName != ''">
+            and a.battery_type_name LIKE concat('%', #{batteryTypeName}, '%')
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+
+    <select id="queryBusBatteryTypeInfo" resultType="com.wntime.service.vo.BatteryTypeInfoVo">
+        SELECT
+        ibb.bus_id,
+        ibt.battery_type_energy,
+        ibt.battery_type_voltage,
+        ibt.battery_type_current
+        FROM
+        info_bus_battery ibb
+        INNER JOIN info_battery_type ibt ON ibb.battery_type_id = ibt.battery_type_id
+        WHERE
+        ibb.bus_id =#{busId}
+        and ibb.is_deleted = 0
+        and ibb.is_enabled = 1
+        and ibt.is_deleted = 0
+        and ibt.is_enabled = 1
+    </select>
+
+    <select id="queryByCode" resultType="com.wntime.service.common.vo.BusInfoBatteryTypeVo">
+        SELECT
+        ibt.*
+        FROM
+        info_battery_type ibt
+        WHERE
+        ibt.battery_type_name = #{code}
+        and ibt.is_deleted = 0
+        and ibt.is_enabled = 1
+    </select>
+</mapper>

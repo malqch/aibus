@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.event.dao.InfoEventTargetDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.event.entity.InfoEventTargetEntity" id="infoEventTargetMap">
+        <result property="eventTargetId" column="event_target_id"/>
+        <result property="eventTargetName" column="event_target_name"/>
+        <result property="eventTargetGrope" column="event_target_grope"/>
+        <result property="eventTargetCode" column="event_target_code"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+
+    <select id="getTrafficEventTypeList" resultMap="infoEventTargetMap">
+        select
+        i.*
+        from
+        info_collect_event ice
+        left join
+        info_event_type iet on ice.event_type_id = iet.event_type_id and iet.is_deleted = 0 and iet.is_enabled = 1
+        left join
+        info_event_target i on ice.event_target_id = i.event_target_id and i.is_deleted = 0 and i.is_enabled = 1
+        where ice.is_deleted = 0 and ice.is_enabled = 1
+        and iet.event_type_name = '交通违章'
+        order by ice.event_type,ice.event_detail
+    </select>
+
+    <select id="queryList" resultType="com.wntime.event.vo.InfoEventTargetVo">
+        select event_target_id,
+               event_target_name,
+               event_target_grope,
+               event_target_code
+        from info_event_target
+        where is_deleted = 0
+          and is_enabled = 1
+    </select>
+
+    <select id="listWithUser" resultType="com.wntime.event.vo.InfoEventTargetWithUserVo">
+        select a.*,x.user_name as createdUserName,y.user_name as modifiedUserName
+        from info_event_target a
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="eventTargetName != null and eventTargetName != ''">
+            and a.event_target_name LIKE concat('%', #{eventTargetName}, '%')
+        </if>
+
+        <if test="eventTargetGrope != null and eventTargetGrope != ''">
+            and a.event_target_grope LIKE concat('%', #{eventTargetGrope}, '%')
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+</mapper>

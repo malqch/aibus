@@ -1,0 +1,171 @@
+# Tomcat
+server:
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 3000
+    min-spare-threads: 30
+  connection-timeout: 5000ms
+  webUrl: http://210.51.9.174:8080/aibus
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://10.98.110.168:5432/aibus?allowMultiQueries=true
+      username: aibus_admin
+      password: Admin@WNtime.com
+      initial-size: 30
+      max-active: 1000
+      min-idle: 10
+      max-wait: 60000
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      #Oracle需要打开注释
+      #validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      stat-view-servlet:
+        resetEnable: false
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: admin
+        allow: 192.168.30.178
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+      filters: stat
+  data:
+    gemfire:
+      name: aibusGeode
+      cache:
+        copy-on-read: true
+        log-level: warn
+      pool:
+        locators: 10.98.110.167[10334],10.98.110.168[10334]
+        max-connections: -1
+        read-timeout: 60000
+        retry-attempts: 20
+        thread-local-connections: true
+        socket-connect-timeout: 60000
+#        subscription-enabled: true
+#        aibusPool:
+#          locators: 172.16.1.180[10334]
+#      pdx:
+#        persistent: true
+#      management:
+#        http:
+#          host: 172.16.1.180
+#多数据源的配置
+dynamic:
+  datasource:
+    read:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://10.98.110.167:5432/aibus
+      username: aibus_admin
+      password: Admin@WNtime.com
+      initial-size: 30
+      max-active: 1000
+      min-idle: 10
+      max-wait: 60000
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      #Oracle需要打开注释
+      #validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      stat-view-servlet:
+        resetEnable: false
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: admin
+        allow: 192.168.30.178
+      filter:
+        stat:
+          log-slow-sql: false
+          slow-sql-millis: 1000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+      useGlobalDataSourceStat: true
+
+#mybatis
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.wntime.modules.*.entity
+  global-config:
+    #数据库相关配置
+    db-config:
+      #主键类型  AUTO:"数据库ID自增", INPUT:"用户输入ID", ID_WORKER:"全局唯一ID (数字类型唯一ID)", UUID:"全局唯一ID UUID";
+      id-type: ID_WORKER
+      #字段策略 IGNORED:"忽略判断",NOT_NULL:"非 NULL 判断"),NOT_EMPTY:"非空判断"
+      field-strategy: NOT_NULL
+      #驼峰下划线转换
+      column-underline: true
+      logic-delete-value: -1
+      logic-not-delete-value: 0
+    banner: false
+    datacenter-id: 0 #
+    worker-id: 0 #
+  #原生配置
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+
+gfm:
+  redis:
+    open: false
+  shiro:
+    redis: false
+  # APP模块，是通过jwt认证的，如果要使用APP模块，则需要修改【加密秘钥】
+  jwt:
+    # 加密秘钥
+    secret: f4e2e52034348f86b67cde581c0f9eb5
+    # token有效时长，7天，单位秒
+    expire: 604800
+    header: token
+
+
+token:
+  #token过期时间 单位：分钟
+  expire-time: 30
+  #过期前跟新token
+  expire-time-pre: 29
+
+##文件路径配置
+path:
+  # 文件上传地址
+  upload:
+    file: ${wntime.common.dataPath}/upload/files
+    software: ${wntime.common.dataPath}/upload/software
+  requestUpdatePackageUrl: getUpdatePackage
+  updatePackage: ${wntime.common.dataPath}/uploadFile/package
+
+
+wntime:
+  common:
+    dataPath: /data
+
+logging:
+  level:
+    root: info
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %5p --- [%15.15t] %c{1} : %m%n%ex'
+#'%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n'

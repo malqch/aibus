@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.service.dao.LogBusDriveDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.service.common.entity.LogBusDriveEntity" id="logBusDriveMap">
+        <result property="busDriveId" column="bus_drive_id"/>
+        <result property="itineraryId" column="itinerary_id"/>
+        <result property="busSpeed" column="bus_speed"/>
+        <result property="busTotalMile" column="bus_total_mile"/>
+        <result property="busLongitude" column="factory_longitude"/>
+        <result property="busLatitude" column="factory_latitude"/>
+        <result property="busStatus" column="bus_status"/>
+        <result property="busBatteryVoltage" column="bus_battery_voltage"/>
+        <result property="busBatteryEnergy" column="bus_battery_energy"/>
+        <result property="busBatteryCurrent" column="bus_battery_current"/>
+        <result property="busBatteryTemperature" column="bus_battery_temperature"/>
+        <result property="busBatteryStatus" column="bus_battery_status"/>
+        <result property="busMotorStatus" column="bus_motor_status"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdDate" column="created_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.service.common.entity.LogBusDriveEntity">
+        select d.*,
+        b.bus_id,b.vin_code,obd.plate_code,obd.bus_code,
+        p1.param_name as busStatusShow,
+        p2.param_name as busBatteryShow,
+        p3.param_name as busMotorShow
+        from log_bus_drive d
+        left join info_bus b
+            on d.bus_id = b.bus_id
+            and b.is_deleted = 0 and b.is_enabled = 1
+        left join info_config_param p1
+            on d.bus_status = p1.config_param_id
+            and p1.is_deleted = 0 and p1.is_enabled = 1
+        left join info_config_param p2
+            on d.bus_battery_status = p2.config_param_id
+            and p2.is_deleted = 0 and p2.is_enabled = 1
+        left join info_config_param p3
+            on d.bus_motor_status = p3.config_param_id
+            and p3.is_deleted = 0 and p3.is_enabled = 1
+        left join order_bus_delivery obd on b.bus_id = obd.bus_id and obd.is_deleted = 0
+        where d.is_enabled = 1
+        <if test="vinCode != null and vinCode != ''">
+            and b.vin_code LIKE concat('%', #{vinCode}, '%')
+        </if>
+        <if test="plateCode != null and plateCode != ''">
+            and obd.plate_code LIKE concat('%', #{plateCode}, '%')
+        </if>
+        <if test="busTotalMileMin != null and busTotalMileMin != 0">
+            and d.bus_total_mile <![CDATA[>=]]>  #{busTotalMileMin}
+        </if>
+
+        <if test="busTotalMileMax != null and busTotalMileMax != 0">
+            and d.bus_total_mile <![CDATA[<=]]> #{busTotalMileMax}
+        </if>
+
+        <if test="busStatusId != null and busStatusId != 0">
+            and p1.config_param_id = #{busStatusId}
+        </if>
+
+        <if test="batteryStatusId != null and batteryStatusId != 0">
+            and p2.config_param_id = #{batteryStatusId}
+        </if>
+
+        <if test="motorStatusId != null and motorStatusId != 0">
+            and p3.config_param_id = #{motorStatusId}
+        </if>
+
+        <if test="startTime != null">
+            and d.created_date <![CDATA[>=]]> #{startTime}
+        </if>
+
+        <if test="endTime != null">
+            and d.created_date <![CDATA[<=]]> #{endTime}
+        </if>
+        order by d.created_date desc
+
+    </select>
+    <select id="queryFactoryBusTotalMileSum" resultType="double">
+        SELECT SUM
+                   (A.mx)
+        FROM (
+                 SELECT lbd.bus_id,
+                        MAX(lbd.bus_total_mile) AS mx
+                 FROM log_bus_drive lbd
+                          INNER JOIN info_bus ib ON lbd.bus_id = ib.bus_id
+                 WHERE ib.factory_id = #{factoryId}
+                 AND ib.is_enabled = 1
+                 AND ib.is_deleted = 0
+                 GROUP BY lbd.bus_id
+             ) A
+    </select>
+    <select id="queryLogBusDerive" resultType="com.wntime.service.region.BusRealtimeMonitor">
+        SELECT bus_drive_id,
+               bus_id,
+               bus_speed,
+               bus_total_mile,
+               bus_longitude,
+               bus_latitude,
+               cast(icp.param_value as integer)  as bus_status,
+               bus_battery_voltage,
+               bus_battery_energy,
+               bus_battery_current,
+               bus_battery_temperature,
+               cast(icpb.param_value as integer) as bus_battery_status,
+               cast(icpm.param_value as integer) as bus_motor_status,
+               surplus_mile
+        FROM log_bus_drive lbd
+                 inner join info_config_param icpb on icpb.config_param_id = lbd.bus_battery_status
+                 inner join info_config_param icpm on icpm.config_param_id = lbd.bus_motor_status
+                 inner join info_config_param icp on icp.config_param_id = lbd.bus_status
+            AND lbd.bus_id = #{busId}
+            AND lbd.is_enabled = 1
+            AND lbd.created_date &gt; #{localDate}
+            AND lbd.created_date &lt; #{localDate}
+                + INTERVAL '1 day'
+        ORDER BY lbd.created_date desc
+        LIMIT 1
+    </select>
+</mapper>

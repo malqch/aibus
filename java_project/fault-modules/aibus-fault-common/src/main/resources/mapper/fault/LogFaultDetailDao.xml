@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.fault.dao.LogFaultDetailDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.fault.entity.LogFaultDetailEntity" id="logFaultDetailMap">
+        <result property="faultDetailId" column="fault_detail_id"/>
+        <result property="collectFaultId" column="collect_fault_id"/>
+        <result property="busId" column="bus_id"/>
+        <result property="faultTypeId" column="fault_type_id"/>
+        <result property="faultTargetId" column="fault_target_id"/>
+        <result property="faultLevelId" column="fault_level_id"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.fault.entity.LogFaultDetailEntity">
+        SELECT
+        a.*,
+        t.fault_type_name,
+        g.fault_target_name,
+        l.fault_level_name,
+        f.collect_fault,
+        f.collect_code,
+        b.vin_code,
+        obd.plate_code,
+        obd.bus_code
+        FROM log_fault_detail a
+        left join info_fault_type t
+        on a.fault_type_id = t.fault_type_id
+        and t.is_deleted = 0 and t.is_enabled = 1
+        left join info_fault_target g
+        on a.fault_target_id = g.fault_target_id
+        and g.is_deleted = 0 and g.is_enabled = 1
+        left join info_fault_level l
+        on a.fault_level_id = l.fault_level_id
+        and l.is_deleted = 0 and l.is_enabled = 1
+        left join info_collect_fault f
+        on a.collect_fault_id = f.collect_fault_id
+        and f.is_deleted = 0
+        inner join info_bus b
+        on a.bus_id = b.bus_id
+        and b.is_deleted = 0
+        left join order_bus_delivery obd
+        on a.bus_id = obd.bus_id
+        and obd.is_deleted = 0
+        <where>
+            <if test="collectFault != null and collectFault != ''">
+                and f.collect_fault LIKE concat('%', #{collectFault}, '%')
+            </if>
+            <if test="faultTypeId != null and faultTypeId != 0">
+                and a.fault_type_id = #{faultTypeId}
+            </if>
+            <if test="faultTargetId != null and faultTargetId != 0">
+                and a.fault_target_id = #{faultTargetId}
+            </if>
+            <if test="faultLevelId != null and faultLevelId != 0">
+                and a.fault_level_id = #{faultLevelId}
+            </if>
+            <if test="vinCode != null and vinCode != ''">
+                and b.vin_code LIKE concat('%', #{vinCode}, '%')
+            </if>
+            <if test="plateCode != null and plateCode != ''">
+                and obd.plate_code LIKE concat('%', #{plateCode}, '%')
+            </if>
+            <if test="startTime != null">
+                and a.created_date <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                and a.created_date <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+    <select id="getDetailById" resultType="com.wntime.fault.entity.LogFaultDetailEntity">
+        SELECT
+        a.*,
+        t.fault_type_name,
+        g.fault_target_name,
+        l.fault_level_name,
+        f.collect_fault,
+        f.collect_code,
+        b.vin_code
+        FROM log_fault_detail a
+        left join info_fault_type t
+        on a.fault_type_id = t.fault_type_id
+        and t.is_deleted = 0 and t.is_enabled = 1
+        left join info_fault_target g
+        on a.fault_target_id = g.fault_target_id
+        and g.is_deleted = 0 and g.is_enabled = 1
+        left join info_fault_level l
+        on a.fault_level_id = l.fault_level_id
+        and l.is_deleted = 0 and l.is_enabled = 1
+        left join info_collect_fault f
+        on a.collect_fault_id = f.collect_fault_id
+        and f.is_deleted = 0
+        left join info_bus b
+        on a.bus_id = b.bus_id
+        and b.is_deleted = 0
+        <where>
+            <if test="faultDetailId != null and faultDetailId != 0">
+                and a.fault_detail_id = #{faultDetailId}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryFaultCoutGroupCode" resultType="com.wntime.fault.vo.FaultCountVo">
+        SELECT
+            ifl.fault_level_code as code,
+            COUNT ( ifl.fault_level_code ) as count
+        FROM
+            log_fault_detail lfd
+                INNER JOIN info_fault_level ifl ON lfd.fault_level_id = ifl.fault_level_id
+                AND lfd.is_enabled = 1
+                AND ifl.is_deleted = 0
+                AND ifl.is_enabled = 1
+                AND lfd.bus_id = #{busId}
+        GROUP BY
+            ifl.fault_level_code
+    </select>
+    <select id="queryBusFaultList" resultType="com.wntime.fault.vo.FaultInfoItem">
+        SELECT ifs.created_date as faultDate,
+               ift.fault_type_name as type,
+               ifl.fault_level_name as  level,
+               ifs.suggestion_content as desc
+        FROM log_fault_detail lfd
+                 INNER JOIN info_fault_level ifl ON lfd.fault_level_id = ifl.fault_level_id
+            AND ifl.is_deleted = 0
+            AND ifl.is_enabled = 1
+            AND lfd.bus_id = #{busId}
+                 INNER JOIN info_fault_type ift ON ift.fault_type_id = lfd.fault_type_id
+            AND ift.is_deleted = 0
+            AND ift.is_enabled = 1
+                 INNER JOIN info_fault_suggestion ifs ON ifs.fault_target_id = lfd.fault_target_id
+            AND ifs.is_deleted = 0
+            AND ifs.is_enabled = 1
+    </select>
+</mapper>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.customer.dao.LogBusServiceDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.service.common.entity.LogBusServiceEntity" id="logBusServiceMap">
+        <result property="busServiceId" column="bus_service_id"/>
+        <result property="busId" column="bus_id"/>
+        <result property="companyLineId" column="company_line_id"/>
+        <result property="driverCode" column="driver_code"/>
+        <result property="driverImage" column="driver_image"/>
+        <result property="companyLongitude" column="company_longitude"/>
+        <result property="companytLatitude" column="companyt_latitude"/>
+        <result property="busStationId" column="bus_station_id"/>
+        <result property="nextStationId" column="next_station_id"/>
+        <result property="busGetOn" column="bus_get_on"/>
+        <result property="busGetOff" column="bus_get_off"/>
+        <result property="busKeepRide" column="bus_keep_ride"/>
+        <result property="childrenNum" column="children_num"/>
+        <result property="adultNum" column="adult_num"/>
+        <result property="oldMun" column="old_mun"/>
+        <result property="childrenTotal" column="children_total"/>
+        <result property="adultTotal" column="adult_total"/>
+        <result property="oldTotal" column="old_total"/>
+        <result property="maleTotal" column="male_total"/>
+        <result property="femaleTotal" column="female_total"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdDate" column="created_date"/>
+    </resultMap>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.service.common.entity.LogBusServiceEntity">
+        select d.*,
+        b.vin_code,
+        obd.plate_code,
+        l.company_line_name,
+        s.bus_station_name,
+        s1.bus_station_name as nextStationName
+        from log_bus_service d
+        left join info_bus b
+            on d.bus_id = b.bus_id
+            and b.is_deleted = 0 and b.is_enabled = 1
+        left join info_company_line l
+            on d.company_line_id = l.company_line_id
+            and l.is_deleted = 0 and l.is_enabled = 1
+        left join info_bus_station s
+            on d.bus_station_id = s.bus_station_id
+            and s.is_deleted = 0 and s.is_enabled = 1
+        left join info_bus_station s1
+            on d.next_station_id = s1.bus_station_id
+            and s1.is_deleted = 0 and s1.is_enabled = 1
+        left join order_bus_delivery obd on b.bus_id = obd.bus_id and obd.is_deleted = 0
+        <where>
+        <if test="vinCode != null and vinCode != ''">
+            and b.vin_code LIKE concat('%', #{vinCode}, '%')
+        </if>
+        <if test="plateCode != null and plateCode != ''">
+            and obd.plate_code LIKE concat('%', #{plateCode}, '%')
+        </if>
+        <if test="companyLine != null">
+            and  d.company_line_id = #{companyLine}
+        </if>
+
+        <if test="busStation != null">
+            and d.bus_station_id = #{busStation}
+        </if>
+
+        <if test="startTime != null">
+            and d.created_date <![CDATA[>=]]> #{startTime}
+        </if>
+
+        <if test="endTime != null">
+            and d.created_date <![CDATA[<=]]> #{endTime}
+        </if>
+        </where>
+        order by d.created_date desc
+
+    </select>
+
+    <select id="queryByLogByBusIdAndCompanyLineId" resultType="com.wntime.service.common.entity.LogBusServiceEntity">
+        SELECT *
+        FROM log_bus_service
+        WHERE bus_id = #{busId}
+          AND company_line_id = #{companyLineId}
+          AND is_enabled = 1
+          AND created_date &gt; CURRENT_DATE
+          AND created_date &lt; CURRENT_DATE + INTERVAL '1 day'
+        order by created_date desc
+        limit 1
+    </select>
+    <update id="disableLogBusService">
+        UPDATE log_bus_service
+        SET is_enabled = 0
+        WHERE
+            bus_service_id =#{busServiceId}
+    </update>
+    <select id="queryCompanyBusServiceLog" resultType="com.wntime.service.common.vo.CompanyLinePassengerVo">
+        SELECT lbs.bus_get_on,
+               lbs.bus_get_off,
+               icl.company_line_code as company_line_name,
+               bus.people_number
+        FROM log_bus_service lbs
+                 INNER JOIN info_company_line icl ON lbs.company_line_id = icl.company_line_id
+            AND icl.company_id = #{companyId}
+                 INNER JOIN (
+            SELECT ib.bus_id,
+                   ibt.people_number
+            FROM info_bus ib
+                     INNER JOIN info_bus_type ibt ON ib.bus_type_id = ibt.bus_type_id
+            WHERE ib.is_deleted = 0
+              AND ib.is_enabled = 1
+              AND ibt.is_deleted = 0
+              AND ibt.is_enabled = 1
+        ) AS bus ON bus.bus_id = lbs.bus_id
+            AND lbs.is_enabled = 1
+            AND icl.is_deleted = 0
+            AND icl.is_enabled = 1
+            AND lbs.created_date &gt; CURRENT_DATE
+            AND lbs.created_date &lt; CURRENT_DATE + INTERVAL '1 day'
+    </select>
+    <update id="disableLastestBusServiceLog">
+        UPDATE log_bus_service
+        SET is_enabled = 0,
+            next_station_id = #{nextStationId}
+        WHERE bus_service_id = (
+            SELECT bus_service_id
+            FROM log_bus_service
+            WHERE bus_id = #{busId}
+              AND is_enabled = 1
+            ORDER BY created_date
+            LIMIT 1
+        )
+    </update>
+    <select id="queryBusServiceLogByBusIdAndLineStation" resultType="int">
+        select count(bus_service_id)
+        from log_bus_service
+        where bus_id = #{busId}
+          and company_line_id = #{companyLineId}
+          and bus_station_id = #{stationId}
+          and is_enabled = 1
+          AND created_date &gt; CURRENT_DATE
+          AND created_date &lt; CURRENT_DATE + INTERVAL '1 day'
+    </select>
+    <select id="queryBusPassengerCount" resultType="com.wntime.service.common.vo.BusPassengerVo">
+        SELECT bus_get_on,
+               bus_get_off,
+               (SELECT COUNT(bus_get_on)
+                FROM log_bus_service
+                WHERE bus_id = #{busId}
+                  AND created_date &gt;
+                      #{date}
+                  AND created_date
+                    &lt; #{date}
+                          + INTERVAL '1 day') AS total
+        FROM log_bus_service
+        WHERE bus_id = #{busId}
+          AND is_enabled = 1
+          AND created_date &gt; #{date}
+          AND created_date
+            &lt; #{date}
+                  + INTERVAL '1 day'
+        ORDER BY created_date DESC
+        LIMIT 1
+    </select>
+    <select id="queryBusPassengerAge" resultType="com.wntime.service.common.vo.BusPassengerAgeVo">
+        SELECT children_total,
+               adult_total,
+               old_total,
+               male_total,
+               female_total
+        FROM log_bus_service lbs
+        WHERE bus_id = #{busId}
+          AND created_date &gt; #{date}
+          AND created_date &lt; #{date} + INTERVAL '1 day'
+        ORDER BY created_date DESC
+        LIMIT 1
+    </select>
+    <select id="queryBusKeepRide" resultType="Integer">
+        SELECT bus_keep_ride
+        FROM log_bus_service
+        WHERE bus_id = 1324228375409065985
+          AND company_line_id = 1324187856586932226
+          AND created_date &gt; CURRENT_DATE
+          AND created_date &lt; CURRENT_DATE + INTERVAL '1 day'
+        ORDER BY created_date DESC
+        LIMIT 1
+    </select>
+</mapper>

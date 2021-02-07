@@ -1,0 +1,4 @@
+spring:
+  profiles:
+    # 环境 local|dev|test|prod
+    active: local

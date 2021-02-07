@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.fault.dao.InfoFaultLevelDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.wntime.fault.entity.InfoFaultLevelEntity" id="infoFaultLevelMap">
+        <result property="faultLevelId" column="fault_level_id"/>
+        <result property="faultLevelName" column="fault_level_name"/>
+        <result property="faultLevelCode" column="fault_level_code"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="modifiedDate" column="modified_date"/>
+    </resultMap>
+
+    <select id="countBusGroupByFaultLevel" resultType="java.util.LinkedHashMap">
+        select ifl.fault_level_id,ifl.fault_level_name,COALESCE(count(lfd.fault_detail_id),0) fault_level_count
+        from
+        info_fault_level
+        ifl LEFT JOIN
+        log_fault_detail lfd
+        ON ifl.fault_level_id = lfd.fault_level_id and lfd.is_enabled = 1
+        and lfd.bus_id in
+        (
+        <include refid="com.wntime.common.CommonMapper.selectBusIdByCompany"/>
+        )
+        where ifl.is_deleted = 0 and ifl.is_enabled = 1
+        group by ifl.fault_level_id,ifl.fault_level_name
+    </select>
+
+    <select id="queryList" resultType="com.wntime.fault.vo.InfoFaultLevelVo">
+        select fault_level_id,
+               fault_level_name,
+               fault_level_code
+        from info_fault_level
+        where is_deleted = 0
+          and is_enabled = 1
+    </select>
+
+    <select id="queryPageList" parameterType="map" resultType="com.wntime.fault.entity.InfoFaultLevelEntity">
+        SELECT
+        a.*,
+        x.user_name create_user_name,
+        y.user_name modified_user_name
+        FROM info_fault_level a
+        left join admin_user x on a.created_by=x.user_id
+        left join admin_user y on a.modified_by=y.user_id
+        where a.is_deleted = 0
+        <if test="faultLevelName != null and faultLevelName != ''">
+            and a.fault_level_name LIKE concat('%', #{faultLevelName}, '%')
+        </if>
+        ORDER BY a.is_enabled,a.created_date desc
+    </select>
+
+    <update id="updateBatch">
+        update info_fault_level
+        <set>
+            <if test="userId != null and userId != 0">
+                modified_by = #{userId},
+            </if>
+            is_deleted = 1
+        </set>
+        <where>
+            <if test="ids != null and ids.size() > 0">
+                and fault_level_id in
+                <foreach collection="ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </update>
+</mapper>

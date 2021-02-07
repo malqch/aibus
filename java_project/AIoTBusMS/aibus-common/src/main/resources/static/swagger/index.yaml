@@ -1,0 +1,10 @@
+swagger: '2.0'
+info:
+  description: 态势感知后台管理系统后台接口
+  version: 1.0.0
+  title: 态势感知后台管理系统
+
+basePath: /gfm
+
+schemes:
+  - http

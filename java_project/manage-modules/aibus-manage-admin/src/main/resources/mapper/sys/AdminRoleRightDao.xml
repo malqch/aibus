@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.sys.dao.AdminRoleRightDao">
+
+	<select id="queryRightIdList" resultType="long">
+		select right_id from admin_role_right where role_id = #{value} AND is_deleted='0'
+	</select>
+
+	<delete id="deleteBatch">
+		delete from admin_role_right where is_deleted='0' AND role_id in
+		<foreach item="roleId" collection="array" open="(" separator="," close=")">
+			#{roleId}
+		</foreach>
+
+	</delete>
+	<update id="deleteUpdateByRoleId">
+		UPDATE admin_role_right SET is_deleted='1',modify_user_id=#{modifyUserId},modify_dt=#{modifyDt} where role_id in
+		<foreach item="roleId" collection="roleIds" open="(" separator="," close=")">
+			#{roleId}
+		</foreach>
+	</update>
+	<update id="deleteUpdateByRightId">
+		UPDATE admin_role_right SET is_deleted='1',modify_user_id=#{modifyUserId},modify_dt=#{modifyDt} where right_id in
+		<foreach item="rightId" collection="rightIds" open="(" separator="," close=")">
+			#{rightId}
+		</foreach>
+	</update>
+
+
+</mapper>

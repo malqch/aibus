@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wntime.modules.sys.dao.AdminUserDao">
+    <!-- 查询用户的所有权限 -->
+    <select id="queryAllPerms" resultType="string">
+		select m.auth_details from admin_user_role ur
+			LEFT JOIN admin_role_right rm on ur.role_id = rm.role_id
+			LEFT JOIN admin_right m on rm.right_id = m.right_id
+		where ur.user_id = #{userId} AND ur.is_deleted='0'
+	</select>
+
+    <!-- 查询用户的所有菜单ID -->
+    <select id="queryAllMenuId" resultType="long">
+		select distinct rm.right_id from admin_user_role ur
+			LEFT JOIN admin_role_right rm on ur.role_id = rm.role_id
+		where  ur.user_id = #{userId} AND ur.is_deleted='0' AND rm.is_deleted='0'
+		UNION
+	SELECT right_id FROM admin_right WHERE create_user_id=#{userId}
+	</select>
+
+
+    <select id="queryAllPositionId" resultType="long">
+		SELECT  ci.cluster_id FROM admin_user_position up
+        LEFT JOIN "admin_position_auth" pa ON up.position_id=pa.position_id
+        LEFT JOIN gfm_cluster_info ci ON pa.auth_id=ci.cluster_id
+        WHERE (up.user_id=#{createUserId} or pa.position_id=#{positionId}) and ci.status!='5'
+        UNION
+        SELECT cluster_id FROM gfm_cluster_info WHERE create_user_id=#{createUserId} and status!='5'
+	</select>
+
+    <select id="queryByLoginName" resultType="com.wntime.entity.AdminUser">
+		select * from admin_user where login_name = #{loginName} AND is_deleted='0' AND is_enabled='1'
+	</select>
+
+    <!--通过更新字段来删除用户-->
+    <update id="deleteUpdateByUserId">
+        UPDATE admin_user SET is_deleted='1',is_enabled='0',modify_user_id=#{modifyUserId},modify_dt=#{modifyDt}
+        WHERE user_id IN
+        <foreach item="userId" collection="userIds" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </update>
+    <!--多表关联查询，主要是为了获取创建人和修改人的name-->
+    <select id="queryAdminUserList" parameterType="map" resultType="map">
+        SELECT ''||a.user_id as user_id , a.user_name, a.login_name, a."password", a.email, a.mobile, a.is_enabled, a.create_user_id, a.create_dt,a.modify_dt,
+        b.user_name create_user_name,c.user_name modify_user_name,d.role_name
+        FROM admin_user a
+        left join admin_user b on a.create_user_id = b.user_id
+        left join admin_user c on a.modify_user_id = c.user_id
+        left join(
+            select ur.user_id,r.name as role_name from admin_user_role ur
+            join admin_role r on ur.role_id = r.role_id
+            where r.is_deleted = '0'
+            and ur.is_deleted = '0'
+        )d on a.user_id = d.user_id
+        <where>
+            <if test="name != null and name != ''">
+                and a.user_name LIKE concat('%', #{name}, '%')
+            </if>
+            <if test="createUserId!=null">
+                and (a.user_id=#{createUserId} OR a.create_user_id=#{createUserId})
+            </if>
+            <if test="roleName != null">
+                and d.role_name like '%'||#{roleName}||'%'
+            </if>
+            and a.is_deleted='0' and a.is_enabled='1' and a.user_id!=1
+        </where>
+        ORDER BY a.create_dt desc
+    </select>
+    <select id="queryUserIsExist" parameterType="com.wntime.entity.AdminUser"
+            resultType="com.wntime.entity.AdminUser">
+		select *
+		from admin_user
+		WHERE (user_name=#{userName}
+		OR login_name=#{loginName})
+		AND is_deleted='0' AND is_enabled='1'
+	</select>
+
+    <select id="queryUserNameIds" resultType="com.wntime.modules.sys.vo.UserNameAndId">
+        select user_id,user_name from admin_user where is_deleted='0' AND is_enabled='1'
+    </select>
+
+    <select id="queryUserById" resultType="com.wntime.modules.sys.vo.AdminUserVo">
+        SELECT
+            user_id,
+            user_name,
+            login_name,
+            mobile,
+            email,
+            is_deleted,
+            is_enabled
+        FROM
+            admin_user
+        WHERE
+            user_id = #{userId}
+          AND is_deleted = '0'
+          AND is_enabled = '1'
+    </select>
+</mapper>

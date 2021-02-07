@@ -1,0 +1,185 @@
+spring:
+  h2:
+    console:
+      enabled: true #开启web console功能
+      settings:
+        web-allow-others: true
+        trace: false
+  datasource:
+    schema: classpath:db/h2/schema.sql #每次启动程序，程序都会运行schema.sql文件，对数据库的数据操作
+    data: classpath:db/h2/data.sql     #每次启动程序，程序都会运行data.sql文件，对数据库的数据操作
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: org.h2.Driver
+      url: jdbc:h2:file:/data/ec/h2/ec;MODE=MySQL;CACHE_SIZE=40960;QUERY_CACHE_SIZE=30720;QUERY_TIMEOUT=60000;MAX_QUERY_TIMEOUT=60000;DEFAULT_LOCK_TIMEOUT=120000;LOCK_TIMEOUT=120000;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=3;
+      username: ec
+      password: Ec_178
+      initial-size: 4
+      min-idle: 4
+      max-active: 12
+      max-wait: 60000
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      #max-evictable-idle-time-millis: 900000
+      #remove-abandoned: true
+      #remove-abandoned-timeout-millis: 600000
+      #log-abandoned: true
+      keep-alive: true
+      validation-query: SELECT 1
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: druid
+        login-password: Druid_ec
+        allow:
+      filter:
+        stat:
+          enabled: true
+          db-type: h2
+          log-slow-sql: true
+          slow-sql-millis: 50
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+    hikari:
+      jdbc-url:
+
+  resources:
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:/data/ec/
+
+  boot:
+    admin:
+      client:
+        url: http://127.0.0.1:7101
+
+#actuator的配置
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+local:
+  img:
+    employee: /data/ec/img/face
+  updata:
+    ec: /data/ec/updata
+    ha: /data/ha/updata
+    mi: /data/mi/updata
+    alleyes: /data/alleyes/updata
+  cache:
+    updata: /data/ec/cache
+    evidence:
+      size: 50                  #单位 MB
+      dir: /data/ec/evidence
+    advertise: /data/ec/advertise
+  shell:
+    sshScript: /data/ec/scripts/sshconnect.sh
+
+ehcache:
+  cache-path: /data/ec/ehcache   #缓存持久化目录
+
+#远程服务IP、端口
+remote:
+  alleyes:
+    protocal: http
+    ip: 192.168.29.128
+    port: 9008
+  server:
+    protocal: http
+    ip: 192.168.30.178
+    port: 5100
+  dsm:
+    protocal: http
+    ip: 123.127.10.151
+    port: 8080
+    username: guotai
+    passwd: 123456
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#spring:
+#  配置数据源 - postgresql
+#  datasource:
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    druid:
+#      driver-class-name: org.postgresql.Driver
+#      url: jdbc:postgresql://10.10.10.150:5432/gfm
+#      username: postgres
+#      password: wntime
+#      initial-size: 10
+#      max-active: 20
+#      min-idle: 10
+#      max-wait: 60000
+#      pool-prepared-statements: true
+#      max-pool-prepared-statement-per-connection-size: 20
+#      time-between-eviction-runs-millis: 60000
+#      min-evictable-idle-time-millis: 300000
+#      #Oracle需要打开注释
+#      #validation-query: SELECT 1 FROM DUAL
+#      test-while-idle: true
+#      test-on-borrow: false
+#      test-on-return: false
+#      stat-view-servlet:
+#        enabled: true
+#        url-pattern: /druid/*
+#        #login-username: admin
+#        #login-password: admin
+#      filter:
+#        stat:
+#          log-slow-sql: true
+#          slow-sql-millis: 1000
+#          merge-sql: false
+#        wall:
+#          config:
+#            multi-statement-allow: true
+#    hikari:
+#      jdbc-url:
+
+
+
+
